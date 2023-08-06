@@ -1,0 +1,4 @@
+add_library(rapidjson INTERFACE)
+target_compile_definitions(rapidjson INTERFACE RAPIDJSON_HAS_STDSTRING)
+target_include_directories(rapidjson SYSTEM INTERFACE include)
+set_target_properties(rapidjson PROPERTIES FOLDER external)
