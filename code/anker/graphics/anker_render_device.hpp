@@ -125,13 +125,6 @@ struct Texture {
 	ComPtr<ID3D11ShaderResourceView> shaderView;
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
 	ComPtr<ID3D11DepthStencilView> depthView;
-
-	// This is the low-level texture loading function. Prefer using AssetCache
-	// for loading textures when possible.
-	//
-	// The RenderDevice's fallback texture is used when the requested texture is
-	// not available.
-	static Error load(std::string_view identifier, DataLoader&, RenderDevice&, Texture& outTexture);
 };
 
 ////////////////////////////////////////////////////////////
@@ -165,13 +158,13 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 	// Buffer
 
-	Buffer createBuffer(const BufferInfo&, std::span<const uint8_t> = {});
+	Status createBuffer(const BufferInfo&, Buffer& outBuffer, std::span<const uint8_t> = {});
 
 	template <typename T>
-	Buffer createBufferFor(BufferInfo info, std::span<const T> init = {})
+	Status createBufferFor(BufferInfo info, Buffer& outBuffer, std::span<const T> init = {})
 	{
 		info.stride = sizeof(T);
-		return createBuffer(info, asBytes(init));
+		return createBuffer(info, outBuffer, asBytes(init));
 	}
 
 	void bindBufferVS(uint32_t slot, const Buffer&);
@@ -183,8 +176,13 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 	// Shaders
 
-	VertexShader loadVertexShader(std::string_view identifier, DataLoader&, std::span<const D3D11_INPUT_ELEMENT_DESC>);
-	PixelShader loadPixelShader(std::string_view identifier, DataLoader&);
+	Status loadVertexShader(std::string_view identifier, std::span<const D3D11_INPUT_ELEMENT_DESC>,
+	                        VertexShader& outVertexShader);
+	Status loadPixelShader(std::string_view identifier, PixelShader& outPixelShader);
+
+	Status createVertexShader(std::string_view identifier, std::span<const uint8_t> binary,
+	                          std::span<const D3D11_INPUT_ELEMENT_DESC>, VertexShader& outVertexShader);
+	Status createPixelShader(std::string_view identifier, std::span<const uint8_t> binary, PixelShader& outPixelShader);
 
 	void bindVertexShader(const VertexShader&);
 	void bindPixelShader(const PixelShader&);
@@ -192,7 +190,9 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 	// Textures
 
-	Error createTexture(const TextureInfo&, Texture& outTexture, std::span<const TextureInit> = {});
+	Status loadTexture(std::string_view identifier, Texture& outTexture);
+
+	Status createTexture(const TextureInfo&, Texture& outTexture, std::span<const TextureInit> = {});
 
 	void bindTexturePS(uint32_t slot, const Texture&, const SamplerDesc& = {});
 	void unbindTexturePS(uint32_t slot);
@@ -243,6 +243,8 @@ class RenderDevice {
 
 	void* mapResource(ID3D11Resource*, uint32_t* outRowPitch = nullptr, uint32_t* outDepthPitch = nullptr);
 	void unmapResource(ID3D11Resource*);
+
+	DataLoader& m_dataLoader;
 
 	ComPtr<ID3D11Device> m_device;
 	ComPtr<ID3D11DeviceContext> m_context;

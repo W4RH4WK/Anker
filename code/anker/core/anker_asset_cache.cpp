@@ -17,7 +17,11 @@ AssetPtr<VertexShader> AssetCache::loadVertexShader(std::string_view identifier,
 AssetPtr<VertexShader> AssetCache::loadVertexShaderUncached(std::string_view identifier,
                                                             std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs)
 {
-	return makeAssetPtr(m_renderDevice.loadVertexShader(identifier, m_loader, shaderInputs));
+	auto vertexShader = makeAssetPtr<VertexShader>();
+	if (not m_renderDevice.loadVertexShader(identifier, shaderInputs, *vertexShader)) {
+		return nullptr;
+	}
+	return vertexShader;
 }
 
 AssetPtr<PixelShader> AssetCache::loadPixelShader(std::string_view identifier)
@@ -30,7 +34,11 @@ AssetPtr<PixelShader> AssetCache::loadPixelShader(std::string_view identifier)
 
 AssetPtr<PixelShader> AssetCache::loadPixelShaderUncached(std::string_view identifier)
 {
-	return makeAssetPtr(m_renderDevice.loadPixelShader(identifier, m_loader));
+	auto pixelShader = makeAssetPtr<PixelShader>();
+	if (not m_renderDevice.loadPixelShader(identifier, *pixelShader)) {
+		return nullptr;
+	}
+	return pixelShader;
 }
 
 AssetPtr<Texture> AssetCache::loadTexture(std::string_view identifier)
@@ -44,9 +52,7 @@ AssetPtr<Texture> AssetCache::loadTexture(std::string_view identifier)
 AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 {
 	auto texture = makeAssetPtr<Texture>();
-	if (auto error = Texture::load(identifier, m_loader, m_renderDevice, *texture)) {
-		ANKER_ERROR("Could not load texture: {} {}", error, identifier);
-	}
+	(void)m_renderDevice.loadTexture(identifier, *texture);
 	return texture;
 }
 

@@ -2,14 +2,15 @@
 
 namespace Anker {
 
-bool DataLoader::load(const fs::path& filepath, ByteBuffer& outBuffer) const
+Status DataLoader::load(const fs::path& filepath, ByteBuffer& outBuffer) const
 {
 	for (auto& source : m_sources) {
 		if (source->load(filepath, outBuffer)) {
-			return true;
+			return OK;
 		}
 	}
-	return false;
+	ANKER_WARN("{}: Missing!", filepath);
+	return ReadError;
 }
 
 bool DataLoader::exists(const fs::path& filepath) const

@@ -14,7 +14,7 @@ class DataLoaderFilesystem : public IDataLoaderSource {
 	DataLoaderFilesystem(DataLoaderFilesystem&&) noexcept = delete;
 	DataLoaderFilesystem& operator=(DataLoaderFilesystem&&) noexcept = delete;
 
-	bool load(const fs::path&, ByteBuffer& outBuffer) const override;
+	Status load(const fs::path&, ByteBuffer& outBuffer) const override;
 	bool exists(const fs::path&) const override;
 	void modifiedFiles(std::insert_iterator<std::unordered_set<fs::path>>) override;
 

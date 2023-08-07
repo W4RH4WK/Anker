@@ -1,17 +1,17 @@
 #pragma once
 
-#include "anker_error.hpp"
+#include "anker_status.hpp"
 #include "anker_io_utils.hpp"
 
 namespace Anker {
 
 namespace fs = std::filesystem;
 
-Error readFile(const fs::path&, ByteBuffer&);
-Error readFile(const fs::path&, std::string&);
+Status readFile(const fs::path&, ByteBuffer&);
+Status readFile(const fs::path&, std::string&);
 
-Error writeFile(const fs::path&, std::span<const uint8_t>);
-Error writeFile(const fs::path&, std::string_view);
+Status writeFile(const fs::path&, std::span<const uint8_t>);
+Status writeFile(const fs::path&, std::string_view);
 
 fs::path stripFileExtensions(const fs::path&);
 std::string stripFileExtensions(const std::string&);

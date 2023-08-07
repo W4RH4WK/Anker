@@ -3,12 +3,14 @@
 namespace Anker {
 
 template <typename Buffer>
-static Error readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
+static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 {
 	ANKER_PROFILE_ZONE_T(filepath.string());
 
 	std::ifstream file(filepath, std::ios::binary);
 	if (!file) {
+		ANKER_ERROR("{}: std::ifstream failed: {}", filepath, //
+		            std::system_error(errno, std::generic_category()).what());
 		return ReadError;
 	}
 
@@ -18,42 +20,48 @@ static Error readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 	file.seekg(0, std::ios_base::beg);
 	file.read(reinterpret_cast<char*>(outData.data()), outData.size());
 	if (!file) {
+		ANKER_ERROR("{}: std::ifstream::read failed: {}", filepath, //
+		            std::system_error(errno, std::generic_category()).what());
 		return ReadError;
 	}
 
-	return Ok;
+	return OK;
 }
 
-Error readFile(const fs::path& filepath, ByteBuffer& outData)
+Status readFile(const fs::path& filepath, ByteBuffer& outData)
 {
 	return readFileIntoBuffer(filepath, outData);
 }
 
-Error readFile(const fs::path& filepath, std::string& outData)
+Status readFile(const fs::path& filepath, std::string& outData)
 {
 	return readFileIntoBuffer(filepath, outData);
 }
 
-Error writeFile(const fs::path& filepath, std::span<const uint8_t> data)
+Status writeFile(const fs::path& filepath, std::span<const uint8_t> data)
 {
 	return writeFile(filepath, {reinterpret_cast<const char*>(data.data()), data.size()});
 }
 
-Error writeFile(const fs::path& filepath, std::string_view data)
+Status writeFile(const fs::path& filepath, std::string_view data)
 {
 	ANKER_PROFILE_ZONE_T(filepath.string());
 
 	std::ofstream file(filepath, std::ios::binary);
 	if (!file) {
+		ANKER_ERROR("{}: std::ofstream failed: {}", filepath, //
+		            std::system_error(errno, std::generic_category()).what());
 		return WriteError;
 	}
 
 	file.write(data.data(), data.size());
 	if (!file) {
+		ANKER_ERROR("{}: std::ofstream::write failed: {}", filepath, //
+		            std::system_error(errno, std::generic_category()).what());
 		return WriteError;
 	}
 
-	return Ok;
+	return OK;
 }
 
 fs::path stripFileExtensions(const fs::path& filepath)

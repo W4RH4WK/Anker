@@ -12,20 +12,18 @@ DataLoaderFilesystem::DataLoaderFilesystem(const fs::path& root) : m_root(root)
 
 DataLoaderFilesystem::~DataLoaderFilesystem() {}
 
-bool DataLoaderFilesystem::load(const fs::path& filepath, ByteBuffer& outBuffer) const
+Status DataLoaderFilesystem::load(const fs::path& filepath, ByteBuffer& outBuffer) const
 {
-	auto readError = readFile(m_root / filepath, outBuffer);
+	ANKER_TRY(readFile(m_root / filepath, outBuffer));
 
 	// Record modification time for comparison.
-	if (!readError) {
-		std::error_code lastWriteTimeError;
-		auto lastWrite = fs::last_write_time(m_root / filepath, lastWriteTimeError);
-		if (!lastWriteTimeError) {
-			m_lastWriteTimestamps[filepath] = lastWrite;
-		}
+	std::error_code lastWriteTimeError;
+	auto lastWrite = fs::last_write_time(m_root / filepath, lastWriteTimeError);
+	if (!lastWriteTimeError) {
+		m_lastWriteTimestamps[filepath] = lastWrite;
 	}
 
-	return !readError;
+	return OK;
 }
 
 bool DataLoaderFilesystem::exists(const fs::path& filepath) const

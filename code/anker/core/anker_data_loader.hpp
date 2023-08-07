@@ -20,7 +20,7 @@ class DataLoader {
 	DataLoader(DataLoader&&) noexcept = delete;
 	DataLoader& operator=(DataLoader&&) noexcept = delete;
 
-	bool load(const fs::path&, ByteBuffer& outBuffer) const;
+	Status load(const fs::path&, ByteBuffer& outBuffer) const;
 	bool exists(const fs::path&) const;
 
 	void addSource(IDataLoaderSource*);
@@ -42,7 +42,7 @@ class DataLoader {
 
 class IDataLoaderSource {
   public:
-	virtual bool load(const fs::path&, ByteBuffer&) const = 0;
+	virtual Status load(const fs::path&, ByteBuffer&) const = 0;
 	virtual bool exists(const fs::path&) const = 0;
 
 	// Inserts the file paths of files that have been modified since the

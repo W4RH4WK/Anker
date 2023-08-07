@@ -28,12 +28,13 @@ static D3D11_SAMPLER_DESC convertSamplerDesc(const SamplerDesc& desc)
 	};
 }
 
-static Error loadTextureDDS(const std::string& name, std::span<uint8_t> ddsData, RenderDevice& device,
-                            Texture& outTexture)
+static Status loadTextureDDS(const std::string& name, std::span<uint8_t> ddsData, RenderDevice& device,
+                             Texture& outTexture)
 {
 	ddspp::Descriptor ddsDesc;
 	if (ddspp::decode_header(ddsData.data(), ddsDesc) != ddspp::Success) {
-		ANKER_FATAL("Could not load DDS texture");
+		// ANKER_FATAL("Could not load DDS texture");
+		return FormatError;
 	}
 	const uint8_t* ddsDataBody = ddsData.data() + ddsDesc.headerSize;
 
@@ -63,11 +64,13 @@ static Error loadTextureDDS(const std::string& name, std::span<uint8_t> ddsData,
 	return device.createTexture(info, outTexture, inits);
 }
 
-static Error loadTexturePNGorJPG(const std::string& name, std::span<const uint8_t> imageData, RenderDevice& device,
-                                 Texture& outTexture)
+static Status loadTexturePNGorJPG(const std::string& name, std::span<uint8_t> imageData, RenderDevice& device,
+                                  Texture& outTexture)
 {
 	Image image(imageData);
-	ANKER_CHECK(image);
+	if (!image) {
+		return FormatError;
+	}
 
 	std::array inits = {TextureInit{
 	    .data = image.pixels(),
@@ -83,28 +86,7 @@ static Error loadTexturePNGorJPG(const std::string& name, std::span<const uint8_
 	    outTexture, inits);
 }
 
-Error Texture::load(std::string_view identifier_, DataLoader& loader, RenderDevice& device, Texture& outTexture)
-{
-	ANKER_PROFILE_ZONE_T(identifier_);
-
-	auto identifier = std::string{identifier_};
-
-	ByteBuffer textureData;
-
-	if (loader.load(identifier + ".dds", textureData)) {
-		return loadTextureDDS(identifier, textureData, device, outTexture);
-	} else if (loader.load(identifier + ".png", textureData)) {
-		return loadTexturePNGorJPG(identifier, textureData, device, outTexture);
-	} else if (loader.load(identifier + ".jpg", textureData)) {
-		return loadTexturePNGorJPG(identifier, textureData, device, outTexture);
-	} else {
-		ANKER_WARN("Missing texture: {}", identifier);
-		outTexture = device.fallbackTexture();
-		return ReadError;
-	}
-}
-
-RenderDevice::RenderDevice(Window& window, DataLoader& loader)
+RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoader(dataLoader)
 {
 	const D3D_FEATURE_LEVEL levels[] = {
 	    D3D_FEATURE_LEVEL_11_0,
@@ -117,19 +99,19 @@ RenderDevice::RenderDevice(Window& window, DataLoader& loader)
 	HRESULT hresult = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, deviceFlags, levels, ARRAYSIZE(levels),
 	                                    D3D11_SDK_VERSION, &m_device, nullptr, &m_context);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("D3D11CreateDevice failed: {}", win32ErrorMessage(hresult));
 	}
 
 	m_device.As(&m_dxgiDevice);
 
 	hresult = m_dxgiDevice->GetAdapter(&m_dxgiAdapter);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("IDXGIDevice::GetAdapter failed: {}", win32ErrorMessage(hresult));
 	}
 
 	hresult = m_dxgiAdapter->GetParent(IID_PPV_ARGS(&m_dxgiFactory));
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("IDXGIObject::GetParent failed: {}", win32ErrorMessage(hresult));
 	}
 
 	DXGI_SWAP_CHAIN_DESC swapchainDesc{
@@ -147,23 +129,25 @@ RenderDevice::RenderDevice(Window& window, DataLoader& loader)
 
 	hresult = m_dxgiFactory->CreateSwapChain(m_device.Get(), &swapchainDesc, &m_dxgiSwapchain);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("IDXGIFactory::CreateSwapChain failed: {}", win32ErrorMessage(hresult));
 	}
 
 	createMainRenderTarget();
 
 	setRasterizer();
 
-	(void)Texture::load("fallback/fallback_texture", loader, *this, m_fallbackTexture);
+	if (not loadTexture("fallback/fallback_texture", m_fallbackTexture)) {
+		ANKER_WARN("Fallback texture could not be loaded!");
+	}
 }
 
-Buffer RenderDevice::createBuffer(const BufferInfo& info, std::span<const uint8_t> init)
+Status RenderDevice::createBuffer(const BufferInfo& info, Buffer& outBuffer, std::span<const uint8_t> init)
 {
-	Buffer buffer{.info = info};
-	buffer.info.size = std::max(info.size, uint32_t(init.size()));
+	outBuffer.info = info;
+	outBuffer.info.size = std::max(info.size, uint32_t(init.size()));
 
 	D3D11_BUFFER_DESC desc{
-	    .ByteWidth = buffer.info.size,
+	    .ByteWidth = outBuffer.info.size,
 	    .Usage = D3D11_USAGE_DEFAULT,
 	};
 
@@ -188,14 +172,14 @@ Buffer RenderDevice::createBuffer(const BufferInfo& info, std::span<const uint8_
 
 	const D3D11_SUBRESOURCE_DATA dxInit{.pSysMem = init.data()};
 
-	HRESULT hresult = m_device->CreateBuffer(&desc, init.empty() ? nullptr : &dxInit, &buffer.buffer);
+	HRESULT hresult = m_device->CreateBuffer(&desc, init.empty() ? nullptr : &dxInit, &outBuffer.buffer);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_ERROR("{}: CreateBuffer failed: {}", info.name, win32ErrorMessage(hresult));
+		return GraphicsError;
 	}
 
-	buffer.buffer->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(info.name.size()), info.name.data());
-
-	return buffer;
+	outBuffer.buffer->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(info.name.size()), info.name.data());
+	return OK;
 }
 
 void RenderDevice::bindBufferVS(uint32_t slot, const Buffer& buffer)
@@ -218,59 +202,73 @@ void RenderDevice::unmapBuffer(const Buffer& buffer)
 	unmapResource(buffer.buffer.Get());
 }
 
-VertexShader RenderDevice::loadVertexShader(std::string_view identifier, DataLoader& loader,
-                                            std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs)
+Status RenderDevice::loadVertexShader(std::string_view identifier,
+                                      std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs,
+                                      VertexShader& outVertexShader)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
-	ByteBuffer shaderBinary;
-	if (!loader.load(std::string{identifier} + ShaderFileExtension, shaderBinary)) {
-		std::abort();
-	}
+	ByteBuffer binary;
+	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
 
-	VertexShader vertexShader;
-	HRESULT hresult = m_device->CreateVertexShader(shaderBinary.data(), shaderBinary.size(), //
-	                                               nullptr, &vertexShader.shader);
-	if (FAILED(hresult)) {
-		std::abort();
-	}
-
-	vertexShader.inputLayoutDesc.assign(shaderInputs.begin(), shaderInputs.end());
-	if (!shaderInputs.empty()) {
-		hresult = m_device->CreateInputLayout(shaderInputs.data(), UINT(shaderInputs.size()), //
-		                                      shaderBinary.data(), shaderBinary.size(),       //
-		                                      &vertexShader.inputLayout);
-		if (FAILED(hresult)) {
-			std::abort();
-		}
-	} else {
-		vertexShader.inputLayout.Reset();
-	}
-
-	vertexShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
-
-	return vertexShader;
+	return createVertexShader(identifier, binary, shaderInputs, outVertexShader);
 }
 
-PixelShader RenderDevice::loadPixelShader(std::string_view identifier, DataLoader& loader)
+Status RenderDevice::loadPixelShader(std::string_view identifier, PixelShader& outPixelShader)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
-	ByteBuffer shaderBinary;
-	if (!loader.load(std::string{identifier} + ShaderFileExtension, shaderBinary)) {
-		std::abort();
-	}
+	ByteBuffer binary;
+	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
 
-	PixelShader pixelShader;
-	HRESULT hresult = m_device->CreatePixelShader(shaderBinary.data(), shaderBinary.size(), //
-	                                              nullptr, &pixelShader.shader);
+	return createPixelShader(identifier, binary, outPixelShader);
+}
+
+Status RenderDevice::createVertexShader(std::string_view identifier, std::span<const uint8_t> binary,
+                                        std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs,
+                                        VertexShader& outVertexShader)
+{
+	ANKER_PROFILE_ZONE_T(identifier);
+
+	HRESULT hresult = m_device->CreateVertexShader(binary.data(), binary.size(), nullptr, &outVertexShader.shader);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_ERROR("{}: CreateVertexShader failed: {}", identifier, win32ErrorMessage(hresult));
+		return GraphicsError;
 	}
 
-	pixelShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
+	outVertexShader.inputLayoutDesc.assign(shaderInputs.begin(), shaderInputs.end());
+	if (!shaderInputs.empty()) {
+		hresult = m_device->CreateInputLayout(shaderInputs.data(), UINT(shaderInputs.size()), //
+		                                      binary.data(), binary.size(),                   //
+		                                      &outVertexShader.inputLayout);
+		if (FAILED(hresult)) {
+			ANKER_ERROR("{}: CreateInputLayout failed: {}", identifier, win32ErrorMessage(hresult));
+			return GraphicsError;
+		}
+	} else {
+		outVertexShader.inputLayout.Reset();
+	}
 
-	return pixelShader;
+	outVertexShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
+
+	return OK;
+}
+
+Status RenderDevice::createPixelShader(std::string_view identifier, std::span<const uint8_t> binary,
+                                       PixelShader& outPixelShader)
+{
+	ANKER_PROFILE_ZONE_T(identifier);
+
+	HRESULT hresult = m_device->CreatePixelShader(binary.data(), binary.size(), //
+	                                              nullptr, &outPixelShader.shader);
+	if (FAILED(hresult)) {
+		ANKER_ERROR("{}: CreatePixelShader failed: {}", identifier, win32ErrorMessage(hresult));
+		return GraphicsError;
+	}
+
+	outPixelShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
+
+	return OK;
 }
 
 void RenderDevice::bindVertexShader(const VertexShader& vertexShader)
@@ -286,7 +284,36 @@ void RenderDevice::bindPixelShader(const PixelShader& pixelShader)
 	m_context->PSSetShader(pixelShader.shader.Get(), nullptr, 0);
 }
 
-Error RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, std::span<const TextureInit> inits)
+Status RenderDevice::loadTexture(std::string_view identifier_, Texture& outTexture)
+{
+	ANKER_PROFILE_ZONE_T(identifier_);
+
+	auto identifier = std::string{identifier_};
+
+	ByteBuffer textureData;
+
+	if (m_dataLoader.load(identifier + ".dds", textureData)) {
+		if (loadTextureDDS(identifier, textureData, *this, outTexture)) {
+			return OK;
+		}
+	}
+	if (m_dataLoader.load(identifier + ".png", textureData)) {
+		if (loadTexturePNGorJPG(identifier, textureData, *this, outTexture)) {
+			return OK;
+		}
+	}
+	if (m_dataLoader.load(identifier + ".jpg", textureData)) {
+		if (loadTexturePNGorJPG(identifier, textureData, *this, outTexture)) {
+			return OK;
+		}
+	}
+
+	ANKER_ERROR("{}: Missing, using fallback!", identifier);
+	outTexture = fallbackTexture();
+	return ReadError;
+}
+
+Status RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, std::span<const TextureInit> inits)
 {
 	outTexture = {.info = info};
 
@@ -328,7 +355,7 @@ Error RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, 
 
 	HRESULT hresult = m_device->CreateTexture2D(&desc, dxInits.empty() ? nullptr : dxInits.data(), &outTexture.texture);
 	if (FAILED(hresult)) {
-		ANKER_ERROR("CreateTexture2D failed {}", win32ErrorMessage(hresult));
+		ANKER_ERROR("{}: CreateTexture2D failed: {}", info.name, win32ErrorMessage(hresult));
 		return GraphicsError;
 	}
 
@@ -346,7 +373,7 @@ Error RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, 
 
 		hresult = m_device->CreateShaderResourceView(outTexture.texture.Get(), &viewDesc, &outTexture.shaderView);
 		if (FAILED(hresult)) {
-			ANKER_ERROR("CreateShaderResourceView failed {}", win32ErrorMessage(hresult));
+			ANKER_ERROR("{}: CreateShaderResourceView failed: {}", info.name, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	}
@@ -354,7 +381,7 @@ Error RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, 
 	if (desc.BindFlags & D3D11_BIND_RENDER_TARGET) {
 		hresult = m_device->CreateRenderTargetView(outTexture.texture.Get(), nullptr, &outTexture.renderTargetView);
 		if (FAILED(hresult)) {
-			ANKER_ERROR("CreateRenderTargetView failed {}", win32ErrorMessage(hresult));
+			ANKER_ERROR("{}: CreateRenderTargetView failed: {}", info.name, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	}
@@ -365,14 +392,13 @@ Error RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, 
 		};
 		hresult = m_device->CreateDepthStencilView(outTexture.texture.Get(), &viewDesc, &outTexture.depthView);
 		if (FAILED(hresult)) {
-			ANKER_ERROR("CreateDepthStencilView failed {}", win32ErrorMessage(hresult));
+			ANKER_ERROR("{}: CreateDepthStencilView failed: {}", info.name, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	}
 
 	outTexture.texture->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(info.name.size()), info.name.data());
-
-	return Ok;
+	return OK;
 }
 
 void RenderDevice::bindTexturePS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
