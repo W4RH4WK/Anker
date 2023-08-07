@@ -28,32 +28,28 @@ static D3D11_SAMPLER_DESC convertSamplerDesc(const SamplerDesc& desc)
 	};
 }
 
-static Status loadTextureDDS(const std::string& name, std::span<uint8_t> ddsData, RenderDevice& device,
-                             Texture& outTexture)
+static Status createTextureFromDDS(Texture& texture, std::span<uint8_t> ddsData, RenderDevice& device)
 {
 	ddspp::Descriptor ddsDesc;
 	if (ddspp::decode_header(ddsData.data(), ddsDesc) != ddspp::Success) {
-		// ANKER_FATAL("Could not load DDS texture");
+		ANKER_ERROR("{}: Invalid image format", texture.info.name);
 		return FormatError;
 	}
 	const uint8_t* ddsDataBody = ddsData.data() + ddsDesc.headerSize;
 
-	TextureInfo info{
-	    .name = name,
-	    .size = {ddsDesc.width, ddsDesc.height},
-	    .mipLevels = ddsDesc.numMips,
-	    .arraySize = ddsDesc.arraySize,
-	    .format = static_cast<TextureFormat>(ddsDesc.format),
-	};
+	texture.info.size = {ddsDesc.width, ddsDesc.height};
+	texture.info.mipLevels = ddsDesc.numMips;
+	texture.info.arraySize = ddsDesc.arraySize;
+	texture.info.format = static_cast<TextureFormat>(ddsDesc.format);
 
 	if (ddsDesc.type == ddspp::Cubemap) {
-		info.arraySize *= 6;
-		info.flags |= TextureFlag::Cubemap;
+		texture.info.arraySize *= 6;
+		texture.info.flags |= TextureFlag::Cubemap;
 	}
 
 	std::vector<TextureInit> inits;
-	for (auto slice = 0u; slice < info.arraySize; ++slice) {
-		for (auto mip = 0u; mip < info.mipLevels; ++mip) {
+	for (auto slice = 0u; slice < texture.info.arraySize; ++slice) {
+		for (auto mip = 0u; mip < texture.info.mipLevels; ++mip) {
 			inits.push_back({
 			    .data = ddsDataBody + ddspp::get_offset(ddsDesc, mip, slice),
 			    .rowPitch = ddspp::get_row_pitch(ddsDesc, mip),
@@ -61,29 +57,28 @@ static Status loadTextureDDS(const std::string& name, std::span<uint8_t> ddsData
 		}
 	}
 
-	return device.createTexture(info, outTexture, inits);
+	return device.createTexture(texture, inits);
 }
 
-static Status loadTexturePNGorJPG(const std::string& name, std::span<uint8_t> imageData, RenderDevice& device,
-                                  Texture& outTexture)
+static Status createTextureFromPNGorJPG(Texture& texture, std::span<uint8_t> imageData, RenderDevice& device)
 {
 	Image image(imageData);
 	if (!image) {
+		ANKER_ERROR("{}: Invalid image format", texture.info.name);
 		return FormatError;
 	}
 
-	std::array inits = {TextureInit{
-	    .data = image.pixels(),
-	    .rowPitch = uint32_t(image.rowPitch()),
-	}};
+	texture.info.size = {image.width(), image.height()};
+	texture.info.format = TextureFormat::R8G8B8A8_UNORM_SRGB;
 
-	return device.createTexture(
-	    {
-	        .name = name,
-	        .size = {image.width(), image.height()},
-	        .format = TextureFormat::R8G8B8A8_UNORM_SRGB,
+	const std::array inits = {
+	    TextureInit{
+	        .data = image.pixels(),
+	        .rowPitch = uint32_t(image.rowPitch()),
 	    },
-	    outTexture, inits);
+	};
+
+	return device.createTexture(texture, inits);
 }
 
 RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoader(dataLoader)
@@ -141,63 +136,57 @@ RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoade
 	}
 }
 
-Status RenderDevice::createBuffer(const BufferInfo& info, Buffer& outBuffer, std::span<const uint8_t> init)
+Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init)
 {
-	outBuffer.info = info;
-	outBuffer.info.size = std::max(info.size, uint32_t(init.size()));
+	buffer.info.size = std::max(buffer.info.size, uint32_t(init.size()));
 
 	D3D11_BUFFER_DESC desc{
-	    .ByteWidth = outBuffer.info.size,
+	    .ByteWidth = buffer.info.size,
 	    .Usage = D3D11_USAGE_DEFAULT,
 	};
 
-	if (info.bindFlags & BindFlag::ConstantBuffer) {
+	if (buffer.info.bindFlags & GpuBindFlag::ConstantBuffer) {
 		desc.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
 	}
-	if (info.bindFlags & BindFlag::VertexBuffer) {
+	if (buffer.info.bindFlags & GpuBindFlag::VertexBuffer) {
 		desc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
 	}
-	if (info.bindFlags & BindFlag::IndexBuffer) {
+	if (buffer.info.bindFlags & GpuBindFlag::IndexBuffer) {
 		desc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
 	}
 
-	if (info.flags & BufferFlag::CpuWriteable) {
+	if (buffer.info.flags & GpuBufferFlag::CpuWriteable) {
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 	}
-	if (info.flags & BufferFlag::Structured) {
-		desc.StructureByteStride = info.stride;
+	if (buffer.info.flags & GpuBufferFlag::Structured) {
+		desc.StructureByteStride = buffer.info.stride;
 		desc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	}
 
 	const D3D11_SUBRESOURCE_DATA dxInit{.pSysMem = init.data()};
 
-	HRESULT hresult = m_device->CreateBuffer(&desc, init.empty() ? nullptr : &dxInit, &outBuffer.buffer);
+	HRESULT hresult = m_device->CreateBuffer(&desc, init.empty() ? nullptr : &dxInit, &buffer.buffer);
 	if (FAILED(hresult)) {
-		ANKER_ERROR("{}: CreateBuffer failed: {}", info.name, win32ErrorMessage(hresult));
+		ANKER_ERROR("{}: CreateBuffer failed: {}", buffer.info.name, win32ErrorMessage(hresult));
 		return GraphicsError;
 	}
 
-	outBuffer.buffer->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(info.name.size()), info.name.data());
+	buffer.buffer->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(buffer.info.name.size()), buffer.info.name.data());
 	return OK;
 }
 
-void RenderDevice::bindBufferVS(uint32_t slot, const Buffer& buffer)
+void RenderDevice::bindBufferVS(uint32_t slot, const GpuBuffer& buffer)
 {
 	m_context->VSSetConstantBuffers(slot, 1, buffer.buffer.GetAddressOf());
 }
 
-void RenderDevice::bindBufferPS(uint32_t slot, const Buffer& buffer)
+void RenderDevice::bindBufferPS(uint32_t slot, const GpuBuffer& buffer)
 {
 	m_context->PSSetConstantBuffers(slot, 1, buffer.buffer.GetAddressOf());
 }
 
-void* RenderDevice::mapBuffer(const Buffer& buffer)
-{
-	return mapResource(buffer.buffer.Get());
-}
-
-void RenderDevice::unmapBuffer(const Buffer& buffer)
+void RenderDevice::unmapBuffer(const GpuBuffer& buffer)
 {
 	unmapResource(buffer.buffer.Get());
 }
@@ -284,26 +273,27 @@ void RenderDevice::bindPixelShader(const PixelShader& pixelShader)
 	m_context->PSSetShader(pixelShader.shader.Get(), nullptr, 0);
 }
 
-Status RenderDevice::loadTexture(std::string_view identifier_, Texture& outTexture)
+Status RenderDevice::loadTexture(std::string_view identifier, Texture& outTexture)
 {
-	ANKER_PROFILE_ZONE_T(identifier_);
+	ANKER_PROFILE_ZONE_T(identifier);
 
-	auto identifier = std::string{identifier_};
+	outTexture.info.name = identifier;
+
+	auto filepath = std::string(identifier);
 
 	ByteBuffer textureData;
-
-	if (m_dataLoader.load(identifier + ".dds", textureData)) {
-		if (loadTextureDDS(identifier, textureData, *this, outTexture)) {
+	if (m_dataLoader.load(filepath + ".dds", textureData)) {
+		if (createTextureFromDDS(outTexture, textureData, *this)) {
 			return OK;
 		}
 	}
-	if (m_dataLoader.load(identifier + ".png", textureData)) {
-		if (loadTexturePNGorJPG(identifier, textureData, *this, outTexture)) {
+	if (m_dataLoader.load(filepath + ".png", textureData)) {
+		if (createTextureFromPNGorJPG(outTexture, textureData, *this)) {
 			return OK;
 		}
 	}
-	if (m_dataLoader.load(identifier + ".jpg", textureData)) {
-		if (loadTexturePNGorJPG(identifier, textureData, *this, outTexture)) {
+	if (m_dataLoader.load(filepath + ".jpg", textureData)) {
+		if (createTextureFromPNGorJPG(outTexture, textureData, *this)) {
 			return OK;
 		}
 	}
@@ -313,35 +303,33 @@ Status RenderDevice::loadTexture(std::string_view identifier_, Texture& outTextu
 	return ReadError;
 }
 
-Status RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture, std::span<const TextureInit> inits)
+Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit> inits)
 {
-	outTexture = {.info = info};
-
 	D3D11_TEXTURE2D_DESC desc{
-	    .Width = info.size.x,
-	    .Height = info.size.y,
-	    .MipLevels = info.mipLevels,
-	    .ArraySize = info.arraySize,
-	    .Format = static_cast<DXGI_FORMAT>(info.format),
+	    .Width = texture.info.size.x,
+	    .Height = texture.info.size.y,
+	    .MipLevels = texture.info.mipLevels,
+	    .ArraySize = texture.info.arraySize,
+	    .Format = static_cast<DXGI_FORMAT>(texture.info.format),
 	    .SampleDesc = {.Count = 1},
 	    .Usage = D3D11_USAGE_DEFAULT,
 	};
 
-	if (info.bindFlags & BindFlag::Shader) {
+	if (texture.info.bindFlags & GpuBindFlag::Shader) {
 		desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 	}
-	if (info.bindFlags & BindFlag::RenderTarget) {
+	if (texture.info.bindFlags & GpuBindFlag::RenderTarget) {
 		desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 	}
-	if (info.bindFlags & BindFlag::DepthStencil) {
+	if (texture.info.bindFlags & GpuBindFlag::DepthStencil) {
 		desc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
 	}
 
-	if (info.flags & TextureFlag::CpuWriteable) {
+	if (texture.info.flags & TextureFlag::CpuWriteable) {
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 	}
-	if (info.flags & TextureFlag::Cubemap) {
+	if (texture.info.flags & TextureFlag::Cubemap) {
 		desc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 	}
 
@@ -353,9 +341,9 @@ Status RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture,
 		});
 	}
 
-	HRESULT hresult = m_device->CreateTexture2D(&desc, dxInits.empty() ? nullptr : dxInits.data(), &outTexture.texture);
+	HRESULT hresult = m_device->CreateTexture2D(&desc, dxInits.empty() ? nullptr : dxInits.data(), &texture.texture);
 	if (FAILED(hresult)) {
-		ANKER_ERROR("{}: CreateTexture2D failed: {}", info.name, win32ErrorMessage(hresult));
+		ANKER_ERROR("{}: CreateTexture2D failed: {}", texture.info.name, win32ErrorMessage(hresult));
 		return GraphicsError;
 	}
 
@@ -366,22 +354,22 @@ Status RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture,
 		    .Texture2D = {.MipLevels = desc.MipLevels},
 		};
 
-		if (info.flags & TextureFlag::Cubemap) {
+		if (texture.info.flags & TextureFlag::Cubemap) {
 			viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 			viewDesc.TextureCube = {.MipLevels = desc.MipLevels};
 		}
 
-		hresult = m_device->CreateShaderResourceView(outTexture.texture.Get(), &viewDesc, &outTexture.shaderView);
+		hresult = m_device->CreateShaderResourceView(texture.texture.Get(), &viewDesc, &texture.shaderView);
 		if (FAILED(hresult)) {
-			ANKER_ERROR("{}: CreateShaderResourceView failed: {}", info.name, win32ErrorMessage(hresult));
+			ANKER_ERROR("{}: CreateShaderResourceView failed: {}", texture.info.name, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	}
 
 	if (desc.BindFlags & D3D11_BIND_RENDER_TARGET) {
-		hresult = m_device->CreateRenderTargetView(outTexture.texture.Get(), nullptr, &outTexture.renderTargetView);
+		hresult = m_device->CreateRenderTargetView(texture.texture.Get(), nullptr, &texture.renderTargetView);
 		if (FAILED(hresult)) {
-			ANKER_ERROR("{}: CreateRenderTargetView failed: {}", info.name, win32ErrorMessage(hresult));
+			ANKER_ERROR("{}: CreateRenderTargetView failed: {}", texture.info.name, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	}
@@ -390,14 +378,15 @@ Status RenderDevice::createTexture(const TextureInfo& info, Texture& outTexture,
 		const D3D11_DEPTH_STENCIL_VIEW_DESC viewDesc{
 		    .ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D,
 		};
-		hresult = m_device->CreateDepthStencilView(outTexture.texture.Get(), &viewDesc, &outTexture.depthView);
+		hresult = m_device->CreateDepthStencilView(texture.texture.Get(), &viewDesc, &texture.depthView);
 		if (FAILED(hresult)) {
-			ANKER_ERROR("{}: CreateDepthStencilView failed: {}", info.name, win32ErrorMessage(hresult));
+			ANKER_ERROR("{}: CreateDepthStencilView failed: {}", texture.info.name, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	}
 
-	outTexture.texture->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(info.name.size()), info.name.data());
+	texture.texture->SetPrivateData(WKPDID_D3DDebugObjectName, //
+	                                UINT(texture.info.name.size()), texture.info.name.data());
 	return OK;
 }
 
@@ -412,12 +401,6 @@ void RenderDevice::unbindTexturePS(uint32_t slot)
 {
 	ID3D11ShaderResourceView* none = nullptr;
 	m_context->PSSetShaderResources(slot, 1, &none);
-}
-
-std::byte* RenderDevice::mapTexture(const Texture& texture, uint32_t* outRowPitch)
-{
-	ANKER_CHECK(outRowPitch);
-	return static_cast<std::byte*>(mapResource(texture.texture.Get(), outRowPitch));
 }
 
 void RenderDevice::unmapTexture(const Texture& texture)
@@ -445,6 +428,26 @@ void RenderDevice::clearRenderTarget(const Texture& target, const Texture* depth
 	}
 }
 
+void RenderDevice::enableAlphaBlending()
+{
+	if (!m_alphaBlendState) {
+		D3D11_BLEND_DESC blendStateDesc{};
+		blendStateDesc.RenderTarget[0] = {
+		    .BlendEnable = true,
+		    .SrcBlend = D3D11_BLEND_SRC_ALPHA,
+		    .DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
+		    .BlendOp = D3D11_BLEND_OP_ADD,
+		    .SrcBlendAlpha = D3D11_BLEND_ONE,
+		    .DestBlendAlpha = D3D11_BLEND_ZERO,
+		    .BlendOpAlpha = D3D11_BLEND_OP_ADD,
+		    .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+		};
+		m_device->CreateBlendState(&blendStateDesc, &m_alphaBlendState);
+	}
+
+	m_context->OMSetBlendState(m_alphaBlendState.Get(), 0, 0xffffffff);
+}
+
 void RenderDevice::bindRenderTargetPS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
 {
 	auto* samplerState = samplerStateFromDesc(samplerDesc);
@@ -457,7 +460,7 @@ void RenderDevice::draw(uint32_t vertexCount)
 	m_context->Draw(vertexCount, 0);
 }
 
-void RenderDevice::draw(const Buffer& vertexBuffer, uint32_t vertexCount, Topology topology)
+void RenderDevice::draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology topology)
 {
 	UINT offset = 0;
 	m_context->IASetVertexBuffers(0, 1, vertexBuffer.buffer.GetAddressOf(), &vertexBuffer.info.stride, &offset);
@@ -465,7 +468,8 @@ void RenderDevice::draw(const Buffer& vertexBuffer, uint32_t vertexCount, Topolo
 	m_context->Draw(vertexCount, 0);
 }
 
-void RenderDevice::draw(const Buffer& vertexBuffer, const Buffer& indexBuffer, uint32_t indexCount, Topology topology)
+void RenderDevice::draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, uint32_t indexCount,
+                        Topology topology)
 {
 	UINT offset = 0;
 	m_context->IASetVertexBuffers(0, 1, vertexBuffer.buffer.GetAddressOf(), &vertexBuffer.info.stride, &offset);

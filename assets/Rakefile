@@ -1,0 +1,54 @@
+# Rake.application.options.trace_rules = true
+
+TOOLS_DIR = File.join(__dir__, '..', 'tools')
+
+FXC = File.join(TOOLS_DIR, 'fxc.exe')
+TEXCONV = File.join(TOOLS_DIR, 'texconv.exe')
+TEXASSEMBLE = File.join(TOOLS_DIR, 'texassemble.exe')
+
+SHADER_DEBUG = ENV['SHADER_DEBUG'] == '1'
+
+###
+
+VERTEX_SHADERS = FileList[
+  'shaders/basic_2d',
+]
+
+PIXEL_SHADERS = FileList[
+  'shaders/basic_2d',
+]
+
+TEXTURES = FileList[
+  'fallback/fallback_texture.png'
+]
+
+###
+
+VERTEX_SHADERS.each do |shader|
+  file shader.pathmap('%p.vs.fxo') => shader.pathmap('%p.hlsl') do |t|
+    flags = SHADER_DEBUG ? '/Od /Zi /Zss' : '/O3 /Qstrip_debug'
+    sh "#{FXC} /nologo /T vs_5_0 /D IKAROS_VS #{t.source} /Fo #{t.name} #{flags}"
+  end
+end
+task shaders: VERTEX_SHADERS.pathmap('%p.vs.fxo')
+
+PIXEL_SHADERS.each do |shader|
+  file shader.pathmap('%p.ps.fxo') => shader.pathmap('%p.hlsl') do |t|
+    flags = SHADER_DEBUG ? '/Od /Zi /Zss' : '/O3 /Qstrip_debug'
+    sh "#{FXC} /nologo /T ps_5_0 /D IKAROS_PS #{t.source} /Fo #{t.name} #{flags}"
+  end
+end
+task shaders: PIXEL_SHADERS.pathmap('%p.ps.fxo')
+
+TEXTURES.each do |texture|
+  file texture.pathmap('%X.dds') => texture do |t|
+    sh "#{TEXCONV} -nologo -f BC7_UNORM -srgbi -y #{t.source}"
+  end
+end
+task textures: TEXTURES.pathmap('%X.dds')
+
+task default: [:shaders, :textures]
+
+task :watch do
+  sh "rerun --pattern '**/*.{hlsl,png,jpg}' -- rake"
+end

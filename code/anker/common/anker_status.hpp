@@ -12,9 +12,9 @@ namespace Anker {
 // It's recommended to still initialize the output parameter with something
 // sensible, like a fallback asset for example.
 //
-// ErrorCode defines the types of errors that can occur, including the OK to
+// StatusCode defines the types of errors that can occur, including the OK to
 // indicate the absence of an error.
-enum ErrorCode : uint8_t {
+enum StatusCode : uint8_t {
 	OK = 0,
 	UnknownError = 1,
 	NotImplementedError,
@@ -23,7 +23,7 @@ enum ErrorCode : uint8_t {
 	FormatError,
 	GraphicsError,
 };
-constexpr std::array ErrorCodeEntries{
+constexpr std::array StatusCodeEntries{
     std::pair{OK, "OK"},
     std::pair{UnknownError, "UnknownError"},
     std::pair{NotImplementedError, "NotImplementedError"},
@@ -32,9 +32,9 @@ constexpr std::array ErrorCodeEntries{
     std::pair{FormatError, "FormatError"},
     std::pair{GraphicsError, "GraphicsError"},
 };
-ANKER_ENUM_TO_FROM_STRING(ErrorCode)
+ANKER_ENUM_TO_FROM_STRING(StatusCode)
 
-// Status is used as a thin wrapper around ErrorCode. The primary goal here is
+// Status is used as a thin wrapper around StatusCode. The primary goal here is
 // to invert boolean conversion. Status converts to true on success, and false
 // on failure.
 //
@@ -48,24 +48,16 @@ ANKER_ENUM_TO_FROM_STRING(ErrorCode)
 //         handleError(status);
 //     }
 //
-// Example for explicit error handling without using the error:
-//
-//     if (not doSomething()) {
-//         handleError();
-//     }
-//
-// Here, we prefer the `not` keyword to highlight that we are checking for
-// failure -- easier to spot than using `!`. Alternatively, you can use `!= OK`.
 struct [[nodiscard]] Status {
 	constexpr Status() = default;
-	constexpr Status(ErrorCode code) : code(code) {}
+	constexpr Status(StatusCode code) : code(code) {}
 
 	constexpr explicit operator bool() const { return code == OK; }
 
 	const char* toString() const { return to_string(code); }
-	static std::optional<Status> fromString(std::string_view view) { return Anker::fromString<ErrorCode>(view); }
+	static std::optional<Status> fromString(std::string_view view) { return Anker::fromString<StatusCode>(view); }
 
-	ErrorCode code = OK;
+	StatusCode code = OK;
 
 	friend constexpr bool operator==(const Status&, const Status&) = default;
 };
@@ -84,6 +76,6 @@ struct [[nodiscard]] Status {
 } // namespace Anker
 
 template <>
-struct fmt::formatter<Anker::ErrorCode> : Anker::ToStringFmtFormatter {};
+struct fmt::formatter<Anker::StatusCode> : Anker::ToStringFmtFormatter {};
 template <>
 struct fmt::formatter<Anker::Status> : Anker::ToStringFmtFormatter {};

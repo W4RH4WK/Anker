@@ -29,6 +29,12 @@ using Vec4 = glm::vec4;
 using Quat = glm::quat;
 constexpr Quat QuatId = glm::identity<Quat>();
 
+using Mat2 = glm::mat2;
+constexpr Mat2 Mat2Id = glm::identity<Mat2>();
+
+using Mat3 = glm::mat3;
+constexpr Mat3 Mat3Id = glm::identity<Mat3>();
+
 using Mat4 = glm::mat4;
 constexpr Mat4 Mat4Id = glm::identity<Mat4>();
 

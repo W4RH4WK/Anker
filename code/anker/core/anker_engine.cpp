@@ -3,7 +3,10 @@
 namespace Anker {
 
 Engine::Engine(DataLoader& dataLoader)
-    : dataLoader(dataLoader), renderDevice(window, dataLoader), assetCache(dataLoader, renderDevice)
+    : dataLoader(dataLoader),
+      renderDevice(window, dataLoader),
+      assetCache(dataLoader, renderDevice),
+      renderer(renderDevice, assetCache)
 {
 	ANKER_INFO("Anker Initialized!");
 }
@@ -12,10 +15,17 @@ void Engine::tick()
 {
 	ANKER_PROFILE_FRAME_MARK();
 
+	if (!activeScene) {
+		ANKER_ERROR("No active scene");
+		return;
+	}
+
 	float dt = calculateDeltaTime();
 
 	dataLoader.tick(dt);
 	assetCache.reloadModifiedAssets();
+
+	renderer.draw(*activeScene);
 
 	renderDevice.present();
 }

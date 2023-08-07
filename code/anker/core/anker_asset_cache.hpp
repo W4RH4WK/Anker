@@ -1,20 +1,20 @@
 #pragma once
 
-#include <anker/graphics/anker_material.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 
-#include "anker_data_loader.hpp"
+#include "anker_asset.hpp"
 
 namespace Anker {
 
+class DataLoader;
+
 // The AssetCache is in charge of loading various different types of assets and
-// setting them up so they can be used directly. For example, loading a model
-// will automatically create the necessary GPU buffers and textures for the
-// model to be drawn by a renderer.
+// setting them up so they can be used directly. For example, loading a texture
+// will automatically create the necessary GPU resources.
 //
 // Loaded assets are cached by their identifier. A subsequent load request with
-// the same identifier returns a pointer to the previously loaded asset
-// instance. Pointers are reference counted.
+// the same identifier returns a pointer to the previously loaded asset.
+// Pointers are reference counted.
 //
 // Functions with the Uncached suffix will always bypass the cache.
 class AssetCache {
@@ -38,11 +38,8 @@ class AssetCache {
 
 	////////////////////////////////////////////////////////////
 
-	std::optional<Material> builtinMaterial(std::string_view identifier) const;
-	void addBuiltinMaterial(std::string_view identifier, const Material&);
-
 	// Reload assets that have been modified according to the underlying
-	// DataLoader. Not all assets can be reloaded. This will update the object
+	// DataLoader. Not all assets can be reloaded. This will update the asset
 	// pointed to by the respective AssetPtr.
 	void reloadModifiedAssets();
 
@@ -51,11 +48,11 @@ class AssetCache {
 
 	////////////////////////////////////////////////////////////
 
-	DataLoader& dataLoader() { return m_loader; }
+	DataLoader& dataLoader() { return m_dataLoader; }
 	RenderDevice& renderDevice() { return m_renderDevice; }
 
   private:
-	DataLoader& m_loader;
+	DataLoader& m_dataLoader;
 	RenderDevice& m_renderDevice;
 
 	template <typename T>
@@ -64,8 +61,6 @@ class AssetCache {
 	Cache<VertexShader> m_vertexShaderCache;
 	Cache<PixelShader> m_pixelShaderCache;
 	Cache<Texture> m_textureCache;
-
-	StringMap<Material> m_builtinMaterial;
 };
 
 } // namespace Anker

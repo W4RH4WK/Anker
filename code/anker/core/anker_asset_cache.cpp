@@ -1,8 +1,11 @@
 #include "anker_asset_cache.hpp"
 
+#include "anker_data_loader.hpp"
+
 namespace Anker {
 
-AssetCache::AssetCache(DataLoader& loader, RenderDevice& renderDevice) : m_loader(loader), m_renderDevice(renderDevice)
+AssetCache::AssetCache(DataLoader& dataLoader, RenderDevice& renderDevice)
+    : m_dataLoader(dataLoader), m_renderDevice(renderDevice)
 {}
 
 AssetPtr<VertexShader> AssetCache::loadVertexShader(std::string_view identifier,
@@ -56,23 +59,9 @@ AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 	return texture;
 }
 
-std::optional<Material> AssetCache::builtinMaterial(std::string_view identifier) const
-{
-	if (auto it = m_builtinMaterial.find(identifier); it != m_builtinMaterial.end()) {
-		return it->second;
-	} else {
-		return std::nullopt;
-	}
-}
-
-void AssetCache::addBuiltinMaterial(std::string_view identifier, const Material& material)
-{
-	m_builtinMaterial[std::string{identifier}] = material;
-}
-
 void AssetCache::reloadModifiedAssets()
 {
-	for (const auto& modifiedAssetFilepath : m_loader.modifiedFiles()) {
+	for (const auto& modifiedAssetFilepath : m_dataLoader.modifiedFiles()) {
 		auto modifiedAssetIdentifier = stripFileExtensions(modifiedAssetFilepath.string());
 
 		if (auto it = m_vertexShaderCache.find(modifiedAssetIdentifier); it != m_vertexShaderCache.end()) {

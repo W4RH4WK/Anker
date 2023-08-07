@@ -1,10 +1,12 @@
 #pragma once
 
 #include <anker/graphics/anker_render_device.hpp>
+#include <anker/graphics/anker_renderer.hpp>
 #include <anker/platform/anker_window_win32.hpp>
 
 #include "anker_asset_cache.hpp"
 #include "anker_data_loader.hpp"
+#include "anker_scene.hpp"
 
 namespace Anker {
 
@@ -37,6 +39,10 @@ class Engine {
 	RenderDevice renderDevice;
 
 	AssetCache assetCache;
+
+	Renderer renderer;
+
+	ScenePtr activeScene;
 
 	using Clock = std::chrono::steady_clock;
 

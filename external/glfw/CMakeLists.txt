@@ -17,9 +17,13 @@ add_library(glfw STATIC
 	src/wgl_context.c
 	src/egl_context.c
 	src/osmesa_context.c)
-target_compile_definitions(glfw PRIVATE
-	_GLFW_WIN32
-	_GLFW_USE_HYBRID_HPG
-	_GLFW_WNDCLASSNAME=L"Anker")
+target_compile_definitions(glfw
+	INTERFACE
+		GLFW_INCLUDE_NONE
+		GLFW_EXPOSE_NATIVE_WIN32
+	PRIVATE
+		_GLFW_WIN32
+		_GLFW_USE_HYBRID_HPG
+		_GLFW_WNDCLASSNAME=L"Anker")
 target_include_directories(glfw SYSTEM PUBLIC include)
 set_target_properties(glfw PROPERTIES FOLDER external)

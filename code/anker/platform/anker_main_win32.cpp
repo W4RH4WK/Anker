@@ -2,6 +2,9 @@
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
 
+#include <anker/core/anker_transform.hpp>
+#include <anker/graphics/anker_sprite.hpp>
+
 using namespace Anker;
 
 int main()
@@ -25,6 +28,19 @@ int main()
 	dataLoader.addSource(&dataLoaderFs);
 
 	g_engine.emplace(dataLoader);
+
+	g_engine->activeScene = Scene::create();
+
+	{
+		auto e = g_engine->activeScene->createEntity("testsprite");
+		auto& transform = e.emplace<Transform2D>(Transform2D{
+		    //.position = {0.5f, 0.0f},
+		    //.rotation = glm::radians(45.0f),
+		    .scale = {0.5f, 0.5f},
+		});
+
+		e.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
+	}
 
 	while (!g_engine->window.isClosed()) {
 		glfwPollEvents();

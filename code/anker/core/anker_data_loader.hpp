@@ -5,12 +5,12 @@ namespace Anker {
 class IDataLoaderSource;
 
 // The DataLoader is a generic loader for binary data that can come from various
-// different sources. Most commonly the file-system or a compressed archive.
+// different sources -- most commonly the file system or a compressed archive.
 //
 // At least one IDataLoaderSource must be added before the loader can be used.
 //
 // Sources are queried in the order they have been registered. If the first
-// source does not contain the requested asset, the second one is consulted, and
+// source does not contain the requested data, the second one is consulted, and
 // so on.
 class DataLoader {
   public:
@@ -29,8 +29,8 @@ class DataLoader {
 
 	void tick(float dt);
 
-	// Provides a set of identifiers that have been modified since the last
-	// tick.
+	// Provides a set of identifiers that have been modified. The set is cleared
+	// and populated on tick.
 	const std::unordered_set<fs::path>& modifiedFiles() const { return m_modifiedFiles; }
 
   private:

@@ -6,7 +6,7 @@ class DataLoader;
 class RenderDevice;
 class Window;
 
-enum class BindFlag {
+enum class GpuBindFlag {
 	None = 0,
 	ConstantBuffer = 1 << 0,
 	VertexBuffer = 1 << 1,
@@ -15,7 +15,7 @@ enum class BindFlag {
 	RenderTarget = 1 << 4,
 	DepthStencil = 1 << 5,
 };
-ANKER_ENUM_FLAGS(BindFlag)
+ANKER_ENUM_FLAGS(GpuBindFlag)
 
 ////////////////////////////////////////////////////////////
 // Shaders
@@ -23,6 +23,7 @@ ANKER_ENUM_FLAGS(BindFlag)
 enum class Topology {
 	LineList = 2,
 	TriangleList = 4,
+	TriangleStrip = 5,
 };
 
 struct VertexShader {
@@ -36,25 +37,25 @@ struct PixelShader {
 };
 
 ////////////////////////////////////////////////////////////
-// Buffers
+// GPU Buffers
 
-enum class BufferFlag {
+enum class GpuBufferFlag {
 	None = 0,
 	CpuWriteable = 1 << 0,
 	Structured = 1 << 1,
 };
-ANKER_ENUM_FLAGS(BufferFlag)
+ANKER_ENUM_FLAGS(GpuBufferFlag)
 
-struct BufferInfo {
+struct GpuBufferInfo {
 	std::string name;
 	uint32_t size = 0;
 	uint32_t stride = 1;
-	BindFlags bindFlags;
-	BufferFlags flags;
+	GpuBindFlags bindFlags;
+	GpuBufferFlags flags;
 };
 
-struct Buffer {
-	BufferInfo info;
+struct GpuBuffer {
+	GpuBufferInfo info;
 	ComPtr<ID3D11Buffer> buffer;
 };
 
@@ -77,9 +78,9 @@ enum class CompareFunc {
 
 struct SamplerDesc {
 	FilterMode filterMode = FilterMode::Anisotropic;
-	TexAddressMode addressModeU = TexAddressMode::Wrap;
-	TexAddressMode addressModeV = TexAddressMode::Wrap;
-	TexAddressMode addressModeW = TexAddressMode::Wrap;
+	TexAddressMode addressModeU = TexAddressMode::Border;
+	TexAddressMode addressModeV = TexAddressMode::Border;
+	TexAddressMode addressModeW = TexAddressMode::Border;
 	CompareFunc compareFunc = CompareFunc::Never;
 
 	friend auto operator<=>(const SamplerDesc&, const SamplerDesc&) = default;
@@ -110,7 +111,7 @@ struct TextureInfo {
 	uint32_t mipLevels = 1;
 	uint32_t arraySize = 1;
 	TextureFormat format = TextureFormat::R8G8B8A8_UNORM;
-	BindFlags bindFlags = BindFlag::Shader;
+	GpuBindFlags bindFlags = GpuBindFlag::Shader;
 	TextureFlags flags;
 };
 
@@ -156,22 +157,27 @@ class RenderDevice {
 	RenderDevice& operator=(RenderDevice&&) noexcept = delete;
 
 	////////////////////////////////////////////////////////////
-	// Buffer
+	// Buffers
 
-	Status createBuffer(const BufferInfo&, Buffer& outBuffer, std::span<const uint8_t> = {});
+	// Creates a GPU buffer according to buffer.info .
+	Status createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init = {});
 
 	template <typename T>
-	Status createBufferFor(BufferInfo info, Buffer& outBuffer, std::span<const T> init = {})
+	Status createBufferFor(GpuBuffer& buffer, std::span<const T> init = {})
 	{
-		info.stride = sizeof(T);
-		return createBuffer(info, outBuffer, asBytes(init));
+		buffer.info.stride = sizeof(T);
+		return createBuffer(buffer, asBytes(init));
 	}
 
-	void bindBufferVS(uint32_t slot, const Buffer&);
-	void bindBufferPS(uint32_t slot, const Buffer&);
+	void bindBufferVS(uint32_t slot, const GpuBuffer&);
+	void bindBufferPS(uint32_t slot, const GpuBuffer&);
 
-	void* mapBuffer(const Buffer&);
-	void unmapBuffer(const Buffer&);
+	template <typename T = uint8_t>
+	T* mapBuffer(const GpuBuffer& buffer)
+	{
+		return static_cast<T*>(mapResource(buffer.buffer.Get()));
+	}
+	void unmapBuffer(const GpuBuffer&);
 
 	////////////////////////////////////////////////////////////
 	// Shaders
@@ -192,17 +198,29 @@ class RenderDevice {
 
 	Status loadTexture(std::string_view identifier, Texture& outTexture);
 
-	Status createTexture(const TextureInfo&, Texture& outTexture, std::span<const TextureInit> = {});
+	// Creates a texture according to texture.info .
+	Status createTexture(Texture& texture, std::span<const TextureInit> = {});
 
 	void bindTexturePS(uint32_t slot, const Texture&, const SamplerDesc& = {});
 	void unbindTexturePS(uint32_t slot);
 
-	std::byte* mapTexture(const Texture&, uint32_t* outRowPitch);
+	template <typename T = uint8_t>
+	T* mapTexture(const Texture& texture, uint32_t* outRowPitch)
+	{
+		ANKER_CHECK(outRowPitch);
+		return static_cast<T*>(mapResource(texture.texture.Get(), outRowPitch));
+	}
 	void unmapTexture(const Texture&);
 
 	////////////////////////////////////////////////////////////
 	// Rasterizer
+
 	void setRasterizer(const RasterizerDesc& = {});
+
+	////////////////////////////////////////////////////////////
+	// Blending
+
+	void enableAlphaBlending();
 
 	////////////////////////////////////////////////////////////
 	// Render Target
@@ -215,8 +233,8 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 
 	void draw(uint32_t vertexCount);
-	void draw(const Buffer& vertexBuffer, uint32_t vertexCount, Topology = Topology::TriangleList);
-	void draw(const Buffer& vertexBuffer, const Buffer& indexBuffer, uint32_t indexCount,
+	void draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology = Topology::TriangleList);
+	void draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, uint32_t indexCount,
 	          Topology = Topology::TriangleList);
 
 	void present();
@@ -252,6 +270,8 @@ class RenderDevice {
 	ComPtr<IDXGIAdapter> m_dxgiAdapter;
 	ComPtr<IDXGIFactory> m_dxgiFactory;
 	ComPtr<IDXGISwapChain> m_dxgiSwapchain;
+
+	ComPtr<ID3D11BlendState> m_alphaBlendState;
 
 	Texture m_backBuffer;
 	Vec2u m_backBufferSize;
