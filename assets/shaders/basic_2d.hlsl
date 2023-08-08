@@ -1,4 +1,5 @@
 #include "scene_cb.h.hlsl"
+#include "sprite_renderer_cb.h.hlsl"
 
 struct VSInput {
   float2 pos : POSITION;
@@ -13,9 +14,11 @@ struct PSInput {
 #if IKAROS_VS
 
 PSInput main(VSInput vin) {
+  float3 pos = mul(SpriteRenderer_transform, float3(vin.pos));
+  pos.x /= Scene_aspectRatio;
+
   PSInput pin;
-  pin.pos = float4(vin.pos, 0.0f, 1.0f);
-  pin.pos.x /= scene_aspectRatio;
+  pin.pos = float4(pos.xy, 0, 1);
   pin.uv = vin.uv;
   return pin;
 }

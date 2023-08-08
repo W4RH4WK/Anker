@@ -29,6 +29,7 @@ class SpriteRenderer {
 
 	AssetPtr<VertexShader> m_vertexShader;
 	AssetPtr<PixelShader> m_pixelShader;
+	GpuBuffer m_constantBuffer;
 	GpuBuffer m_vertexBuffer;
 };
 

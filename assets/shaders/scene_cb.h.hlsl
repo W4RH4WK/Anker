@@ -1,4 +1,4 @@
-cbuffer scene : register(b0) {
-  float scene_aspectRatio;
-  float3 pad;
+cbuffer Scene : register(b0) {
+  float Scene_aspectRatio;
+  float3 Scene_pad;
 }

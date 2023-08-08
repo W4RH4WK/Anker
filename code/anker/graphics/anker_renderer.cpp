@@ -27,9 +27,11 @@ void Renderer::draw(const Scene& scene)
 	ANKER_PROFILE_ZONE();
 
 	{
-		const SceneConstantBuffer sceneConstantBuffer;
+		Vec2 backBufferSize = m_renderDevice.backBufferSize();
 		auto* cb = m_renderDevice.mapBuffer<SceneConstantBuffer>(m_sceneConstantBuffer);
-		*cb = sceneConstantBuffer;
+		*cb = SceneConstantBuffer{
+			.aspectRatio = backBufferSize.x / backBufferSize.y,
+		};
 		m_renderDevice.unmapBuffer(m_sceneConstantBuffer);
 		m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
 		m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
