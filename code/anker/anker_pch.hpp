@@ -67,13 +67,15 @@ using Microsoft::WRL::ComPtr;
 
 #include <entt/entt.hpp>
 
+#define GLFW_INCLUDE_NONE
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-// #include <imgui.h>
-// #include <imgui_impl_dx11.h>
-// #include <imgui_impl_glfw.h>
-// #include <imgui_stdlib.h>
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_stdlib.h>
 
 // #include <ImGuizmo.h>
 

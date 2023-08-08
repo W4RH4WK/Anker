@@ -21,7 +21,7 @@ add_subdirectory(external/entt)
 # add_subdirectory(external/lua)
 # add_subdirectory(external/sol2)
 # add_subdirectory(external/lrdb)
-# add_subdirectory(external/imgui)
+add_subdirectory(external/imgui)
 # add_subdirectory(external/imguizmo)
 add_subdirectory(external/glfw)
 add_subdirectory(external/tracy)
@@ -61,7 +61,7 @@ target_link_libraries(anker PRIVATE
 	# lualib
 	# sol2
 	# lrdb
-	# imgui
+	imgui
 	# imguizmo
 	glfw
 	tracy)

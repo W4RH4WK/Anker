@@ -6,6 +6,7 @@
 
 #include "anker_asset_cache.hpp"
 #include "anker_data_loader.hpp"
+#include "anker_imgui_system.hpp"
 #include "anker_scene.hpp"
 
 namespace Anker {
@@ -37,7 +38,7 @@ class Engine {
 	Window window;
 
 	RenderDevice renderDevice;
-
+	ImguiSystem imguiSystem;
 	AssetCache assetCache;
 
 	Renderer renderer;

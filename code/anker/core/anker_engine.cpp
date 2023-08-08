@@ -5,6 +5,7 @@ namespace Anker {
 Engine::Engine(DataLoader& dataLoader)
     : dataLoader(dataLoader),
       renderDevice(window, dataLoader),
+      imguiSystem(window, renderDevice),
       assetCache(dataLoader, renderDevice),
       renderer(renderDevice, assetCache)
 {
@@ -25,8 +26,12 @@ void Engine::tick()
 	dataLoader.tick(dt);
 	assetCache.reloadModifiedAssets();
 
-	renderer.draw(*activeScene);
+	imguiSystem.newFrame();
 
+	// ImGui::ShowDemoWindow();
+
+	renderer.draw(*activeScene);
+	imguiSystem.draw();
 	renderDevice.present();
 }
 

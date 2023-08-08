@@ -33,7 +33,7 @@ int main()
 
 	{
 		auto e = g_engine->activeScene->createEntity("testsprite");
-		auto& transform = e.emplace<Transform2D>(Transform2D{
+		e.emplace<Transform2D>(Transform2D{
 		    //.position = {0.5f, 0.0f},
 		    //.rotation = glm::radians(45.0f),
 		    .scale = {0.5f, 0.5f},
