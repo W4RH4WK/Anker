@@ -502,19 +502,27 @@ void RenderDevice::onResize(Vec2i)
 
 void RenderDevice::createMainRenderTarget()
 {
-	// Grab back buffer from swap chain.
+	// Grab back buffer from swap chain
 	HRESULT hresult = m_dxgiSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), &m_backBuffer.texture);
 	if (FAILED(hresult)) {
 		std::abort();
 	}
 
+	// Update TextureInfo
 	{
 		D3D11_TEXTURE2D_DESC desc;
 		m_backBuffer.texture->GetDesc(&desc);
-		m_backBufferSize = {desc.Width, desc.Height};
+
+		m_backBuffer.info = TextureInfo{
+		    .name = "Back Buffer",
+		    .size = {desc.Width, desc.Height},
+		    .mipLevels = desc.MipLevels,
+		    .arraySize = desc.ArraySize,
+		    .format = TextureFormat(desc.Format),
+		};
 	}
 
-	// Setup back buffer view.
+	// Setup back buffer view
 	hresult = m_device->CreateRenderTargetView(m_backBuffer.texture.Get(), nullptr, &m_backBuffer.renderTargetView);
 	if (FAILED(hresult)) {
 		std::abort();
@@ -522,8 +530,8 @@ void RenderDevice::createMainRenderTarget()
 
 	// Set Viewport
 	const D3D11_VIEWPORT viewportParams{
-	    .Width = float(m_backBufferSize.x),
-	    .Height = float(m_backBufferSize.y),
+	    .Width = float(m_backBuffer.info.size.x),
+	    .Height = float(m_backBuffer.info.size.y),
 	    .MaxDepth = 1,
 	};
 	m_context->RSSetViewports(1, &viewportParams);

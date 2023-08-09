@@ -9,7 +9,7 @@
 namespace Anker {
 
 struct SpriteRendererConstantBuffer {
-	Mat4 transform;
+	Mat4 transform = Mat4Id; // Mat4 instead of Mat3 because of alignment
 };
 static_assert(sizeof(SpriteRendererConstantBuffer) % 16 == 0, "Constant Buffer size must be 16-byte aligned");
 
@@ -40,7 +40,7 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	    .bindFlags = GpuBindFlag::ConstantBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
-	m_renderDevice.createBufferFor<SpriteRenderer>(m_constantBuffer);
+	m_renderDevice.createBuffer(m_constantBuffer);
 
 	const std::array vertices = {
 	    Vertex{{0.5f, -0.5f}, {1, 1}},
@@ -51,11 +51,11 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 
 	m_vertexBuffer.info = {
 	    .name = "SpriteRenderer Vertex Buffer",
-	    .size = 4 * sizeof(Vertex),
+	    .size = uint32_t(vertices.size() * sizeof(vertices[0])),
 	    .bindFlags = GpuBindFlag::VertexBuffer,
 	};
 
-	m_renderDevice.createBufferFor<Vertex>(m_vertexBuffer, vertices);
+	m_renderDevice.createBuffer<Vertex>(m_vertexBuffer, vertices);
 }
 
 void SpriteRenderer::draw(const Scene& scene)
@@ -77,16 +77,6 @@ void SpriteRenderer::draw(const Scene& scene)
 			m_renderDevice.bindBufferVS(1, m_constantBuffer);
 			m_renderDevice.bindBufferPS(1, m_constantBuffer);
 		}
-
-		// Vec2 textureSize = sprite.texture->info.size;
-
-		// for (auto& vertex : vertices) {
-		//	vertex.position.x *= textureSize.x / textureSize.y;
-		//	vertex.position = transform * vertex.position;
-		// }
-
-		// std::ranges::copy(vertices, m_renderDevice.mapBuffer<Vertex>(m_vertexBuffer));
-		// m_renderDevice.unmapBuffer(m_vertexBuffer);
 
 		m_renderDevice.bindTexturePS(0, *sprite.texture);
 

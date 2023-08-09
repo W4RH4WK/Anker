@@ -20,8 +20,10 @@ class Scene {
 
 	entt::registry registry;
 
+	EntityHandle activeCamera;
+
   private:
-	Scene() = default;
+	Scene();
 };
 
-} // namespace ikaros
+} // namespace Anker

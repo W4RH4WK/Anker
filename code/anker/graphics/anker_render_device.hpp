@@ -163,7 +163,7 @@ class RenderDevice {
 	Status createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init = {});
 
 	template <typename T>
-	Status createBufferFor(GpuBuffer& buffer, std::span<const T> init = {})
+	Status createBuffer(GpuBuffer& buffer, std::span<const T> init = {})
 	{
 		buffer.info.stride = sizeof(T);
 		return createBuffer(buffer, asBytes(init));
@@ -241,9 +241,7 @@ class RenderDevice {
 
 	void onResize(Vec2i size);
 
-	Vec2u backBufferSize() const { return m_backBufferSize; }
-
-	Texture& backBuffer() { return m_backBuffer; }
+	const Texture& backBuffer() const { return m_backBuffer; }
 	const Texture& fallbackTexture() const { return m_fallbackTexture; }
 
 	// Avoid directly accessing these if possible:
@@ -274,7 +272,6 @@ class RenderDevice {
 	ComPtr<ID3D11BlendState> m_alphaBlendState;
 
 	Texture m_backBuffer;
-	Vec2u m_backBufferSize;
 
 	Texture m_fallbackTexture;
 };

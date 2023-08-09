@@ -1,5 +1,9 @@
 #include "anker_scene.hpp"
 
+#include <anker/graphics/anker_camera.hpp>
+
+#include "anker_transform.hpp"
+
 namespace Anker {
 
 ScenePtr Scene::create()
@@ -24,6 +28,16 @@ EntityHandle Scene::entityHandle(EntityID id)
 EntityCHandle Scene::entityHandle(EntityID id) const
 {
 	return {registry, id};
+}
+
+Scene::Scene()
+{
+	activeCamera = createEntity("Camera");
+	activeCamera.emplace<Transform2D>(Transform2D{
+		.position = Vec2Right / 2.0f,
+		//.rotation = glm::radians(45.0f),
+	});
+	activeCamera.emplace<Camera>();
 }
 
 } // namespace Anker
