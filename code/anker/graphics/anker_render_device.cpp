@@ -131,7 +131,7 @@ RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoade
 
 	setRasterizer();
 
-	if (not loadTexture("fallback/fallback_texture", m_fallbackTexture)) {
+	if (not loadTexture(m_fallbackTexture, "fallback/fallback_texture")) {
 		ANKER_WARN("Fallback texture could not be loaded!");
 	}
 }
@@ -191,71 +191,52 @@ void RenderDevice::unmapBuffer(const GpuBuffer& buffer)
 	unmapResource(buffer.buffer.Get());
 }
 
-Status RenderDevice::loadVertexShader(std::string_view identifier,
-                                      std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs,
-                                      VertexShader& outVertexShader)
+Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_view identifier,
+                                      std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
 	ByteBuffer binary;
 	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
 
-	return createVertexShader(identifier, binary, shaderInputs, outVertexShader);
-}
-
-Status RenderDevice::loadPixelShader(std::string_view identifier, PixelShader& outPixelShader)
-{
-	ANKER_PROFILE_ZONE_T(identifier);
-
-	ByteBuffer binary;
-	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
-
-	return createPixelShader(identifier, binary, outPixelShader);
-}
-
-Status RenderDevice::createVertexShader(std::string_view identifier, std::span<const uint8_t> binary,
-                                        std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs,
-                                        VertexShader& outVertexShader)
-{
-	ANKER_PROFILE_ZONE_T(identifier);
-
-	HRESULT hresult = m_device->CreateVertexShader(binary.data(), binary.size(), nullptr, &outVertexShader.shader);
+	HRESULT hresult = m_device->CreateVertexShader(binary.data(), binary.size(), nullptr, &vertexShader.shader);
 	if (FAILED(hresult)) {
 		ANKER_ERROR("{}: CreateVertexShader failed: {}", identifier, win32ErrorMessage(hresult));
 		return GraphicsError;
 	}
 
-	outVertexShader.inputLayoutDesc.assign(shaderInputs.begin(), shaderInputs.end());
+	vertexShader.inputLayoutDesc.assign(shaderInputs.begin(), shaderInputs.end());
 	if (!shaderInputs.empty()) {
 		hresult = m_device->CreateInputLayout(shaderInputs.data(), UINT(shaderInputs.size()), //
-		                                      binary.data(), binary.size(),                   //
-		                                      &outVertexShader.inputLayout);
+		                                      binary.data(), binary.size(), &vertexShader.inputLayout);
 		if (FAILED(hresult)) {
 			ANKER_ERROR("{}: CreateInputLayout failed: {}", identifier, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
 	} else {
-		outVertexShader.inputLayout.Reset();
+		vertexShader.inputLayout.Reset();
 	}
 
-	outVertexShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
+	vertexShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
 
 	return OK;
 }
 
-Status RenderDevice::createPixelShader(std::string_view identifier, std::span<const uint8_t> binary,
-                                       PixelShader& outPixelShader)
+Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
+	ByteBuffer binary;
+	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
+
 	HRESULT hresult = m_device->CreatePixelShader(binary.data(), binary.size(), //
-	                                              nullptr, &outPixelShader.shader);
+	                                              nullptr, &pixelShader.shader);
 	if (FAILED(hresult)) {
 		ANKER_ERROR("{}: CreatePixelShader failed: {}", identifier, win32ErrorMessage(hresult));
 		return GraphicsError;
 	}
 
-	outPixelShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
+	pixelShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
 
 	return OK;
 }
@@ -273,33 +254,33 @@ void RenderDevice::bindPixelShader(const PixelShader& pixelShader)
 	m_context->PSSetShader(pixelShader.shader.Get(), nullptr, 0);
 }
 
-Status RenderDevice::loadTexture(std::string_view identifier, Texture& outTexture)
+Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
-	outTexture.info.name = identifier;
+	texture.info.name = identifier;
 
 	auto filepath = std::string(identifier);
 
 	ByteBuffer textureData;
 	if (m_dataLoader.load(filepath + ".dds", textureData)) {
-		if (createTextureFromDDS(outTexture, textureData, *this)) {
+		if (createTextureFromDDS(texture, textureData, *this)) {
 			return OK;
 		}
 	}
 	if (m_dataLoader.load(filepath + ".png", textureData)) {
-		if (createTextureFromPNGorJPG(outTexture, textureData, *this)) {
+		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
 			return OK;
 		}
 	}
 	if (m_dataLoader.load(filepath + ".jpg", textureData)) {
-		if (createTextureFromPNGorJPG(outTexture, textureData, *this)) {
+		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
 			return OK;
 		}
 	}
 
 	ANKER_ERROR("{}: Missing, using fallback!", identifier);
-	outTexture = fallbackTexture();
+	texture = fallbackTexture();
 	return ReadError;
 }
 
@@ -390,7 +371,7 @@ Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit
 	return OK;
 }
 
-void RenderDevice::bindTexturePS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
+void RenderDevice::bindTexturePS(const Texture& texture, uint32_t slot, const SamplerDesc& samplerDesc)
 {
 	auto* samplerState = samplerStateFromDesc(samplerDesc);
 	m_context->PSSetSamplers(slot, 1, &samplerState);

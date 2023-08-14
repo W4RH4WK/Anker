@@ -78,7 +78,7 @@ void SpriteRenderer::draw(const Scene& scene)
 			m_renderDevice.bindBufferPS(1, m_constantBuffer);
 		}
 
-		m_renderDevice.bindTexturePS(0, *sprite.texture);
+		m_renderDevice.bindTexturePS(*sprite.texture, 0);
 
 		m_renderDevice.draw(m_vertexBuffer, 4, Topology::TriangleStrip);
 

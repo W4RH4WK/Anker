@@ -21,7 +21,7 @@ AssetPtr<VertexShader> AssetCache::loadVertexShaderUncached(std::string_view ide
                                                             std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs)
 {
 	auto vertexShader = makeAssetPtr<VertexShader>();
-	if (not m_renderDevice.loadVertexShader(identifier, shaderInputs, *vertexShader)) {
+	if (not m_renderDevice.loadVertexShader(*vertexShader, identifier, shaderInputs)) {
 		return nullptr;
 	}
 	return vertexShader;
@@ -38,7 +38,7 @@ AssetPtr<PixelShader> AssetCache::loadPixelShader(std::string_view identifier)
 AssetPtr<PixelShader> AssetCache::loadPixelShaderUncached(std::string_view identifier)
 {
 	auto pixelShader = makeAssetPtr<PixelShader>();
-	if (not m_renderDevice.loadPixelShader(identifier, *pixelShader)) {
+	if (not m_renderDevice.loadPixelShader(*pixelShader, identifier)) {
 		return nullptr;
 	}
 	return pixelShader;
@@ -55,7 +55,7 @@ AssetPtr<Texture> AssetCache::loadTexture(std::string_view identifier)
 AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 {
 	auto texture = makeAssetPtr<Texture>();
-	(void)m_renderDevice.loadTexture(identifier, *texture);
+	(void)m_renderDevice.loadTexture(*texture, identifier);
 	return texture;
 }
 

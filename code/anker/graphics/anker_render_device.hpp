@@ -182,13 +182,8 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 	// Shaders
 
-	Status loadVertexShader(std::string_view identifier, std::span<const D3D11_INPUT_ELEMENT_DESC>,
-	                        VertexShader& outVertexShader);
-	Status loadPixelShader(std::string_view identifier, PixelShader& outPixelShader);
-
-	Status createVertexShader(std::string_view identifier, std::span<const uint8_t> binary,
-	                          std::span<const D3D11_INPUT_ELEMENT_DESC>, VertexShader& outVertexShader);
-	Status createPixelShader(std::string_view identifier, std::span<const uint8_t> binary, PixelShader& outPixelShader);
+	Status loadVertexShader(VertexShader&, std::string_view identifier, std::span<const D3D11_INPUT_ELEMENT_DESC>);
+	Status loadPixelShader(PixelShader&, std::string_view identifier);
 
 	void bindVertexShader(const VertexShader&);
 	void bindPixelShader(const PixelShader&);
@@ -196,12 +191,12 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 	// Textures
 
-	Status loadTexture(std::string_view identifier, Texture& outTexture);
+	Status loadTexture(Texture&, std::string_view identifier);
 
 	// Creates a texture according to texture.info .
-	Status createTexture(Texture& texture, std::span<const TextureInit> = {});
+	Status createTexture(Texture&, std::span<const TextureInit> = {});
 
-	void bindTexturePS(uint32_t slot, const Texture&, const SamplerDesc& = {});
+	void bindTexturePS(const Texture&, uint32_t slot, const SamplerDesc& = {});
 	void unbindTexturePS(uint32_t slot);
 
 	template <typename T = uint8_t>
