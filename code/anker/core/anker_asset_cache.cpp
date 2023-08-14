@@ -21,7 +21,8 @@ AssetPtr<VertexShader> AssetCache::loadVertexShaderUncached(std::string_view ide
                                                             std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs)
 {
 	auto vertexShader = makeAssetPtr<VertexShader>();
-	if (not m_renderDevice.loadVertexShader(*vertexShader, identifier, shaderInputs)) {
+	vertexShader->info.inputs.assign(shaderInputs.begin(), shaderInputs.end());
+	if (not m_renderDevice.loadVertexShader(*vertexShader, identifier)) {
 		return nullptr;
 	}
 	return vertexShader;
@@ -66,7 +67,7 @@ void AssetCache::reloadModifiedAssets()
 
 		if (auto it = m_vertexShaderCache.find(modifiedAssetIdentifier); it != m_vertexShaderCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			*it->second = *loadVertexShaderUncached(it->first, it->second->inputLayoutDesc);
+			*it->second = *loadVertexShaderUncached(it->first, it->second->info.inputs);
 			continue;
 		}
 		if (auto it = m_pixelShaderCache.find(modifiedAssetIdentifier); it != m_pixelShaderCache.end()) {

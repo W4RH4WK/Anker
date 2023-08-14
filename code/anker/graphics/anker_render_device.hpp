@@ -26,13 +26,23 @@ enum class Topology {
 	TriangleStrip = 5,
 };
 
+struct VertexShaderInfo {
+	std::string name;
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputs;
+};
+
 struct VertexShader {
+	VertexShaderInfo info;
 	ComPtr<ID3D11VertexShader> shader;
 	ComPtr<ID3D11InputLayout> inputLayout;
-	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+};
+
+struct PixelShaderInfo {
+	std::string name;
 };
 
 struct PixelShader {
+	PixelShaderInfo info;
 	ComPtr<ID3D11PixelShader> shader;
 };
 
@@ -182,7 +192,7 @@ class RenderDevice {
 	////////////////////////////////////////////////////////////
 	// Shaders
 
-	Status loadVertexShader(VertexShader&, std::string_view identifier, std::span<const D3D11_INPUT_ELEMENT_DESC>);
+	Status loadVertexShader(VertexShader&, std::string_view identifier);
 	Status loadPixelShader(PixelShader&, std::string_view identifier);
 
 	void bindVertexShader(const VertexShader&);

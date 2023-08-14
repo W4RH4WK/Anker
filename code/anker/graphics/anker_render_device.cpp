@@ -139,6 +139,7 @@ RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoade
 Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init)
 {
 	buffer.info.size = std::max(buffer.info.size, uint32_t(init.size()));
+	buffer.buffer.Reset();
 
 	D3D11_BUFFER_DESC desc{
 	    .ByteWidth = buffer.info.size,
@@ -191,10 +192,13 @@ void RenderDevice::unmapBuffer(const GpuBuffer& buffer)
 	unmapResource(buffer.buffer.Get());
 }
 
-Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_view identifier,
-                                      std::span<const D3D11_INPUT_ELEMENT_DESC> shaderInputs)
+Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
+
+	vertexShader.info.name = identifier;
+	vertexShader.shader.Reset();
+	vertexShader.inputLayout.Reset();
 
 	ByteBuffer binary;
 	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
@@ -205,16 +209,13 @@ Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_vi
 		return GraphicsError;
 	}
 
-	vertexShader.inputLayoutDesc.assign(shaderInputs.begin(), shaderInputs.end());
-	if (!shaderInputs.empty()) {
-		hresult = m_device->CreateInputLayout(shaderInputs.data(), UINT(shaderInputs.size()), //
+	if (!vertexShader.info.inputs.empty()) {
+		hresult = m_device->CreateInputLayout(vertexShader.info.inputs.data(), UINT(vertexShader.info.inputs.size()),
 		                                      binary.data(), binary.size(), &vertexShader.inputLayout);
 		if (FAILED(hresult)) {
 			ANKER_ERROR("{}: CreateInputLayout failed: {}", identifier, win32ErrorMessage(hresult));
 			return GraphicsError;
 		}
-	} else {
-		vertexShader.inputLayout.Reset();
 	}
 
 	vertexShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
@@ -225,6 +226,9 @@ Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_vi
 Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
+
+	pixelShader.info.name = identifier;
+	pixelShader.shader.Reset();
 
 	ByteBuffer binary;
 	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
@@ -259,6 +263,10 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 	ANKER_PROFILE_ZONE_T(identifier);
 
 	texture.info.name = identifier;
+	texture.texture.Reset();
+	texture.shaderView.Reset();
+	texture.renderTargetView.Reset();
+	texture.depthView.Reset();
 
 	auto filepath = std::string(identifier);
 
