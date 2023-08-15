@@ -1,5 +1,6 @@
 #pragma once
 
+#include "anker_post_process_renderer.hpp"
 #include "anker_render_device.hpp"
 #include "anker_sprite_renderer.hpp"
 
@@ -18,12 +19,16 @@ class Renderer {
 
 	void draw(const Scene&);
 
+	void onResize(Vec2i size);
+
   private:
 	RenderDevice& m_renderDevice;
 
 	SpriteRenderer m_spriteRenderer;
+	PostProcessRenderer m_postProcessRenderer;
 
 	GpuBuffer m_sceneConstantBuffer;
+	Texture m_sceneRenderTarget;
 };
 
 } // namespace Anker

@@ -39,6 +39,7 @@ void Engine::onResize(Vec2i size)
 {
 	ANKER_INFO("onResize size={}", size);
 	renderDevice.onResize(size);
+	renderer.onResize(size);
 }
 
 float Engine::calculateDeltaTime()

@@ -11,7 +11,7 @@ struct PSInput {
   float2 uv : TEXCOORD0;
 };
 
-#if IKAROS_VS
+#if ANKER_VS
 
 PSInput main(VSInput vin) {
   float3 pos = float3(vin.pos, 1);
@@ -27,7 +27,7 @@ PSInput main(VSInput vin) {
   return pin;
 }
 
-#elif IKAROS_PS
+#elif ANKER_PS
 
 Texture2D colorTex : register(t0);
 SamplerState colorSampler : register(s0);

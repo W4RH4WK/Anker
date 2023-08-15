@@ -12,14 +12,16 @@ SHADER_DEBUG = ENV['SHADER_DEBUG'] == '1'
 
 VERTEX_SHADERS = FileList[
   'shaders/basic_2d',
+  'shaders/screen',
 ]
 
 PIXEL_SHADERS = FileList[
   'shaders/basic_2d',
+  'shaders/post_process',
 ]
 
 TEXTURES = FileList[
-  'fallback/fallback_texture.png'
+  'fallback/fallback_texture.png',
 ]
 
 ###
@@ -27,7 +29,7 @@ TEXTURES = FileList[
 VERTEX_SHADERS.each do |shader|
   file shader.pathmap('%p.vs.fxo') => shader.pathmap('%p.hlsl') do |t|
     flags = SHADER_DEBUG ? '/Od /Zi /Zss' : '/O3 /Qstrip_debug'
-    sh "#{FXC} /nologo /T vs_5_0 /D IKAROS_VS #{t.source} /Fo #{t.name} #{flags}"
+    sh "#{FXC} /nologo /T vs_5_0 /D ANKER_VS #{t.source} /Fo #{t.name} #{flags}"
   end
 end
 task shaders: VERTEX_SHADERS.pathmap('%p.vs.fxo')
@@ -35,7 +37,7 @@ task shaders: VERTEX_SHADERS.pathmap('%p.vs.fxo')
 PIXEL_SHADERS.each do |shader|
   file shader.pathmap('%p.ps.fxo') => shader.pathmap('%p.hlsl') do |t|
     flags = SHADER_DEBUG ? '/Od /Zi /Zss' : '/O3 /Qstrip_debug'
-    sh "#{FXC} /nologo /T ps_5_0 /D IKAROS_PS #{t.source} /Fo #{t.name} #{flags}"
+    sh "#{FXC} /nologo /T ps_5_0 /D ANKER_PS #{t.source} /Fo #{t.name} #{flags}"
   end
 end
 task shaders: PIXEL_SHADERS.pathmap('%p.ps.fxo')
