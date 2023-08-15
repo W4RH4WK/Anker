@@ -379,7 +379,7 @@ Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit
 	return OK;
 }
 
-void RenderDevice::bindTexturePS(const Texture& texture, uint32_t slot, const SamplerDesc& samplerDesc)
+void RenderDevice::bindTexturePS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
 {
 	auto* samplerState = samplerStateFromDesc(samplerDesc);
 	m_context->PSSetSamplers(slot, 1, &samplerState);

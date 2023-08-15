@@ -206,7 +206,7 @@ class RenderDevice {
 	// Creates a texture according to texture.info .
 	Status createTexture(Texture&, std::span<const TextureInit> = {});
 
-	void bindTexturePS(const Texture&, uint32_t slot, const SamplerDesc& = {});
+	void bindTexturePS(uint32_t slot, const Texture&, const SamplerDesc& = {});
 	void unbindTexturePS(uint32_t slot);
 
 	template <typename T = uint8_t>
