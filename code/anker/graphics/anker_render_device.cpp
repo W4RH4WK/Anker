@@ -483,7 +483,7 @@ void RenderDevice::onResize(Vec2i)
 
 	HRESULT hresult = m_dxgiSwapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("IDXGISwapChain::ResizeBuffers failed: {}", win32ErrorMessage(hresult));
 	}
 
 	createMainRenderTarget();
@@ -494,7 +494,7 @@ void RenderDevice::createMainRenderTarget()
 	// Grab back buffer from swap chain
 	HRESULT hresult = m_dxgiSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), &m_backBuffer.texture);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("IDXGISwapChain::GetBuffer failed: {}", win32ErrorMessage(hresult));
 	}
 
 	// Update TextureInfo
@@ -514,7 +514,7 @@ void RenderDevice::createMainRenderTarget()
 	// Setup back buffer view
 	hresult = m_device->CreateRenderTargetView(m_backBuffer.texture.Get(), nullptr, &m_backBuffer.renderTargetView);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("ID3D11Device::CreateRenderTargetView failed: {}", win32ErrorMessage(hresult));
 	}
 
 	// Set Viewport
@@ -536,7 +536,7 @@ ID3D11SamplerState* RenderDevice::samplerStateFromDesc(const SamplerDesc& desc)
 	const auto d3d11Desc = convertSamplerDesc(desc);
 	HRESULT hresult = m_device->CreateSamplerState(&d3d11Desc, &sampler);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("ID3D11Device::CreateSamplerState failed: {}", win32ErrorMessage(hresult));
 	}
 
 	m_samplerStates[desc] = sampler;
@@ -558,7 +558,7 @@ ID3D11RasterizerState* RenderDevice::rasterizerStateFromDesc(const RasterizerDes
 	};
 	HRESULT hresult = m_device->CreateRasterizerState(&d3d11Desc, &rasterizer);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("ID3D11Device::CreateRasterizerState failed: {}", win32ErrorMessage(hresult));
 	}
 
 	m_rasterizerStates[desc] = rasterizer;
@@ -570,7 +570,7 @@ void* RenderDevice::mapResource(ID3D11Resource* resource, uint32_t* outRowPitch,
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	HRESULT hresult = m_context->Map(resource, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(hresult)) {
-		std::abort();
+		ANKER_FATAL("ID3D11DeviceContext::Map failed: {}", win32ErrorMessage(hresult));
 	}
 	if (outRowPitch) {
 		*outRowPitch = mappedResource.RowPitch;
