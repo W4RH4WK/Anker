@@ -68,10 +68,12 @@ void SpriteRenderer::draw(const Scene& scene)
 			continue;
 		}
 
+		const Vec2 spriteScale = Vec2(sprite.texture->info.size) / sprite.pixelToMeter;
+
 		{
 			auto* cb = m_renderDevice.mapBuffer<SpriteRendererConstantBuffer>(m_constantBuffer);
 			*cb = SpriteRendererConstantBuffer{
-			    .transform = transform.mat3(),
+			    .transform = scale(transform.mat3(), spriteScale),
 			};
 			m_renderDevice.unmapBuffer(m_constantBuffer);
 			m_renderDevice.bindBufferVS(1, m_constantBuffer);

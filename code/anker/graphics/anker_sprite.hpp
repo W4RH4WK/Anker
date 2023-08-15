@@ -8,6 +8,7 @@ struct Texture;
 
 struct Sprite {
 	AssetPtr<Texture> texture;
+	float pixelToMeter = 32.0f;
 };
 
 } // namespace Anker

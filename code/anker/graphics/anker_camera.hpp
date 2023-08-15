@@ -3,7 +3,7 @@
 namespace Anker {
 
 struct Camera {
-	float distance = 1.0f;
+	float distance = 10.0f;
 };
 
 } // namespace Anker
