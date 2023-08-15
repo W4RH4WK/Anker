@@ -18,3 +18,4 @@ add_library(imgui STATIC
 	code/misc/cpp/imgui_stdlib.h)
 target_include_directories(imgui SYSTEM PUBLIC code code/backends code/misc/cpp)
 target_link_libraries(imgui PRIVATE glfw)
+set_target_properties(imgui PROPERTIES FOLDER external)
