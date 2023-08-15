@@ -15,15 +15,9 @@
 
 namespace Anker::Log {
 
-enum class Severity {
-	Trace = 0,
-	Info = 1,
-	Warning = 2,
-	Error = 3,
-	Fatal = 4,
-};
+enum class Severity { Trace, Info, Warning, Error, Fatal };
 
-inline char toChar(Severity severity)
+inline constexpr char toChar(Severity severity)
 {
 	switch (severity) {
 	case Severity::Trace: return 'T';

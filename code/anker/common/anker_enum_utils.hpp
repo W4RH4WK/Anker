@@ -20,10 +20,14 @@ template <typename Enum, size_t N>
 EnumAttr(std::array<std::pair<Enum, const char*>, N>) -> EnumAttr<Enum>;
 
 ////////////////////////////////////////////////////////////
-// Enums as flags
+// Flag Enum
 
-// This macro defines the wrapper alias along with the necessary operators to
-// combine single flags.
+// This macro defines a type that can be used as bit-flags, by wrapping an
+// existing enum. The original enum (e.g. GpuBindFlag, note singular) defines
+// the flags, while the wrapper type (e.g. GpuBindFlags, note plural) defines
+// the necessary operators to combine single flags.
+//
+// See invocations of this macro across the code-base for examples.
 #define ANKER_ENUM_FLAGS(FlagType) \
 	using FlagType##s = ::Anker::Flags<FlagType>; \
 	inline constexpr ::Anker::Flags<FlagType> operator|(FlagType a, FlagType b) \
@@ -35,8 +39,8 @@ EnumAttr(std::array<std::pair<Enum, const char*>, N>) -> EnumAttr<Enum>;
 		return ::Anker::Flags<FlagType>(a) & b; \
 	}
 
-// Flags wrapper for enums. This allows type-safe enums to be used like bit
-// flags. For simplicity, only | and & bit-operators are supported.
+// Flags wrapper for enums. This allows type-safe enums to be used like
+// bit-flags.
 template <typename Enum>
 class Flags {
   public:
@@ -73,6 +77,8 @@ class Flags {
 
   private:
 	MaskType m_mask = 0;
+
+	static_assert(MaskType(Enum::None) == 0, "Flag enum requires a None entry");
 };
 
 template <typename Enum>
@@ -92,6 +98,8 @@ constexpr Flags<Enum> operator&(Enum flag, const Flags<Enum>& flags)
 
 // Generates the to_string/from_string utility functions for the given enum.
 // This macro expects an entries array to be defined.
+//
+// See invocations of this macro across the code-base for examples.
 #define ANKER_ENUM_TO_FROM_STRING(Enum) \
 	inline const std::unordered_map<Enum, const char*> Enum##ToStringLookup{Enum##Entries.begin(), \
 	                                                                        Enum##Entries.end()}; \

@@ -21,7 +21,9 @@ Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
 	    .bindFlags = GpuBindFlag::ConstantBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
-	m_renderDevice.createBuffer(m_sceneConstantBuffer);
+	if (not m_renderDevice.createBuffer(m_sceneConstantBuffer)) {
+		ANKER_FATAL("Failed to create Scene Constant Buffer");
+	}
 
 	m_renderDevice.enableAlphaBlending();
 }

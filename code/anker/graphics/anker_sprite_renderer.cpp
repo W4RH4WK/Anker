@@ -40,7 +40,9 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	    .bindFlags = GpuBindFlag::ConstantBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
-	m_renderDevice.createBuffer(m_constantBuffer);
+	if (not m_renderDevice.createBuffer(m_constantBuffer)) {
+		ANKER_FATAL("Failed to create SpriteRenderer Constant Buffer");
+	}
 
 	const std::array vertices = {
 	    Vertex{{0.5f, -0.5f}, {1, 1}},
@@ -55,7 +57,9 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	    .bindFlags = GpuBindFlag::VertexBuffer,
 	};
 
-	m_renderDevice.createBuffer<Vertex>(m_vertexBuffer, vertices);
+	if (not m_renderDevice.createBuffer<Vertex>(m_vertexBuffer, vertices)) {
+		ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
+	}
 }
 
 void SpriteRenderer::draw(const Scene& scene)

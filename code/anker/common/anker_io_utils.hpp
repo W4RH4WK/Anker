@@ -2,9 +2,8 @@
 
 namespace Anker {
 
-// Resize-able buffer for bytes; elements are stored on the heap. Currently
-// using uint8 as it's more common among low-level APIs and casting an
-// std::vector<std::byte> to std::vector<uint8_t> is super ugly.
+// A resize-able buffer for bytes; elements are stored on the heap. uint8_t is
+// preferred to std::byte for better interoperability with low-level C APIs.
 using ByteBuffer = std::vector<uint8_t>;
 
 // Since we are using uint8_t instead of std::byte, we provide asBytes and

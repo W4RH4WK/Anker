@@ -56,7 +56,10 @@ AssetPtr<Texture> AssetCache::loadTexture(std::string_view identifier)
 AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 {
 	auto texture = makeAssetPtr<Texture>();
+
+	// Ignoring status here since a fallback texture is used on failure.
 	(void)m_renderDevice.loadTexture(*texture, identifier);
+
 	return texture;
 }
 

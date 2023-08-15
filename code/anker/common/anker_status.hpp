@@ -3,20 +3,20 @@
 #include "anker_enum_utils.hpp"
 #include "anker_string_utils.hpp"
 
-namespace Anker {
-
 // Error handling in C++ is a bit of a pain point. There are multiple approaches
 // to this. In general, we stick to the old return status + output parameter
 // paradigm.
 //
 // It's recommended to still initialize the output parameter with something
 // sensible, like a fallback asset for example.
-//
+
+namespace Anker {
+
 // StatusCode defines the types of errors that can occur, including the OK to
 // indicate the absence of an error.
 enum StatusCode : uint8_t {
 	OK = 0,
-	UnknownError = 1,
+	UnknownError,
 	NotImplementedError,
 	ReadError,
 	WriteError,
@@ -48,6 +48,19 @@ ANKER_ENUM_TO_FROM_STRING(StatusCode)
 //         handleError(status);
 //     }
 //
+// Example for basic error checking:
+//
+//     if (not doSomething()) {
+//         handleError();
+//     }
+//
+// Here we prefer the `not` keyword over `!` to highlight that we are checking
+// for Status failure.
+//
+// Example for suppressing no-discard warnings:
+//
+//     (void)doSomething();
+//
 struct [[nodiscard]] Status {
 	constexpr Status() = default;
 	constexpr Status(StatusCode code) : code(code) {}
@@ -64,8 +77,8 @@ struct [[nodiscard]] Status {
 
 // A common operation is to just bail and pass on a caught error. This macro can
 // be used as a shorthand. Remember, log messages should be emitted immediately
-// upon "creating" an error, thus we don't have to emit log messages when
-// passing errors on.
+// upon emitting an error, thus we don't have to emit log messages when passing
+// errors on.
 #define ANKER_TRY(expr) \
 	do { \
 		if (::Anker::Status status = (expr); !status) { \

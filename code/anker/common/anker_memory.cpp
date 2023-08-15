@@ -1,6 +1,9 @@
-#include <mimalloc.h>
+// This file overrides C++' memory allocation operators. We use this to forward
+// allocation calls to mimalloc and enable profiling.
 
 #if 1
+
+#include <mimalloc.h>
 
 // replaceable allocation functions
 
