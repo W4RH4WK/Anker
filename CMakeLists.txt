@@ -2,12 +2,13 @@ cmake_minimum_required(VERSION 3.25)
 cmake_policy(SET CMP0091 NEW) # MSVC_RUNTIME_LIBRARY
 
 project(anker LANGUAGES C CXX)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CONFIGURATION_TYPES Debug;Release)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # CMake usually adds a pragma system_header to the precompiled header. We don't
-# want that as it suppresses warnings.
+# want that as we suppresses warnings from system headers.
 set(CMAKE_PCH_PROLOGUE "")
 
 add_subdirectory(external/mimalloc)
@@ -22,7 +23,6 @@ add_subdirectory(external/entt)
 # add_subdirectory(external/sol2)
 # add_subdirectory(external/lrdb)
 add_subdirectory(external/imgui)
-# add_subdirectory(external/imguizmo)
 add_subdirectory(external/glfw)
 add_subdirectory(external/tracy)
 
@@ -30,9 +30,16 @@ function(anker_compile_options target)
 	set_target_properties(${target} PROPERTIES
 		CXX_STANDARD 20
 		CXX_EXTENSIONS OFF)
+
 	target_compile_options(${target} PRIVATE
 		$<$<CXX_COMPILER_ID:MSVC>:/MP /W4 /external:W0 /bigobj /utf-8>
-		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -g>
+		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wpedantic -Wtype-limits -Wconversion -Wsign-conversion -Wdouble-promotion -g>
+
+		# Enable MSVC debug symbols and edit and continue support
+		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:DEBUG>>:/ZI>
+		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:RELEASE>>:/Zi>
+
+		# Colorize compiler output
 		$<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color>
 		$<$<CXX_COMPILER_ID:Clang,AppleClang>:-fcolor-diagnostics>)
 endfunction()
@@ -62,7 +69,6 @@ target_link_libraries(anker PRIVATE
 	# sol2
 	# lrdb
 	imgui
-	# imguizmo
 	glfw
 	tracy)
 
