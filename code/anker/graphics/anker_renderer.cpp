@@ -1,9 +1,8 @@
-#include "anker_renderer.hpp"
+#include <anker/graphics/anker_renderer.hpp>
 
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
-
-#include "anker_camera.hpp"
+#include <anker/graphics/anker_camera.hpp>
 
 namespace Anker {
 

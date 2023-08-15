@@ -1,10 +1,9 @@
 #pragma once
 
 #include <anker/core/anker_asset.hpp>
-
-#include "anker_post_process_params.hpp"
-#include "anker_render_device.hpp"
-#include "anker_screen_renderer.hpp"
+#include <anker/graphics/anker_post_process_params.hpp>
+#include <anker/graphics/anker_render_device.hpp>
+#include <anker/graphics/anker_screen_renderer.hpp>
 
 namespace Anker {
 

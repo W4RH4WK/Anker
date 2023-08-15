@@ -1,7 +1,6 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
-
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 

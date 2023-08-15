@@ -1,10 +1,9 @@
-#include "anker_sprite_renderer.hpp"
+#include <anker/graphics/anker_sprite_renderer.hpp>
 
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
-
-#include "anker_sprite.hpp"
+#include <anker/graphics/anker_sprite.hpp>
 
 namespace Anker {
 
