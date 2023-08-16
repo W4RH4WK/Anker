@@ -51,6 +51,12 @@ task textures: TEXTURES.pathmap('%X.dds')
 
 task default: [:shaders, :textures]
 
+desc "Continuously run rake to build assets"
 task :watch do
-  sh "rerun --pattern '**/*.{hlsl,png,jpg}' -- rake"
+  while true
+    sh "rake" do
+      # ignore failure
+    end
+    sleep 2
+  end
 end
