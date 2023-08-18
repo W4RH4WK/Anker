@@ -35,8 +35,8 @@ void EditorCameraSystem::tick(float, Scene& scene)
 void EditorCameraSystem::drawMenuBarEntry(Scene& scene)
 {
 	if (ImGui::BeginMenu("Cameras")) {
-		for (auto [entityId, _, __] : scene.registry.view<Transform2D, Camera>().each()) {
-			auto entity = scene.entityHandle(entityId);
+		for (auto [entityID, _, __] : scene.registry.view<Transform2D, Camera>().each()) {
+			auto entity = scene.entityHandle(entityID);
 			if (ImGui::MenuItem(entityLabel(entity).c_str())) {
 				scene.activeCamera = entity;
 			}

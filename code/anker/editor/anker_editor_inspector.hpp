@@ -22,7 +22,7 @@ class EditorInspector {
 
 	bool m_enabled = true;
 
-	std::optional<EntityId> m_selectedEntity;
+	std::optional<EntityID> m_selectedEntity;
 };
 
 } // namespace Anker

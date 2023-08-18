@@ -15,8 +15,8 @@ class Scene {
 	Scene& operator=(Scene&&) noexcept = delete;
 
 	EntityHandle createEntity(std::string_view name = "");
-	EntityHandle entityHandle(EntityId);
-	EntityCHandle entityHandle(EntityId) const;
+	EntityHandle entityHandle(EntityID);
+	EntityCHandle entityHandle(EntityID) const;
 
 	entt::registry registry;
 

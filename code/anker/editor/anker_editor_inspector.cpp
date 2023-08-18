@@ -37,8 +37,8 @@ void EditorInspector::tick(float, Scene& scene)
 
 		ImGui::Separator();
 
-		scene.registry.each([&](EntityId entityId) {
-			EntityHandle entity{scene.registry, entityId};
+		scene.registry.each([&](EntityID entityID) {
+			EntityHandle entity{scene.registry, entityID};
 
 			if (ImGui::Selectable(entityLabel(entity).c_str(), m_selectedEntity && m_selectedEntity == entity)) {
 				m_selectedEntity = entity;

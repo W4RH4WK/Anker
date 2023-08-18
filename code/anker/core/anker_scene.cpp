@@ -20,12 +20,12 @@ EntityHandle Scene::createEntity(std::string_view name)
 	return entity;
 }
 
-EntityHandle Scene::entityHandle(EntityId id)
+EntityHandle Scene::entityHandle(EntityID id)
 {
 	return {registry, id};
 }
 
-EntityCHandle Scene::entityHandle(EntityId id) const
+EntityCHandle Scene::entityHandle(EntityID id) const
 {
 	return {registry, id};
 }
