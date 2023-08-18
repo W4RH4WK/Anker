@@ -3,6 +3,7 @@
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
+#include <anker/graphics/anker_sprite.hpp>
 
 namespace Anker {
 
@@ -19,6 +20,7 @@ Engine::Engine(DataLoader& dataLoader)
 	componentRegistry.registerComponent<EntityName>("Name", -2);
 	componentRegistry.registerComponent<Transform2D>("Transform2D", -1);
 	componentRegistry.registerComponent<Camera>("Camera");
+	componentRegistry.registerComponent<Sprite>("Sprite");
 
 	ANKER_INFO("Anker Initialized!");
 }

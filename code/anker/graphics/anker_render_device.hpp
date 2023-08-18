@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/core/anker_asset.hpp>
+
 namespace Anker {
 
 class DataLoader;
@@ -136,6 +138,16 @@ struct Texture {
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
 	ComPtr<ID3D11DepthStencilView> depthView;
 };
+
+inline bool serialize(EditWidgetDrawer&, AssetPtr<Texture>& texture)
+{
+	if (texture) {
+		ImGui::Text("Texture: %s", texture->info.name.c_str());
+	} else {
+		ImGui::Text("No Texture");
+	}
+	return false;
+}
 
 ////////////////////////////////////////////////////////////
 // Rasterizer

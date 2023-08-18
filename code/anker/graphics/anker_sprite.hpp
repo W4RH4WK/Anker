@@ -12,3 +12,8 @@ struct Sprite {
 };
 
 } // namespace Anker
+
+REFL_TYPE(Anker::Sprite)
+REFL_FIELD(texture, Anker::attr::Inline())
+REFL_FIELD(pixelToMeter)
+REFL_END
