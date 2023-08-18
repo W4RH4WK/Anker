@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/editor/anker_edit_widget_drawer.hpp>
+
 namespace Anker {
 
 using ComponentID = entt::id_type;
@@ -25,9 +27,6 @@ struct ComponentInfo {
 // A component that is not registered here can still be used with the ECS.
 // However, certain features like serialization and editor support won't be
 // present.
-//
-// Generally, a system should register its related components here on
-// construction.
 class ComponentRegistry {
   public:
 	ComponentRegistry();

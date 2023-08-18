@@ -8,18 +8,6 @@
 
 namespace Anker {
 
-static void drawNameWidget(EntityHandle entity)
-{
-	std::string name = entityDisplayName(entity);
-	if (ImGui::InputText("name", &name, ImGuiInputTextFlags_EnterReturnsTrue)) {
-		if (name.empty()) {
-			entity.remove<EntityName>();
-		} else {
-			entity.get_or_emplace<EntityName>().name = name;
-		}
-	}
-}
-
 void EditorInspector::tick(float, Scene& scene)
 {
 	if (!m_enabled) {
@@ -74,6 +62,18 @@ void EditorInspector::tick(float, Scene& scene)
 void EditorInspector::drawMenuBarEntry()
 {
 	ImGui::ToggleButton("ECS", &m_enabled);
+}
+
+void EditorInspector::drawNameWidget(EntityHandle entity)
+{
+	std::string name = entityDisplayName(entity);
+	if (ImGui::InputText("name", &name, ImGuiInputTextFlags_EnterReturnsTrue)) {
+		if (name.empty()) {
+			entity.remove<EntityName>();
+		} else {
+			entity.get_or_emplace<EntityName>().name = name;
+		}
+	}
 }
 
 void EditorInspector::drawAddComponentButton(EntityHandle entity)

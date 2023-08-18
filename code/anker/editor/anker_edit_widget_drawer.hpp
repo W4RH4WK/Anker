@@ -1,9 +1,6 @@
 #pragma once
 
-#include "anker_imgui_utils.hpp"
-#include "anker_math.hpp"
-#include "anker_serialize.hpp"
-#include "anker_type_utils.hpp"
+#include <anker/core/anker_asset.hpp>
 
 namespace Anker {
 
@@ -258,5 +255,16 @@ class EditWidgetDrawer {
 	// Temporary string to support getter/setter using string_view.
 	std::string m_tempString;
 };
+
+////////////////////////////////////////////////////////////
+// AssetPtr support
+
+struct VertexShader;
+struct PixelShader;
+struct Texture;
+
+bool serialize(EditWidgetDrawer&, AssetPtr<VertexShader>&);
+bool serialize(EditWidgetDrawer&, AssetPtr<PixelShader>&);
+bool serialize(EditWidgetDrawer&, AssetPtr<Texture>&);
 
 } // namespace Anker

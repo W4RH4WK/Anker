@@ -2,7 +2,6 @@
 
 #include "anker_check.hpp"
 #include "anker_defer.hpp"
-#include "anker_edit_widget_drawer.hpp"
 #include "anker_entt_utils.hpp"
 #include "anker_enum_utils.hpp"
 #include "anker_file_utils.hpp"

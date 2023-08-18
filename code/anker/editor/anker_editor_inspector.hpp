@@ -17,6 +17,7 @@ class EditorInspector {
 	void drawMenuBarEntry();
 
   private:
+	void drawNameWidget(EntityHandle entity);
 	void drawAddComponentButton(EntityHandle entity);
 	void drawComponentEditor(EntityHandle);
 

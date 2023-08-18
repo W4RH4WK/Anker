@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/editor/anker_edit_widget_drawer.hpp>
+
 namespace Anker {
 
 struct EntityName {
