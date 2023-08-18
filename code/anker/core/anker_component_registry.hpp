@@ -30,7 +30,7 @@ struct ComponentInfo {
 // construction.
 class ComponentRegistry {
   public:
-	ComponentRegistry() = default;
+	ComponentRegistry();
 	ComponentRegistry(const ComponentRegistry&) = delete;
 	ComponentRegistry& operator=(const ComponentRegistry&) = delete;
 	ComponentRegistry(ComponentRegistry&&) noexcept = delete;

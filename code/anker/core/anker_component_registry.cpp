@@ -2,8 +2,20 @@
 
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_transform.hpp>
+#include <anker/editor/anker_editor_camera.hpp>
+#include <anker/graphics/anker_camera.hpp>
+#include <anker/graphics/anker_sprite.hpp>
 
 namespace Anker {
+
+ComponentRegistry::ComponentRegistry()
+{
+	registerComponent<EntityName>("Name", -2);
+	registerComponent<Transform2D>("Transform2D", -1);
+	registerComponent<Camera>("Camera");
+	registerComponent<Sprite>("Sprite");
+	registerComponent<EditorCamera>("EditorCamera");
+}
 
 const ComponentInfo* ComponentRegistry::componentByID(entt::id_type id) const
 {

@@ -10,7 +10,7 @@ class Scene;
 
 class EditorCameraSystem {
   public:
-	EditorCameraSystem();
+	EditorCameraSystem() = default;
 	EditorCameraSystem(const EditorCameraSystem&) = delete;
 	EditorCameraSystem& operator=(const EditorCameraSystem&) = delete;
 	EditorCameraSystem(EditorCameraSystem&&) noexcept = delete;

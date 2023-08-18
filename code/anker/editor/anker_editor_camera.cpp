@@ -8,11 +8,6 @@
 
 namespace Anker {
 
-EditorCameraSystem::EditorCameraSystem()
-{
-	g_engine->componentRegistry.registerComponent<EditorCamera>("EditorCamera");
-}
-
 void EditorCameraSystem::tick(float, Scene& scene)
 {
 	auto [transform, camera, editorCamera] = scene.activeCamera.try_get<Transform2D, Camera, EditorCamera>();
