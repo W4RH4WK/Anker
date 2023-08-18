@@ -1,5 +1,6 @@
 #include <anker/core/anker_scene.hpp>
 
+#include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
 
@@ -10,21 +11,21 @@ ScenePtr Scene::create()
 	return ScenePtr(new Scene);
 }
 
-EntityHandle Scene::createEntity(std::string_view)
+EntityHandle Scene::createEntity(std::string_view name)
 {
 	EntityHandle entity = {registry, registry.create()};
-	// if (!name.empty()) {
-	//	entity.emplace<EntityName>().name.assign(name.data(), name.size());
-	// }
+	if (!name.empty()) {
+		entity.emplace<EntityName>().name = name;
+	}
 	return entity;
 }
 
-EntityHandle Scene::entityHandle(EntityID id)
+EntityHandle Scene::entityHandle(EntityId id)
 {
 	return {registry, id};
 }
 
-EntityCHandle Scene::entityHandle(EntityID id) const
+EntityCHandle Scene::entityHandle(EntityId id) const
 {
 	return {registry, id};
 }

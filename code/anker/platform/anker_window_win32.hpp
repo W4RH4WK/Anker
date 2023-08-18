@@ -23,22 +23,9 @@ class Window {
 	GLFWwindow* glfwWindow() { return m_glfwWindow; }
 	operator GLFWwindow*() { return m_glfwWindow; }
 
-	std::optional<Vec2i> wasResized()
-	{
-		if (m_resized) {
-			auto newSize = *m_resized;
-			m_resized.reset();
-			return newSize;
-		} else {
-			return std::nullopt;
-		}
-	}
-
   private:
 	HWND m_nativeHandle = nullptr;
 	GLFWwindow* m_glfwWindow = nullptr;
-
-	std::optional<Vec2i> m_resized; // set on resize events
 };
 
 } // namespace Anker

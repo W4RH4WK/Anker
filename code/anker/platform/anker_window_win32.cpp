@@ -11,14 +11,6 @@ Window::Window()
 		ANKER_FATAL("Could not create window");
 	}
 
-	glfwSetWindowUserPointer(m_glfwWindow, this);
-	glfwSetWindowSizeCallback(m_glfwWindow, [](GLFWwindow* glfwWindow, int width, int height) {
-		if (width > 0 && height > 0) {
-			auto* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
-			window->m_resized = {width, height};
-		}
-	});
-
 	m_nativeHandle = glfwGetWin32Window(m_glfwWindow);
 }
 

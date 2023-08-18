@@ -4,8 +4,10 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_imgui_system.hpp>
 #include <anker/core/anker_scene.hpp>
+#include <anker/editor/anker_editor_system.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
+#include <anker/platform/anker_input_system_win32.hpp>
 #include <anker/platform/anker_window_win32.hpp>
 
 namespace Anker {
@@ -35,14 +37,16 @@ class Engine {
 	DataLoader& dataLoader;
 
 	Window window;
-
 	RenderDevice renderDevice;
 	ImguiSystem imguiSystem;
-	AssetCache assetCache;
+	InputSystem inputSystem;
 
+	AssetCache assetCache;
 	Renderer renderer;
 
 	ScenePtr activeScene;
+
+	std::optional<EditorSystem> editorSystem;
 
 	using Clock = std::chrono::steady_clock;
 

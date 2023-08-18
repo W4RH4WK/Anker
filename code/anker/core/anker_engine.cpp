@@ -6,6 +6,7 @@ Engine::Engine(DataLoader& dataLoader)
     : dataLoader(dataLoader),
       renderDevice(window, dataLoader),
       imguiSystem(window, renderDevice),
+      inputSystem(window, imguiSystem),
       assetCache(dataLoader, renderDevice),
       renderer(renderDevice, assetCache)
 {
@@ -23,10 +24,16 @@ void Engine::tick()
 
 	float dt = calculateDeltaTime();
 
+	inputSystem.tick(dt);
+
 	dataLoader.tick(dt);
 	assetCache.reloadModifiedAssets();
 
 	imguiSystem.newFrame();
+
+	if (editorSystem) {
+		editorSystem->tick(dt, *activeScene);
+	}
 
 	// ImGui::ShowDemoWindow();
 
