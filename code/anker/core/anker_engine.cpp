@@ -1,5 +1,9 @@
 #include <anker/core/anker_engine.hpp>
 
+#include <anker/core/anker_entity_name.hpp>
+#include <anker/core/anker_transform.hpp>
+#include <anker/graphics/anker_camera.hpp>
+
 namespace Anker {
 
 Engine::Engine(DataLoader& dataLoader)
@@ -10,6 +14,12 @@ Engine::Engine(DataLoader& dataLoader)
       assetCache(dataLoader, renderDevice),
       renderer(renderDevice, assetCache)
 {
+	// Registering Transform component here since there is no system directly
+	// associated with it.
+	componentRegistry.registerComponent<EntityName>("Name", -2);
+	componentRegistry.registerComponent<Transform2D>("Transform2D", -1);
+	componentRegistry.registerComponent<Camera>("Camera");
+
 	ANKER_INFO("Anker Initialized!");
 }
 

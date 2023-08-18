@@ -7,3 +7,7 @@ struct Camera {
 };
 
 } // namespace Anker
+
+REFL_TYPE(Anker::Camera)
+REFL_FIELD(distance)
+REFL_END

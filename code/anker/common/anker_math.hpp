@@ -1,5 +1,7 @@
 #pragma once
 
+#include "anker_type_utils.hpp"
+
 namespace Anker {
 
 using Vec2 = glm::vec2;
@@ -37,6 +39,23 @@ constexpr Mat3 Mat3Id = glm::identity<Mat3>();
 
 using Mat4 = glm::mat4;
 constexpr Mat4 Mat4Id = glm::identity<Mat4>();
+
+inline Vec3 gammaReverse(const Vec3& color, float gamma = 2.2f)
+{
+	return pow(color, Vec3(gamma));
+}
+
+// clang-format off
+template <> constexpr const char* typeName<Vec2>() { return "Vec2"; }
+template <> constexpr const char* typeName<Vec2i>() { return "Vec2i"; }
+template <> constexpr const char* typeName<Vec2u>() { return "Vec2u"; }
+template <> constexpr const char* typeName<Vec3>() { return "Vec3"; }
+template <> constexpr const char* typeName<Vec4>() { return "Vec4"; }
+template <> constexpr const char* typeName<Quat>() { return "Quat"; }
+template <> constexpr const char* typeName<Mat2>() { return "Mat2"; }
+template <> constexpr const char* typeName<Mat3>() { return "Mat3"; }
+template <> constexpr const char* typeName<Mat4>() { return "Mat4"; }
+// clang-format on
 
 } // namespace Anker
 

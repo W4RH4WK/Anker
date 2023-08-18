@@ -6,6 +6,14 @@ struct EntityName {
 	std::string name;
 };
 
+} // namespace Anker
+
+REFL_TYPE(Anker::EntityName, Anker::attr::Hidden())
+REFL_FIELD(name)
+REFL_END
+
+namespace Anker {
+
 inline std::string entityDisplayName(EntityHandle entity)
 {
 	if (auto* name = entity.try_get<EntityName>()) {

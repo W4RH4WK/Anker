@@ -54,3 +54,9 @@ inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 }
 
 } // namespace Anker
+
+REFL_TYPE(Anker::Transform2D)
+REFL_FIELD(position)
+REFL_FIELD(rotation)
+REFL_FIELD(scale)
+REFL_END

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "anker_enum_utils.hpp"
+#include "anker_type_utils.hpp"
 
 namespace ImGui {
 
@@ -39,6 +40,28 @@ inline bool InputQuat(const char* label, glm::quat* v)
 		return true;
 	}
 	return false;
+}
+
+template <typename EnumType>
+bool InputEnum(const char* label, EnumType* value, Anker::EnumEntries<EnumType> entries) //
+    requires std::is_enum_v<EnumType>
+{
+	bool changed = false;
+	if (ImGui::BeginCombo(label, to_string(*value))) {
+		for (auto& [entry, entryString] : entries) {
+			bool isSelected = *value == entry;
+			if (ImGui::Selectable(entryString, isSelected)) {
+				*value = entry;
+				changed = true;
+			}
+
+			if (isSelected) {
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+	return changed;
 }
 
 } // namespace ImGui

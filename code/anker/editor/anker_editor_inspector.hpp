@@ -17,6 +17,9 @@ class EditorInspector {
 	void drawMenuBarEntry();
 
   private:
+	void drawAddComponentButton(EntityHandle entity);
+	void drawComponentEditor(EntityHandle);
+
 	bool m_enabled = true;
 
 	std::optional<EntityId> m_selectedEntity;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <anker/core/anker_asset_cache.hpp>
+#include <anker/core/anker_component_registry.hpp>
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_imgui_system.hpp>
 #include <anker/core/anker_scene.hpp>
@@ -34,6 +35,8 @@ class Engine {
 	void onResize(Vec2i size);
 
 	DataLoader& dataLoader;
+
+	ComponentRegistry componentRegistry;
 
 	RenderDevice renderDevice;
 	ImguiSystem imguiSystem;
