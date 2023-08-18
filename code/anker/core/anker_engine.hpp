@@ -8,7 +8,6 @@
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
 #include <anker/platform/anker_input_system_win32.hpp>
-#include <anker/platform/anker_window_win32.hpp>
 
 namespace Anker {
 
@@ -36,7 +35,6 @@ class Engine {
 
 	DataLoader& dataLoader;
 
-	Window window;
 	RenderDevice renderDevice;
 	ImguiSystem imguiSystem;
 	InputSystem inputSystem;

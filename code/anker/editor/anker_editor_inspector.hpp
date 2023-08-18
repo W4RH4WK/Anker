@@ -6,7 +6,7 @@ class Scene;
 
 class EditorInspector {
   public:
-	EditorInspector();
+	EditorInspector() = default;
 	EditorInspector(const EditorInspector&) = delete;
 	EditorInspector& operator=(const EditorInspector&) = delete;
 	EditorInspector(EditorInspector&&) noexcept = delete;

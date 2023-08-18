@@ -75,8 +75,6 @@ static void drawComponentEditor(ComponentRegistry& componentRegistry, EntityHand
 }
 #endif
 
-EditorInspector::EditorInspector() {}
-
 void EditorInspector::tick(float, Scene& scene)
 {
 	if (!m_enabled) {

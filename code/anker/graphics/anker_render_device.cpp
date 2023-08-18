@@ -3,7 +3,7 @@
 #include <ddspp.h>
 
 #include <anker/core/anker_data_loader.hpp>
-#include <anker/platform/anker_window_win32.hpp>
+#include <anker/platform/anker_platform_win32.hpp>
 
 namespace Anker {
 
@@ -81,7 +81,7 @@ static Status createTextureFromPNGorJPG(Texture& texture, std::span<uint8_t> ima
 	return device.createTexture(texture, inits);
 }
 
-RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoader(dataLoader)
+RenderDevice::RenderDevice(DataLoader& dataLoader) : m_dataLoader(dataLoader)
 {
 	const D3D_FEATURE_LEVEL levels[] = {
 	    D3D_FEATURE_LEVEL_11_0,
@@ -116,7 +116,7 @@ RenderDevice::RenderDevice(Window& window, DataLoader& dataLoader) : m_dataLoade
 	    .SampleDesc = {.Count = 1},
 	    .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
 	    .BufferCount = 2,
-	    .OutputWindow = window,
+	    .OutputWindow = *g_platform,
 	    .Windowed = true,
 	    .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
 	    .Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING,

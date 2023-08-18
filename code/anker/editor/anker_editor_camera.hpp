@@ -7,11 +7,10 @@ struct EditorCamera {
 };
 
 class Scene;
-class InputSystem;
 
 class EditorCameraSystem {
   public:
-	EditorCameraSystem(InputSystem&);
+	EditorCameraSystem() = default;
 	EditorCameraSystem(const EditorCameraSystem&) = delete;
 	EditorCameraSystem& operator=(const EditorCameraSystem&) = delete;
 	EditorCameraSystem(EditorCameraSystem&&) noexcept = delete;
@@ -20,9 +19,6 @@ class EditorCameraSystem {
 	void tick(float, Scene&);
 
 	void drawMenuBarEntry(Scene&);
-
-  private:
-	InputSystem& m_inputSystem;
 };
 
 } // namespace Anker

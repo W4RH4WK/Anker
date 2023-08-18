@@ -4,8 +4,6 @@
 
 namespace Anker {
 
-EditorSystem::EditorSystem(Engine& engine) : m_engine(engine), m_cameraSystem(engine.inputSystem) {}
-
 void EditorSystem::tick(float dt, Scene& scene)
 {
 	m_inspector.tick(dt, scene);

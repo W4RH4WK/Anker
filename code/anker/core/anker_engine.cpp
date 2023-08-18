@@ -4,9 +4,9 @@ namespace Anker {
 
 Engine::Engine(DataLoader& dataLoader)
     : dataLoader(dataLoader),
-      renderDevice(window, dataLoader),
-      imguiSystem(window, renderDevice),
-      inputSystem(window, imguiSystem),
+      renderDevice(dataLoader),
+      imguiSystem(renderDevice),
+      inputSystem(imguiSystem),
       assetCache(dataLoader, renderDevice),
       renderer(renderDevice, assetCache)
 {

@@ -2,12 +2,11 @@
 
 namespace Anker {
 
-class Window;
 class RenderDevice;
 
 class ImguiSystem {
   public:
-	ImguiSystem(Window&, RenderDevice&);
+	ImguiSystem(RenderDevice&);
 	ImguiSystem(const ImguiSystem&) = delete;
 	ImguiSystem& operator=(const ImguiSystem&) = delete;
 	ImguiSystem(ImguiSystem&&) noexcept = delete;

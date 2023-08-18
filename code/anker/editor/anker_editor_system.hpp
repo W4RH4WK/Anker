@@ -5,12 +5,13 @@
 
 namespace Anker {
 
-class Engine;
 class Scene;
 
+// The EditorSystem serves as a framework for all editor-related systems. It is
+// initialized after Engine and therefore uses the global Engine instance.
 class EditorSystem {
   public:
-	EditorSystem(Engine&);
+	EditorSystem() = default;
 	EditorSystem(const EditorSystem&) = delete;
 	EditorSystem& operator=(const EditorSystem&) = delete;
 	EditorSystem(EditorSystem&&) noexcept = delete;
@@ -19,8 +20,6 @@ class EditorSystem {
 	void tick(float, Scene&);
 
   private:
-	Engine& m_engine;
-
 	EditorInspector m_inspector;
 	EditorCameraSystem m_cameraSystem;
 };

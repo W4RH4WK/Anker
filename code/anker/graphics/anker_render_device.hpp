@@ -4,7 +4,6 @@ namespace Anker {
 
 class DataLoader;
 class RenderDevice;
-class Window;
 
 enum class GpuBindFlag {
 	None = 0,
@@ -159,7 +158,7 @@ struct RasterizerDesc {
 // We also manage the swap-chain and related buffers / views.
 class RenderDevice {
   public:
-	RenderDevice(Window&, DataLoader&);
+	RenderDevice(DataLoader&);
 
 	RenderDevice(const RenderDevice&) = delete;
 	RenderDevice& operator=(const RenderDevice&) = delete;

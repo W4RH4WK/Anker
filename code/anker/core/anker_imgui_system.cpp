@@ -1,28 +1,29 @@
 #include <anker/core/anker_imgui_system.hpp>
 
 #include <anker/graphics/anker_render_device.hpp>
-#include <anker/platform/anker_window_win32.hpp>
+#include <anker/platform/anker_platform_win32.hpp>
 
 namespace Anker {
 
-ImguiSystem::ImguiSystem(Window& window, RenderDevice& renderDevice)
+ImguiSystem::ImguiSystem(RenderDevice& renderDevice)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGui_ImplGlfw_InitForOther(window, true);
+	g_platform->imguiImplInit();
 	ImGui_ImplDX11_Init(renderDevice.device(), renderDevice.context());
 }
 
 ImguiSystem::~ImguiSystem()
 {
 	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+	g_platform->imguiImplShutdown();
 	ImGui::DestroyContext();
 }
 
 void ImguiSystem::newFrame()
 {
-	ImGui_ImplGlfw_NewFrame();
+
+	g_platform->imguiImplNewFrame();
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
 }

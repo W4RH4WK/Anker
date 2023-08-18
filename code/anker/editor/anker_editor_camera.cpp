@@ -1,13 +1,12 @@
 #include <anker/editor/anker_editor_camera.hpp>
 
+#include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_entity_name.hpp>
-#include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
-#include <anker/platform/anker_input_system_win32.hpp>
+#include <anker/platform/anker_platform_win32.hpp>
 
 namespace Anker {
-EditorCameraSystem::EditorCameraSystem(InputSystem& inputSystem) : m_inputSystem(inputSystem) {}
 
 void EditorCameraSystem::tick(float, Scene& scene)
 {
@@ -20,9 +19,9 @@ void EditorCameraSystem::tick(float, Scene& scene)
 		return;
 	}
 
-	auto& actions = m_inputSystem.actions();
+	auto& actions = g_engine->inputSystem.actions();
 	if (actions.editorCameraActivate) {
-		m_inputSystem.hideCursor();
+		g_platform->hideCursor();
 		transform->position += actions.editorCameraPan * editorCamera->speed * camera->distance;
 		camera->distance -= actions.editorCameraZoom;
 	}
