@@ -14,7 +14,7 @@ Window::Window()
 	m_nativeHandle = glfwGetWin32Window(m_glfwWindow);
 }
 
-Window::~Window() noexcept
+Window::~Window()
 {
 	glfwDestroyWindow(m_glfwWindow);
 }

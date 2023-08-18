@@ -18,7 +18,7 @@ class DeferHolder {
 	DeferHolder& operator=(const DeferHolder&) = delete;
 	DeferHolder(const DeferHolder&&) noexcept = delete;
 	DeferHolder& operator=(const DeferHolder&&) noexcept = delete;
-	~DeferHolder() { m_function(); }
+	~DeferHolder() noexcept { m_function(); }
 
   private:
 	T m_function;

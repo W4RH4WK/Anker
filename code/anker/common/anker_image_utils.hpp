@@ -14,7 +14,7 @@ class Image {
 	Image& operator=(const Image&) = delete;
 	Image(Image&&) noexcept = delete;
 	Image& operator=(Image&&) noexcept = delete;
-	~Image();
+	~Image() noexcept;
 
 	explicit operator bool() const { return m_pixels; }
 	const uint8_t* pixels() const { return m_pixels; }

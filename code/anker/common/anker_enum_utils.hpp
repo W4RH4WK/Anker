@@ -13,7 +13,7 @@ using EnumEntries = std::span<const std::pair<Enum, const char*>>;
 // Enum attribute for refl-cpp that stores the entries array (as std::span).
 template <typename Enum>
 struct EnumAttr : refl::attr::usage::field {
-	explicit constexpr EnumAttr(EnumEntries<Enum> e) : entries(e) {}
+	constexpr EnumAttr(EnumEntries<Enum> e) : entries(e) {}
 	EnumEntries<Enum> entries;
 };
 template <typename Enum, size_t N>

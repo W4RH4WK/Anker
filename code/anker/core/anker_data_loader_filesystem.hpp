@@ -7,7 +7,6 @@ namespace Anker {
 class DataLoaderFilesystem : public IDataLoaderSource {
   public:
 	explicit DataLoaderFilesystem(const fs::path& root);
-	~DataLoaderFilesystem();
 
 	DataLoaderFilesystem(const DataLoaderFilesystem&) = delete;
 	DataLoaderFilesystem& operator=(const DataLoaderFilesystem&) = delete;

@@ -10,7 +10,7 @@ class Scene;
 
 class SpriteRenderer {
   public:
-	explicit SpriteRenderer(RenderDevice&, AssetCache&);
+	SpriteRenderer(RenderDevice&, AssetCache&);
 	SpriteRenderer(const SpriteRenderer&) = delete;
 	SpriteRenderer& operator=(const SpriteRenderer&) = delete;
 	SpriteRenderer(SpriteRenderer&&) noexcept = delete;

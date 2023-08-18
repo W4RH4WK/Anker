@@ -12,7 +12,7 @@ class ImguiSystem {
 	ImguiSystem& operator=(const ImguiSystem&) = delete;
 	ImguiSystem(ImguiSystem&&) noexcept = delete;
 	ImguiSystem& operator=(ImguiSystem&&) noexcept = delete;
-	~ImguiSystem();
+	~ImguiSystem() noexcept;
 
 	void newFrame();
 

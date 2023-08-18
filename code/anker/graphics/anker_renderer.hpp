@@ -11,7 +11,7 @@ class Scene;
 
 class Renderer {
   public:
-	explicit Renderer(RenderDevice&, AssetCache&);
+	Renderer(RenderDevice&, AssetCache&);
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 	Renderer(Renderer&&) noexcept = delete;
