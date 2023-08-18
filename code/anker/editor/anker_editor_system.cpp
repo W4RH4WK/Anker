@@ -8,9 +8,11 @@ EditorSystem::EditorSystem(Engine& engine) : m_engine(engine), m_cameraSystem(en
 
 void EditorSystem::tick(float dt, Scene& scene)
 {
+	m_inspector.tick(dt, scene);
 	m_cameraSystem.tick(dt, scene);
 
 	if (ImGui::BeginMainMenuBar()) {
+		m_inspector.drawMenuBarEntry();
 		m_cameraSystem.drawMenuBarEntry(scene);
 		ImGui::EndMainMenuBar();
 	}

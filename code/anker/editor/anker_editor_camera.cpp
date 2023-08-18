@@ -16,6 +16,10 @@ void EditorCameraSystem::tick(float, Scene& scene)
 		return;
 	}
 
+	if (ImGui::GetIO().WantCaptureMouse) {
+		return;
+	}
+
 	auto& actions = m_inputSystem.actions();
 	if (actions.editorCameraActivate) {
 		m_inputSystem.hideCursor();

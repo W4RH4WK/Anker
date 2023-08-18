@@ -1,6 +1,7 @@
 #pragma once
 
 #include <anker/editor/anker_editor_camera.hpp>
+#include <anker/editor/anker_editor_inspector.hpp>
 
 namespace Anker {
 
@@ -20,6 +21,7 @@ class EditorSystem {
   private:
 	Engine& m_engine;
 
+	EditorInspector m_inspector;
 	EditorCameraSystem m_cameraSystem;
 };
 
