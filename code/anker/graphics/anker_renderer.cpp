@@ -95,7 +95,7 @@ void Renderer::draw(const Scene& scene)
 	// Post Processing
 	{
 		m_renderDevice.bindTexturePS(0, m_sceneRenderTarget);
-		m_postProcessRenderer.draw({});
+		m_postProcessRenderer.draw(cameraParams->postProcessParams);
 		m_renderDevice.unbindTexturePS(0);
 	}
 }
