@@ -20,7 +20,7 @@ class EditorSystem {
 	void tick(float, Scene&);
 
   private:
-	EditorInspector m_inspector;
+	Inspector m_inspector;
 	EditorCameraSystem m_cameraSystem;
 };
 

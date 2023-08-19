@@ -4,13 +4,13 @@ namespace Anker {
 
 class Scene;
 
-class EditorInspector {
+class Inspector {
   public:
-	EditorInspector() = default;
-	EditorInspector(const EditorInspector&) = delete;
-	EditorInspector& operator=(const EditorInspector&) = delete;
-	EditorInspector(EditorInspector&&) noexcept = delete;
-	EditorInspector& operator=(EditorInspector&&) noexcept = delete;
+	Inspector() = default;
+	Inspector(const Inspector&) = delete;
+	Inspector& operator=(const Inspector&) = delete;
+	Inspector(Inspector&&) noexcept = delete;
+	Inspector& operator=(Inspector&&) noexcept = delete;
 
 	void tick(float, Scene&);
 

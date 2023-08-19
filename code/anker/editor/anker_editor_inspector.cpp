@@ -8,7 +8,7 @@
 
 namespace Anker {
 
-void EditorInspector::tick(float, Scene& scene)
+void Inspector::tick(float, Scene& scene)
 {
 	if (!m_enabled) {
 		return;
@@ -59,12 +59,12 @@ void EditorInspector::tick(float, Scene& scene)
 	ImGui::End();
 }
 
-void EditorInspector::drawMenuBarEntry()
+void Inspector::drawMenuBarEntry()
 {
 	ImGui::ToggleButton("ECS", &m_enabled);
 }
 
-void EditorInspector::drawNameWidget(EntityHandle entity)
+void Inspector::drawNameWidget(EntityHandle entity)
 {
 	std::string name = entityDisplayName(entity);
 	if (ImGui::InputText("name", &name, ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -76,7 +76,7 @@ void EditorInspector::drawNameWidget(EntityHandle entity)
 	}
 }
 
-void EditorInspector::drawAddComponentButton(EntityHandle entity)
+void Inspector::drawAddComponentButton(EntityHandle entity)
 {
 	ImGui::SameLine(ImGui::GetWindowWidth() - 20);
 	if (ImGui::Button("+##addComp")) {
@@ -95,7 +95,7 @@ void EditorInspector::drawAddComponentButton(EntityHandle entity)
 	}
 }
 
-void EditorInspector::drawComponentEditor(EntityHandle entity)
+void Inspector::drawComponentEditor(EntityHandle entity)
 {
 	const auto treeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen;
 
