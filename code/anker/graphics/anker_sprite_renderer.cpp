@@ -63,6 +63,8 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 
 void SpriteRenderer::draw(const Scene& scene)
 {
+	ANKER_PROFILE_ZONE();
+
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 

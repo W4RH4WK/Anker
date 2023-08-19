@@ -22,6 +22,8 @@ PostProcessRenderer::PostProcessRenderer(RenderDevice& renderDevice, AssetCache&
 
 void PostProcessRenderer::draw(const PostProcessParams& params)
 {
+	ANKER_PROFILE_ZONE();
+
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
 	{
