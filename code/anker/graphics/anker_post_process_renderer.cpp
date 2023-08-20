@@ -26,12 +26,7 @@ void PostProcessRenderer::draw(const PostProcessParams& params)
 
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	{
-		auto* cb = m_renderDevice.mapBuffer<PostProcessParams>(m_constantBuffer);
-		*cb = params;
-		m_renderDevice.unmapBuffer(m_constantBuffer);
-	}
-
+	m_renderDevice.fillBuffer<PostProcessParams>(m_constantBuffer, std::array{params});
 	m_renderDevice.bindBufferPS(0, m_constantBuffer);
 
 	ScreenRenderer::draw();

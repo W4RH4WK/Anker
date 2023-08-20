@@ -188,8 +188,8 @@ class RenderDevice {
 	}
 	void unmapBuffer(GpuBuffer&);
 
-	template <typename T = uint8_t>
-	void fillBuffer(GpuBuffer& buffer, std::span<T> data)
+	template <typename T>
+	void fillBuffer(GpuBuffer& buffer, std::span<const T> data)
 	{
 		auto* dst = mapBuffer(buffer);
 		std::ranges::copy(asBytes(data), dst);

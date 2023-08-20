@@ -74,11 +74,10 @@ void Renderer::draw(const Scene& scene)
 
 		view = inverse(view);
 
-		auto* cb = m_renderDevice.mapBuffer<SceneConstantBuffer>(m_sceneConstantBuffer);
-		*cb = SceneConstantBuffer{
+		const SceneConstantBuffer cb{
 		    .view = view,
 		};
-		m_renderDevice.unmapBuffer(m_sceneConstantBuffer);
+		m_renderDevice.fillBuffer<SceneConstantBuffer>(m_sceneConstantBuffer, std::array{cb});
 		m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
 		m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
 	}
