@@ -13,6 +13,7 @@ set(CMAKE_PCH_PROLOGUE "")
 
 add_subdirectory(external/mimalloc)
 add_subdirectory(external/fmt)
+add_subdirectory(external/cppitertools)
 add_subdirectory(external/reflcpp)
 add_subdirectory(external/stb)
 add_subdirectory(external/ddspp)
@@ -59,6 +60,7 @@ target_link_options(anker PRIVATE /ENTRY:mainCRTStartup)
 target_link_libraries(anker PRIVATE
 	mimalloc
 	fmt
+	cppitertools
 	reflcpp
 	stb
 	ddspp

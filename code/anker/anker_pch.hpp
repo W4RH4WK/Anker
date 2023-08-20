@@ -48,6 +48,8 @@ using Microsoft::WRL::ComPtr;
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <cppitertools/groupby.hpp>
+
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/quaternion.hpp>
