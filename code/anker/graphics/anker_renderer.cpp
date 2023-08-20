@@ -58,6 +58,7 @@ void Renderer::draw(const Scene& scene)
 		return;
 	}
 
+	SceneConstantBuffer sceneCb;
 	{
 		Mat3 view = cameraTransform->mat3();
 		view = scale(view, Vec2(cameraParams->distance));
@@ -72,33 +73,29 @@ void Renderer::draw(const Scene& scene)
 			view = scale(view, {aspectRatio, 1.0f});
 		}
 
-		view = inverse(view);
-
-		const SceneConstantBuffer cb{
-		    .view = view,
-		};
-		m_renderDevice.fillBuffer<SceneConstantBuffer>(m_sceneConstantBuffer, std::array{cb});
-		m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
-		m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
+		sceneCb.view = inverse(view);
 	}
+	m_renderDevice.fillBuffer<SceneConstantBuffer>(m_sceneConstantBuffer, std::array{sceneCb});
+	m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
+	m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
+
+	////////////////////////////////////////////////////////////
+	// Scene Rendering
 
 	m_renderDevice.clearRenderTarget(m_sceneRenderTarget);
 	m_renderDevice.setRenderTarget(m_sceneRenderTarget);
 
-	// Scene Rendering
-	{
-		m_spriteRenderer.draw(scene);
-	}
+	m_spriteRenderer.draw(scene);
+
+	////////////////////////////////////////////////////////////
+	// Post Processing
 
 	m_renderDevice.setRenderTarget(m_renderDevice.backBuffer());
 	m_renderDevice.clearRenderTarget(m_renderDevice.backBuffer());
 
-	// Post Processing
-	{
-		m_renderDevice.bindTexturePS(0, m_sceneRenderTarget);
-		m_postProcessRenderer.draw(cameraParams->postProcessParams);
-		m_renderDevice.unbindTexturePS(0);
-	}
+	m_renderDevice.bindTexturePS(0, m_sceneRenderTarget);
+	m_postProcessRenderer.draw(cameraParams->postProcessParams);
+	m_renderDevice.unbindTexturePS(0);
 }
 
 void Renderer::onResize(Vec2i)
