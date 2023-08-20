@@ -23,6 +23,7 @@ AllowShortFunctionsOnASingleLine: Inline
 # Improve alignment of multi-line
 AlignOperands: AlignAfterOperator
 BreakBeforeBinaryOperators: NonAssignment
+PenaltyBreakAssignment: 25
 
 # Increase readability of templates
 AlwaysBreakTemplateDeclarations: true

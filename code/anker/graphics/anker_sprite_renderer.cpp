@@ -9,29 +9,29 @@ namespace Anker {
 
 SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCache) : m_renderDevice(renderDevice)
 {
-	const std::array shaderInputDescription{
-	    D3D11_INPUT_ELEMENT_DESC{
-	        .SemanticName = "POSITION",
-	        .Format = DXGI_FORMAT_R32G32_FLOAT,
-	        .AlignedByteOffset = offsetof(Vertex, position),
-	        .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	    },
-	    D3D11_INPUT_ELEMENT_DESC{
-	        .SemanticName = "TEXCOORD",
-	        .SemanticIndex = 0,
-	        .Format = DXGI_FORMAT_R32G32_FLOAT,
-	        .AlignedByteOffset = offsetof(Vertex, uv),
-	        .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	    },
-	    D3D11_INPUT_ELEMENT_DESC{
-	        .SemanticName = "COLOR",
-	        .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	        .AlignedByteOffset = offsetof(Vertex, color),
-	        .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	    },
-	};
-
-	m_vertexShader = assetCache.loadVertexShader("shaders/basic_2d.vs", shaderInputDescription);
+	m_vertexShader = assetCache.loadVertexShader( //
+	    "shaders/basic_2d.vs",                    //
+	    std::array{
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "POSITION",
+	            .Format = DXGI_FORMAT_R32G32_FLOAT,
+	            .AlignedByteOffset = offsetof(Vertex, position),
+	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "TEXCOORD",
+	            .SemanticIndex = 0,
+	            .Format = DXGI_FORMAT_R32G32_FLOAT,
+	            .AlignedByteOffset = offsetof(Vertex, uv),
+	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "COLOR",
+	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+	            .AlignedByteOffset = offsetof(Vertex, color),
+	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+	        },
+	    });
 	m_pixelShader = assetCache.loadPixelShader("shaders/basic_2d.ps");
 
 	m_vertexBuffer.info = {
@@ -89,39 +89,40 @@ void SpriteRenderer::draw(const Scene& scene)
 			for (auto& [transform, sprite] : sprites) {
 				Vec2 spriteScale = Vec2(texture->info.size) / sprite->pixelToMeter;
 
-				auto vertices = {
-				    Vertex{
-				        .position = *transform * (Vec2(0.5f, 0.5f) * spriteScale),
-				        .uv = {1, 0},
-				        .color = sprite->color,
-				    },
-				    Vertex{
-				        .position = *transform * (Vec2(-0.5f, 0.5f) * spriteScale),
-				        .uv = {0, 0},
-				        .color = sprite->color,
-				    },
-				    Vertex{
-				        .position = *transform * (Vec2(-0.5f, -0.5f) * spriteScale),
-				        .uv = {0, 1},
-				        .color = sprite->color,
-				    },
-				    Vertex{
-				        .position = *transform * (Vec2(0.5f, 0.5f) * spriteScale),
-				        .uv = {1, 0},
-				        .color = sprite->color,
-				    },
-				    Vertex{
-				        .position = *transform * (Vec2(-0.5f, -0.5f) * spriteScale),
-				        .uv = {0, 1},
-				        .color = sprite->color,
-				    },
-				    Vertex{
-				        .position = *transform * (Vec2(0.5f, -0.5f) * spriteScale),
-				        .uv = {1, 1},
-				        .color = sprite->color,
-				    },
-				};
-				m_vertices.insert(m_vertices.end(), vertices);
+				m_vertices.insert(    //
+				    m_vertices.end(), //
+				    {
+				        Vertex{
+				            .position = *transform * (Vec2(0.5f, 0.5f) * spriteScale),
+				            .uv = {1, 0},
+				            .color = sprite->color,
+				        },
+				        Vertex{
+				            .position = *transform * (Vec2(-0.5f, 0.5f) * spriteScale),
+				            .uv = {0, 0},
+				            .color = sprite->color,
+				        },
+				        Vertex{
+				            .position = *transform * (Vec2(-0.5f, -0.5f) * spriteScale),
+				            .uv = {0, 1},
+				            .color = sprite->color,
+				        },
+				        Vertex{
+				            .position = *transform * (Vec2(0.5f, 0.5f) * spriteScale),
+				            .uv = {1, 0},
+				            .color = sprite->color,
+				        },
+				        Vertex{
+				            .position = *transform * (Vec2(-0.5f, -0.5f) * spriteScale),
+				            .uv = {0, 1},
+				            .color = sprite->color,
+				        },
+				        Vertex{
+				            .position = *transform * (Vec2(0.5f, -0.5f) * spriteScale),
+				            .uv = {1, 1},
+				            .color = sprite->color,
+				        },
+				    });
 			}
 
 			if (auto sizeInBytes = m_vertices.size() * sizeof(m_vertices[0]); m_vertexBuffer.info.size < sizeInBytes) {

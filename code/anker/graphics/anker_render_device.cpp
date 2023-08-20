@@ -552,7 +552,7 @@ ID3D11RasterizerState* RenderDevice::rasterizerStateFromDesc(const RasterizerDes
 	const D3D11_RASTERIZER_DESC d3d11Desc{
 	    .FillMode = desc.wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID,
 	    .CullMode = D3D11_CULL_BACK,
-	    .FrontCounterClockwise = true,
+	    .FrontCounterClockwise = true, // due to GLTF compatibility
 	    .DepthClipEnable = desc.depthClip,
 	};
 	HRESULT hresult = m_device->CreateRasterizerState(&d3d11Desc, &rasterizer);
