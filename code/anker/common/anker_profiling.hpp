@@ -1,10 +1,10 @@
 #pragma once
 
-#define ANKER_ENABLE_PROFILING 0
+#define ANKER_PROFILE_ENALBED 0
 
-#if ANKER_ENABLE_PROFILING
+#if ANKER_PROFILE_ENALBED
 
-#define TRACY_CALLSTACK 62
+#define TRACY_CALLSTACK 16
 #include <tracy/Tracy.hpp>
 
 // Tracks the current scope.
