@@ -6,6 +6,12 @@ namespace Anker {
 // preferred to std::byte for better interoperability with low-level C APIs.
 using ByteBuffer = std::vector<uint8_t>;
 
+template <typename Container>
+concept Spannable = requires(Container & container)
+{
+	{std::span(container)};
+};
+
 // Since we are using uint8_t instead of std::byte, we provide asBytes and
 // asBytesWritable for uint8_t.
 template <class T, size_t N>

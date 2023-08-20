@@ -10,6 +10,7 @@ PostProcessRenderer::PostProcessRenderer(RenderDevice& renderDevice, AssetCache&
 	m_constantBuffer.info = {
 	    .name = "PostProcessing Constant Buffer",
 	    .size = sizeof(PostProcessParams),
+	    .stride = sizeof(PostProcessParams),
 	    .bindFlags = GpuBindFlag::ConstantBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
@@ -26,7 +27,7 @@ void PostProcessRenderer::draw(const PostProcessParams& params)
 
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	m_renderDevice.fillBuffer<PostProcessParams>(m_constantBuffer, std::array{params});
+	m_renderDevice.fillBuffer(m_constantBuffer, std::array{params});
 	m_renderDevice.bindBufferPS(0, m_constantBuffer);
 
 	ScreenRenderer::draw();

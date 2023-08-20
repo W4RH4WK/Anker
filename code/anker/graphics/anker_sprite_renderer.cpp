@@ -126,12 +126,12 @@ void SpriteRenderer::draw(const Scene& scene)
 
 			if (auto sizeInBytes = m_vertices.size() * sizeof(m_vertices[0]); m_vertexBuffer.info.size < sizeInBytes) {
 				m_vertexBuffer.info.size = uint32_t(sizeInBytes);
-				if (not m_renderDevice.createBuffer<Vertex>(m_vertexBuffer)) {
+				if (not m_renderDevice.createBuffer(m_vertexBuffer)) {
 					ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
 				}
 			}
 
-			m_renderDevice.fillBuffer<Vertex>(m_vertexBuffer, m_vertices);
+			m_renderDevice.fillBuffer(m_vertexBuffer, m_vertices);
 
 			m_renderDevice.bindTexturePS(0, *texture);
 			m_renderDevice.draw(m_vertexBuffer, uint32_t(m_vertices.size()));

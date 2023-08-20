@@ -19,6 +19,7 @@ Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
 	m_sceneConstantBuffer.info = {
 	    .name = "Scene Constant Buffer",
 	    .size = sizeof(SceneConstantBuffer),
+	    .stride = sizeof(SceneConstantBuffer),
 	    .bindFlags = GpuBindFlag::ConstantBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
@@ -75,7 +76,7 @@ void Renderer::draw(const Scene& scene)
 
 		sceneCb.view = inverse(view);
 	}
-	m_renderDevice.fillBuffer<SceneConstantBuffer>(m_sceneConstantBuffer, std::array{sceneCb});
+	m_renderDevice.fillBuffer(m_sceneConstantBuffer, std::array{sceneCb});
 	m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
 	m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
 

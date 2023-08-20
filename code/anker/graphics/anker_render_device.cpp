@@ -233,8 +233,7 @@ Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view 
 	ByteBuffer binary;
 	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
 
-	HRESULT hresult = m_device->CreatePixelShader(binary.data(), binary.size(), //
-	                                              nullptr, &pixelShader.shader);
+	HRESULT hresult = m_device->CreatePixelShader(binary.data(), binary.size(), nullptr, &pixelShader.shader);
 	if (FAILED(hresult)) {
 		ANKER_ERROR("{}: CreatePixelShader failed: {}", identifier, win32ErrorMessage(hresult));
 		return GraphicsError;

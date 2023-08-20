@@ -171,11 +171,11 @@ class RenderDevice {
 	// Creates a GPU buffer according to buffer.info .
 	Status createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init = {});
 
-	template <typename T>
-	Status createBuffer(GpuBuffer& buffer, std::span<const T> init = {})
+	Status createBuffer(GpuBuffer& buffer, Spannable auto const& init = {})
 	{
-		buffer.info.stride = sizeof(T);
-		return createBuffer(buffer, asBytes(init));
+		std::span initView = init;
+		buffer.info.stride = sizeof(decltype(initView)::value_type);
+		return createBuffer(buffer, asBytes(initView));
 	}
 
 	void bindBufferVS(uint32_t slot, const GpuBuffer&);
@@ -188,11 +188,13 @@ class RenderDevice {
 	}
 	void unmapBuffer(GpuBuffer&);
 
-	template <typename T>
-	void fillBuffer(GpuBuffer& buffer, std::span<const T> data)
+	void fillBuffer(GpuBuffer& buffer, Spannable auto const& data)
 	{
+		std::span dataView = data;
+		ANKER_CHECK(buffer.info.stride == sizeof(decltype(dataView)::value_type));
+
 		auto* dst = mapBuffer(buffer);
-		std::ranges::copy(asBytes(data), dst);
+		std::ranges::copy(asBytes(dataView), dst);
 		unmapBuffer(buffer);
 	}
 
