@@ -20,15 +20,17 @@ class SpriteRenderer {
 
   private:
 	struct Vertex {
-		Vec2 position;
-		Vec2 uv;
+		Vec2 position = Vec2(0);
+		Vec2 uv = Vec2(0);
+		Vec4 color = Vec4(0);
 	};
 
 	RenderDevice& m_renderDevice;
 
+	std::vector<Vertex> m_vertices;
+
 	AssetPtr<VertexShader> m_vertexShader;
 	AssetPtr<PixelShader> m_pixelShader;
-	GpuBuffer m_constantBuffer;
 	GpuBuffer m_vertexBuffer;
 };
 

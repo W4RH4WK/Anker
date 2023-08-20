@@ -187,7 +187,7 @@ void RenderDevice::bindBufferPS(uint32_t slot, const GpuBuffer& buffer)
 	m_context->PSSetConstantBuffers(slot, 1, buffer.buffer.GetAddressOf());
 }
 
-void RenderDevice::unmapBuffer(const GpuBuffer& buffer)
+void RenderDevice::unmapBuffer(GpuBuffer& buffer)
 {
 	unmapResource(buffer.buffer.Get());
 }

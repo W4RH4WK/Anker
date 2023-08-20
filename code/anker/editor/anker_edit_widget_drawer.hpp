@@ -85,11 +85,23 @@ class EditWidgetDrawer {
 
 	bool field(const char* name, Vec3& value) { return ImGui::InputFloat3(name, value_ptr(value)); }
 
+	bool field(const char* name, Vec4& value) { return ImGui::InputFloat4(name, value_ptr(value)); }
+
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec3& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
 			return ImGui::ColorEdit3(name, value_ptr(value));
+		} else {
+			return field(name, value);
+		}
+	}
+
+	template <typename ReflDescriptor>
+	bool field(ReflDescriptor member, const char* name, Vec4& value)
+	{
+		if constexpr (has_attribute<attr::Color>(member)) {
+			return ImGui::ColorEdit4(name, value_ptr(value));
 		} else {
 			return field(name, value);
 		}

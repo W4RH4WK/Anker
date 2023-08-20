@@ -182,11 +182,19 @@ class RenderDevice {
 	void bindBufferPS(uint32_t slot, const GpuBuffer&);
 
 	template <typename T = uint8_t>
-	T* mapBuffer(const GpuBuffer& buffer)
+	T* mapBuffer(GpuBuffer& buffer)
 	{
 		return static_cast<T*>(mapResource(buffer.buffer.Get()));
 	}
-	void unmapBuffer(const GpuBuffer&);
+	void unmapBuffer(GpuBuffer&);
+
+	template <typename T = uint8_t>
+	void fillBuffer(GpuBuffer& buffer, std::span<T> data)
+	{
+		auto* dst = mapBuffer(buffer);
+		std::ranges::copy(asBytes(data), dst);
+		unmapBuffer(buffer);
+	}
 
 	////////////////////////////////////////////////////////////
 	// Shaders
