@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/editor/anker_edit_widget_drawer.hpp>
+
 namespace Anker {
 
 struct Transform2D {
@@ -57,6 +59,6 @@ inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 
 REFL_TYPE(Anker::Transform2D)
 REFL_FIELD(position)
-REFL_FIELD(rotation)
+REFL_FIELD(rotation, Anker::attr::Radians())
 REFL_FIELD(scale)
 REFL_END
