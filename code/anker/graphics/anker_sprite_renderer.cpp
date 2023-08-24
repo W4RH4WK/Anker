@@ -12,6 +12,7 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	m_vertexShader = assetCache.loadVertexShader( //
 	    "shaders/basic_2d.vs",                    //
 	    std::array{
+	        // Per Vertex
 	        D3D11_INPUT_ELEMENT_DESC{
 	            .SemanticName = "POSITION",
 	            .Format = DXGI_FORMAT_R32G32_FLOAT,
@@ -25,24 +26,78 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	            .AlignedByteOffset = offsetof(Vertex, uv),
 	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
 	        },
+
+	        // Per Instance
 	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "COLOR",
+	            .SemanticName = "TRANSFORM",
+	            .SemanticIndex = 0,
 	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, color),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+	            .InputSlot = 1,
+	            .AlignedByteOffset = offsetof(InstanceData, transform) + 0 * sizeof(Vec4),
+	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+	            .InstanceDataStepRate = 1,
+	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "TRANSFORM",
+	            .SemanticIndex = 1,
+	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+	            .InputSlot = 1,
+	            .AlignedByteOffset = offsetof(InstanceData, transform) + 1 * sizeof(Vec4),
+	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+	            .InstanceDataStepRate = 1,
+	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "TRANSFORM",
+	            .SemanticIndex = 2,
+	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+	            .InputSlot = 1,
+	            .AlignedByteOffset = offsetof(InstanceData, transform) + 2 * sizeof(Vec4),
+	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+	            .InstanceDataStepRate = 1,
+	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "TRANSFORM",
+	            .SemanticIndex = 3,
+	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+	            .InputSlot = 1,
+	            .AlignedByteOffset = offsetof(InstanceData, transform) + 3 * sizeof(Vec4),
+	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+	            .InstanceDataStepRate = 1,
+	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "INSTANCE_COLOR",
+	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+	            .InputSlot = 1,
+	            .AlignedByteOffset = offsetof(InstanceData, color),
+	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+	            .InstanceDataStepRate = 1,
 	        },
 	    });
 	m_pixelShader = assetCache.loadPixelShader("shaders/basic_2d.ps");
 
+	const std::array vertices{
+	    Vertex{.position = {-0.5f, 0.5f}, .uv = {0, 0}},
+	    Vertex{.position = {-0.5f, -0.5f}, .uv = {0, 1}},
+	    Vertex{.position = {0.5f, 0.5f}, .uv = {1, 0}},
+	    Vertex{.position = {0.5f, -0.5f}, .uv = {1, 1}},
+	};
 	m_vertexBuffer.info = {
 	    .name = "SpriteRenderer Vertex Buffer",
-	    .size = 128 * 6 * sizeof(Vertex),
-	    .stride = sizeof(Vertex),
+	    .bindFlags = GpuBindFlag::VertexBuffer,
+	};
+	if (not m_renderDevice.createBuffer(m_vertexBuffer, vertices)) {
+		ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
+	}
+
+	m_instanceBuffer.info = {
+	    .name = "SpriteRenderer Instance Buffer",
+	    .size = 128 * sizeof(InstanceData),
+	    .stride = sizeof(InstanceData),
 	    .bindFlags = GpuBindFlag::VertexBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
-	if (not m_renderDevice.createBuffer(m_vertexBuffer)) {
-		ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
+	if (not m_renderDevice.createBuffer(m_instanceBuffer)) {
+		ANKER_FATAL("Field to create SpriteRenderer Instance Buffer");
 	}
 }
 
@@ -85,57 +140,23 @@ void SpriteRenderer::draw(const Scene& scene)
 	auto getLayer = [](auto& a) { return a.sprite->layer; };
 	for (auto& [layer, spritesInLayer] : spritesToRender | iter::groupby(getLayer)) {
 		for (auto& [texture, sprites] : spritesInLayer | iter::groupby(getTexture)) {
-			m_vertices.clear();
+			m_instanceData.clear();
+
 			for (auto& [transform, sprite] : sprites) {
 				Vec2 spriteScale = Vec2(texture->info.size) / sprite->pixelToMeter;
 
-				m_vertices.insert(    //
-				    m_vertices.end(), //
-				    {
-				        Vertex{
-				            .position = *transform * (Vec2(0.5f, 0.5f) * spriteScale),
-				            .uv = {1, 0},
-				            .color = sprite->color,
-				        },
-				        Vertex{
-				            .position = *transform * (Vec2(-0.5f, 0.5f) * spriteScale),
-				            .uv = {0, 0},
-				            .color = sprite->color,
-				        },
-				        Vertex{
-				            .position = *transform * (Vec2(-0.5f, -0.5f) * spriteScale),
-				            .uv = {0, 1},
-				            .color = sprite->color,
-				        },
-				        Vertex{
-				            .position = *transform * (Vec2(0.5f, 0.5f) * spriteScale),
-				            .uv = {1, 0},
-				            .color = sprite->color,
-				        },
-				        Vertex{
-				            .position = *transform * (Vec2(-0.5f, -0.5f) * spriteScale),
-				            .uv = {0, 1},
-				            .color = sprite->color,
-				        },
-				        Vertex{
-				            .position = *transform * (Vec2(0.5f, -0.5f) * spriteScale),
-				            .uv = {1, 1},
-				            .color = sprite->color,
-				        },
-				    });
+				m_instanceData.push_back({
+				    .transform = scale(transform->mat3(), spriteScale),
+				    .color = sprite->color,
+				});
 			}
 
-			if (auto sizeInBytes = m_vertices.size() * sizeof(m_vertices[0]); m_vertexBuffer.info.size < sizeInBytes) {
-				m_vertexBuffer.info.size = uint32_t(sizeInBytes);
-				if (not m_renderDevice.createBuffer(m_vertexBuffer)) {
-					ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
-				}
-			}
-
-			m_renderDevice.fillBuffer(m_vertexBuffer, m_vertices);
+			m_renderDevice.fillBuffer(m_instanceBuffer, m_instanceData);
 
 			m_renderDevice.bindTexturePS(0, *texture);
-			m_renderDevice.draw(m_vertexBuffer, uint32_t(m_vertices.size()));
+			m_renderDevice.drawInstanced(m_vertexBuffer, 4,                                 //
+			                             m_instanceBuffer, uint32_t(m_instanceData.size()), //
+			                             Topology::TriangleStrip);
 			m_renderDevice.unbindTexturePS(0);
 		}
 	}

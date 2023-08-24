@@ -22,16 +22,21 @@ class SpriteRenderer {
 	struct Vertex {
 		Vec2 position = Vec2(0);
 		Vec2 uv = Vec2(0);
+	};
+
+	struct InstanceData {
+		Mat4 transform = Mat4Id;
 		Vec4 color = Vec4(0);
 	};
 
 	RenderDevice& m_renderDevice;
 
-	std::vector<Vertex> m_vertices;
+	std::vector<InstanceData> m_instanceData;
 
 	AssetPtr<VertexShader> m_vertexShader;
 	AssetPtr<PixelShader> m_pixelShader;
 	GpuBuffer m_vertexBuffer;
+	GpuBuffer m_instanceBuffer;
 };
 
 } // namespace Anker

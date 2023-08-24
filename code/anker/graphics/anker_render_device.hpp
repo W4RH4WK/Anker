@@ -171,11 +171,11 @@ class RenderDevice {
 	// Creates a GPU buffer according to buffer.info .
 	Status createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init = {});
 
-	Status createBuffer(GpuBuffer& buffer, Spannable auto const& init = {})
+	Status createBuffer(GpuBuffer& buffer, Spannable auto const& init)
 	{
 		std::span initView = init;
 		buffer.info.stride = sizeof(decltype(initView)::value_type);
-		return createBuffer(buffer, asBytes(initView));
+		return createBuffer(buffer, std::span<const uint8_t>(asBytes(initView)));
 	}
 
 	void bindBufferVS(uint32_t slot, const GpuBuffer&);
@@ -192,6 +192,14 @@ class RenderDevice {
 	{
 		std::span dataView = data;
 		ANKER_CHECK(buffer.info.stride == sizeof(decltype(dataView)::value_type));
+
+		// Automatically grow buffer as needed.
+		if (buffer.info.size < dataView.size_bytes()) {
+			buffer.info.size = uint32_t(dataView.size_bytes());
+			if (not createBuffer(buffer)) {
+				ANKER_FATAL("Failed to grow {}", buffer.info.name);
+			}
+		}
 
 		auto* dst = mapBuffer(buffer);
 		std::ranges::copy(asBytes(dataView), dst);
@@ -250,6 +258,15 @@ class RenderDevice {
 	void draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology = Topology::TriangleList);
 	void draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, uint32_t indexCount,
 	          Topology = Topology::TriangleList);
+
+	void drawInstanced(uint32_t vertexCount, uint32_t instanceCount);
+	void drawInstanced(const GpuBuffer& vertexBuffer, uint32_t vertexCount,         //
+	                   const GpuBuffer& instanceDataBuffer, uint32_t instanceCount, //
+	                   Topology = Topology::TriangleList);
+	void drawInstanced(const GpuBuffer& vertexBuffer,                               //
+	                   const GpuBuffer& indexBuffer, uint32_t indexCount,           //
+	                   const GpuBuffer& instanceDataBuffer, uint32_t instanceCount, //
+	                   Topology = Topology::TriangleList);
 
 	void present();
 

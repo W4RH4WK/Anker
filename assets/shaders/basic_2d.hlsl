@@ -3,7 +3,8 @@
 struct VSInput {
   float2 pos : POSITION;
   float2 uv : TEXCOORD0;
-  float4 color : COLOR;
+  float4x4 transform : TRANSFORM;
+  float4 color : INSTANCE_COLOR;
 };
 
 struct PSInput {
@@ -16,6 +17,7 @@ struct PSInput {
 
 PSInput main(VSInput vin) {
   float3 pos = float3(vin.pos, 1);
+  pos = mul((float3x3)vin.transform, pos);
   pos = mul((float3x3)Scene_view, pos);
 
   PSInput pin;

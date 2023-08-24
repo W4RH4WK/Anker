@@ -468,6 +468,42 @@ void RenderDevice::draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuf
 	m_context->DrawIndexed(indexCount, 0, 0);
 }
 
+void RenderDevice::drawInstanced(uint32_t vertexCount, uint32_t instanceCount)
+{
+	m_context->DrawInstanced(vertexCount, instanceCount, 0, 0);
+}
+
+void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer, uint32_t vertexCount,     //
+                                 const GpuBuffer& instanceBuffer, uint32_t instanceCount, //
+                                 Topology topology)
+{
+	std::array buffers{vertexBuffer.buffer.Get(), instanceBuffer.buffer.Get()};
+	std::array strides{vertexBuffer.info.stride, instanceBuffer.info.stride};
+	std::array offsets{0u, 0u};
+	m_context->IASetVertexBuffers(0, 2, buffers.data(), strides.data(), offsets.data());
+
+	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY(topology));
+	m_context->DrawInstanced(vertexCount, instanceCount, 0, 0);
+}
+
+void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer,                           //
+                                 const GpuBuffer& indexBuffer, uint32_t indexCount,       //
+                                 const GpuBuffer& instanceBuffer, uint32_t instanceCount, //
+                                 Topology topology)
+{
+	std::array buffers{vertexBuffer.buffer.Get(), instanceBuffer.buffer.Get()};
+	std::array strides{vertexBuffer.info.stride, instanceBuffer.info.stride};
+	std::array offsets{0u, 0u};
+	m_context->IASetVertexBuffers(0, 2, buffers.data(), strides.data(), offsets.data());
+
+	m_context->IASetIndexBuffer(indexBuffer.buffer.Get(),                                                   //
+	                            indexBuffer.info.stride == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, //
+	                            0);
+
+	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY(topology));
+	m_context->DrawIndexedInstanced(indexCount, instanceCount, 0, 0, 0);
+}
+
 void RenderDevice::present()
 {
 	m_dxgiSwapchain->Present(1, 0);
