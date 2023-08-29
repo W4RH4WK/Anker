@@ -8,6 +8,7 @@
 #include <anker/editor/anker_editor_system.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
+#include <anker/physics/anker_physics_system.hpp>
 #include <anker/platform/anker_input_system_win32.hpp>
 
 namespace Anker {
@@ -44,6 +45,8 @@ class Engine {
 
 	AssetCache assetCache;
 	Renderer renderer;
+
+	PhysicsSystem physicsSystem;
 
 	ScenePtr activeScene;
 

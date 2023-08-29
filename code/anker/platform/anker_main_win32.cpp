@@ -40,9 +40,37 @@ int main()
 		g_engine->activeScene->activeCamera.emplace<EditorCamera>();
 	}
 
+	b2BodyDef groundBodyDef;
+	groundBodyDef.position.Set(0.0f, -10.0f);
+
+	b2Body* groundBody = g_engine->activeScene->physicsWorld.CreateBody(&groundBodyDef);
+
+	b2PolygonShape groundBox;
+	groundBox.SetAsBox(50.0f, 10.0f);
+
+	groundBody->CreateFixture(&groundBox, 0.0f);
+
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.position.Set(0.0f, 4.0f);
+
+	b2Body* body = g_engine->activeScene->physicsWorld.CreateBody(&bodyDef);
+
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(1.0f, 1.0f);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
+	fixtureDef.density = 1.0f;
+	fixtureDef.friction = 0.3f;
+
+	body->CreateFixture(&fixtureDef);
+
 	while (!g_platform->shouldShutdown()) {
 		g_platform->tick();
 		g_engine->tick();
+
+		ANKER_INFO("{} {}", body->GetPosition().x, body->GetPosition().y);
 	}
 
 	g_engine.reset();

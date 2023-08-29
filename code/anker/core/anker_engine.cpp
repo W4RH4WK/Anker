@@ -8,7 +8,8 @@ Engine::Engine(DataLoader& dataLoader)
       imguiSystem(renderDevice),
       inputSystem(imguiSystem),
       assetCache(dataLoader, renderDevice),
-      renderer(renderDevice, assetCache)
+      renderer(renderDevice, assetCache),
+      physicsSystem(renderer.gizmoRenderer)
 {
 	ANKER_INFO("Anker Initialized!");
 }
@@ -36,6 +37,8 @@ void Engine::tick()
 	}
 
 	// ImGui::ShowDemoWindow();
+
+	physicsSystem.tick(dt, *activeScene);
 
 	renderer.draw(*activeScene);
 	imguiSystem.draw();

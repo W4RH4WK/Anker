@@ -22,6 +22,8 @@ class Scene {
 
 	EntityHandle activeCamera;
 
+	b2World physicsWorld;
+
   private:
 	Scene();
 };
