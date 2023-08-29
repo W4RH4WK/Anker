@@ -12,11 +12,13 @@ SHADER_DEBUG = ENV['SHADER_DEBUG'] == '1'
 
 VERTEX_SHADERS = FileList[
   'shaders/basic_2d',
+  'shaders/gizmo',
   'shaders/screen',
 ]
 
 PIXEL_SHADERS = FileList[
   'shaders/basic_2d',
+  'shaders/gizmo',
   'shaders/post_process',
 ]
 

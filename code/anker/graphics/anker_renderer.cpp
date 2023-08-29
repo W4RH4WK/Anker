@@ -12,7 +12,8 @@ struct SceneConstantBuffer {
 static_assert(sizeof(SceneConstantBuffer) % 16 == 0, "Constant Buffer size must be 16-byte aligned");
 
 Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
-    : m_renderDevice(renderDevice),
+    : gizmoRenderer(renderDevice, assetCache),
+      m_renderDevice(renderDevice),
       m_spriteRenderer(renderDevice, assetCache),
       m_postProcessRenderer(renderDevice, assetCache)
 {
@@ -87,6 +88,8 @@ void Renderer::draw(const Scene& scene)
 	m_renderDevice.setRenderTarget(m_sceneRenderTarget);
 
 	m_spriteRenderer.draw(scene);
+
+	gizmoRenderer.draw();
 
 	////////////////////////////////////////////////////////////
 	// Post Processing

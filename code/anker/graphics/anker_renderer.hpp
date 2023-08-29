@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/graphics/anker_gizmo_renderer.hpp>
 #include <anker/graphics/anker_post_process_renderer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_sprite_renderer.hpp>
@@ -20,6 +21,8 @@ class Renderer {
 	void draw(const Scene&);
 
 	void onResize(Vec2i size);
+
+	GizmoRenderer gizmoRenderer;
 
   private:
 	RenderDevice& m_renderDevice;
