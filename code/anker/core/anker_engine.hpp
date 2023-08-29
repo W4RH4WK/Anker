@@ -33,6 +33,8 @@ class Engine {
 	// of the previous frame.
 	void tick();
 
+	ScenePtr createScene();
+
 	void onResize(Vec2i size);
 
 	DataLoader& dataLoader;

@@ -53,8 +53,18 @@ PhysicsSystem::PhysicsSystem(GizmoRenderer& gizmoRenderer)
 
 void PhysicsSystem::tick(float dt, Scene& scene)
 {
-	scene.physicsWorld.Step(dt, 6, 2);
-	scene.physicsWorld.DebugDraw();
+	scene.physicsWorld->Step(dt, 6, 2);
+	scene.physicsWorld->DebugDraw();
+}
+
+PhysicsWorldPtr PhysicsSystem::createWorld()
+{
+	const b2Vec2 gravity = {0, -10.0f};
+
+	auto world = std::make_unique<b2World>(gravity);
+	world->SetDebugDraw(m_debugDraw.get());
+
+	return world;
 }
 
 ////////////////////////////////////////////////////////////

@@ -26,8 +26,10 @@ int main()
 	g_engine.emplace(dataLoader);
 	g_engine->editorSystem.emplace();
 
-	g_engine->activeScene = Scene::create();
+	g_engine->activeScene = g_engine->createScene();
 	{
+		g_engine->activeScene->physicsWorld = g_engine->physicsSystem.createWorld();
+
 		auto e = g_engine->activeScene->createEntity("testsprite");
 		e.emplace<Transform2D>(Transform2D{
 		    .position = {-10.0f, 0.0f},
@@ -43,7 +45,7 @@ int main()
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0.0f, -10.0f);
 
-	b2Body* groundBody = g_engine->activeScene->physicsWorld.CreateBody(&groundBodyDef);
+	b2Body* groundBody = g_engine->activeScene->physicsWorld->CreateBody(&groundBodyDef);
 
 	b2PolygonShape groundBox;
 	groundBox.SetAsBox(50.0f, 10.0f);
@@ -54,7 +56,7 @@ int main()
 	bodyDef.type = b2_dynamicBody;
 	bodyDef.position.Set(0.0f, 4.0f);
 
-	b2Body* body = g_engine->activeScene->physicsWorld.CreateBody(&bodyDef);
+	b2Body* body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
 
 	b2PolygonShape dynamicBox;
 	dynamicBox.SetAsBox(1.0f, 1.0f);
@@ -69,8 +71,6 @@ int main()
 	while (!g_platform->shouldShutdown()) {
 		g_platform->tick();
 		g_engine->tick();
-
-		ANKER_INFO("{} {}", body->GetPosition().x, body->GetPosition().y);
 	}
 
 	g_engine.reset();

@@ -1,5 +1,8 @@
 #include <anker/core/anker_engine.hpp>
 
+#include <anker/core/anker_transform.hpp>
+#include <anker/graphics/anker_camera.hpp>
+
 namespace Anker {
 
 Engine::Engine(DataLoader& dataLoader)
@@ -43,6 +46,19 @@ void Engine::tick()
 	renderer.draw(*activeScene);
 	imguiSystem.draw();
 	renderDevice.present();
+}
+
+ScenePtr Engine::createScene()
+{
+	auto scene = std::make_unique<Scene>();
+
+	scene->physicsWorld = physicsSystem.createWorld();
+
+	scene->activeCamera = scene->createEntity("Camera");
+	scene->activeCamera.emplace<Transform2D>();
+	scene->activeCamera.emplace<Camera>();
+
+	return scene;
 }
 
 void Engine::onResize(Vec2i size)

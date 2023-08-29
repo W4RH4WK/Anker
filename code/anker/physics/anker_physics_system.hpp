@@ -2,6 +2,8 @@
 
 namespace Anker {
 
+using PhysicsWorldPtr = std::unique_ptr<b2World>;
+
 class Scene;
 class GizmoRenderer;
 
@@ -15,7 +17,7 @@ class PhysicsSystem {
 
 	void tick(float, Scene&);
 
-	b2Draw* debugDrawInterface() { return m_debugDraw.get(); }
+	PhysicsWorldPtr createWorld();
 
   private:
 	std::unique_ptr<b2Draw> m_debugDraw;
