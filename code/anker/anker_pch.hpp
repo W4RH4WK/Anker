@@ -75,6 +75,8 @@ using Microsoft::WRL::ComPtr;
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
+#include <box2d/box2d.h>
+
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_glfw.h>

@@ -25,6 +25,7 @@ add_subdirectory(external/entt)
 # add_subdirectory(external/lrdb)
 add_subdirectory(external/imgui)
 add_subdirectory(external/glfw)
+add_subdirectory(external/box2d)
 add_subdirectory(external/tracy)
 
 function(anker_compile_options target)
@@ -72,6 +73,7 @@ target_link_libraries(anker PRIVATE
 	# lrdb
 	imgui
 	glfw
+	box2d
 	tracy)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT anker)
