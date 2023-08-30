@@ -52,7 +52,7 @@ ScenePtr Engine::createScene()
 {
 	auto scene = std::make_unique<Scene>();
 
-	scene->physicsWorld = physicsSystem.createWorld();
+	physicsSystem.addPhysicsWorld(*scene);
 
 	scene->activeCamera = scene->createEntity("Camera");
 	scene->activeCamera.emplace<Transform2D>();

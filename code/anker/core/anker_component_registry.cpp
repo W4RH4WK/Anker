@@ -3,6 +3,7 @@
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
+#include <anker/physics/anker_physics_body.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 
@@ -14,6 +15,7 @@ ComponentRegistry::ComponentRegistry()
 	registerComponent<Transform2D>("Transform2D", -1);
 	registerComponent<Camera>("Camera");
 	registerComponent<Sprite>("Sprite");
+	registerComponent<PhysicsBody>("PhysicsBody");
 	registerComponent<EditorCamera>("EditorCamera");
 }
 

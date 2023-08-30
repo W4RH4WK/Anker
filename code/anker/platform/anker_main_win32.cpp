@@ -6,6 +6,7 @@
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
+#include <anker/physics/anker_physics_body.hpp>
 
 using namespace Anker;
 
@@ -27,20 +28,6 @@ int main()
 	g_engine->editorSystem.emplace();
 
 	g_engine->activeScene = g_engine->createScene();
-	{
-		g_engine->activeScene->physicsWorld = g_engine->physicsSystem.createWorld();
-
-		auto e = g_engine->activeScene->createEntity("testsprite");
-		e.emplace<Transform2D>(Transform2D{
-		    .position = {-10.0f, 0.0f},
-		    //.rotation = glm::radians(45.0f),
-		    //.scale = {0.5f, 0.5f},
-		});
-
-		e.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
-
-		g_engine->activeScene->activeCamera.emplace<EditorCamera>();
-	}
 
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0.0f, -10.0f);
@@ -67,6 +54,20 @@ int main()
 	fixtureDef.friction = 0.3f;
 
 	body->CreateFixture(&fixtureDef);
+
+	{
+		auto e = g_engine->activeScene->createEntity("testsprite");
+		e.emplace<Transform2D>(Transform2D{
+		    .position = {-10.0f, 0.0f},
+		    //.rotation = glm::radians(45.0f),
+		    //.scale = {0.5f, 0.5f},
+		});
+
+		e.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
+		e.emplace<PhysicsBody>(PhysicsBody{.body = body});
+
+		g_engine->activeScene->activeCamera.emplace<EditorCamera>();
+	}
 
 	while (!g_platform->shouldShutdown()) {
 		g_platform->tick();

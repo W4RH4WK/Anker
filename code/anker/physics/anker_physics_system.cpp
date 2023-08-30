@@ -1,7 +1,9 @@
 #include <anker/physics/anker_physics_system.hpp>
 
 #include <anker/core/anker_scene.hpp>
+#include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_gizmo_renderer.hpp>
+#include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
 
@@ -25,19 +27,18 @@ class B2DebugDraw : public b2Draw {
 		DrawPolygon(vertices, vertexCount, color);
 	}
 
-	virtual void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {}
+	virtual void DrawCircle(const b2Vec2&, float, const b2Color&) override {}
 
-	virtual void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) override
-	{}
+	virtual void DrawSolidCircle(const b2Vec2&, float, const b2Vec2&, const b2Color&) override {}
 
 	virtual void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override
 	{
 		m_gizmos.addLine(toVec(p1), toVec(p2), toVec(color));
 	}
 
-	virtual void DrawTransform(const b2Transform& xf) override {}
+	virtual void DrawTransform(const b2Transform&) override {}
 
-	virtual void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override {}
+	virtual void DrawPoint(const b2Vec2&, float, const b2Color&) override {}
 
   private:
 	GizmoRenderer& m_gizmos;
@@ -55,16 +56,30 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 {
 	scene.physicsWorld->Step(dt, 6, 2);
 	scene.physicsWorld->DebugDraw();
+
+	for (auto [_, transform, body] : scene.registry.view<Transform2D, PhysicsBody>().each()) {
+		transform = toTransform(body.body->GetTransform());
+	}
 }
 
-PhysicsWorldPtr PhysicsSystem::createWorld()
+void PhysicsSystem::addPhysicsWorld(Scene& scene)
 {
+	if (scene.physicsWorld) {
+		ANKER_WARN("Scene already has PhysicsWorld attached");
+		return;
+	}
+
 	const b2Vec2 gravity = {0, -10.0f};
 
-	auto world = std::make_unique<b2World>(gravity);
-	world->SetDebugDraw(m_debugDraw.get());
+	scene.physicsWorld = std::make_unique<b2World>(gravity);
+	scene.physicsWorld->SetDebugDraw(m_debugDraw.get());
 
-	return world;
+	static constexpr auto destroyPhysicsBody = [](Scene& scene, entt::registry& reg, EntityID entity) {
+		if (scene.physicsWorld) {
+			scene.physicsWorld->DestroyBody(reg.get<PhysicsBody>(entity).body);
+		}
+	};
+	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>(scene);
 }
 
 ////////////////////////////////////////////////////////////

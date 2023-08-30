@@ -17,7 +17,7 @@ class PhysicsSystem {
 
 	void tick(float, Scene&);
 
-	PhysicsWorldPtr createWorld();
+	void addPhysicsWorld(Scene&);
 
   private:
 	std::unique_ptr<b2Draw> m_debugDraw;

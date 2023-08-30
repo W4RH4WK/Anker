@@ -55,6 +55,19 @@ inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 	return v;
 }
 
+inline b2Transform toB2Transform(const Transform2D& t)
+{
+	return b2Transform(toB2Vec(t.position), b2Rot(t.rotation));
+}
+
+inline Transform2D toTransform(const b2Transform& transform)
+{
+	return Transform2D{
+	    .position = toVec(transform.p),
+	    .rotation = transform.q.GetAngle(),
+	};
+}
+
 } // namespace Anker
 
 REFL_TYPE(Anker::Transform2D)
