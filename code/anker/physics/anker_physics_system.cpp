@@ -25,6 +25,11 @@ class B2DebugDraw : public b2Draw {
 	virtual void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override
 	{
 		DrawPolygon(vertices, vertexCount, color);
+
+		Vec4 fillColor = toVec(color) * 0.5f;
+		for (int i = 1; i < vertexCount - 1; ++i) {
+			m_gizmos.addTriangle(toVec(vertices[0]), toVec(vertices[i]), toVec(vertices[i + 1]), fillColor);
+		}
 	}
 
 	virtual void DrawCircle(const b2Vec2&, float, const b2Color&) override {}

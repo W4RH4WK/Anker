@@ -43,20 +43,34 @@ void GizmoRenderer::addLine(const Vec2& from, const Vec2& to, const Vec4& color)
 	m_verticesForLines.emplace_back(to, color);
 }
 
+void GizmoRenderer::addTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, const Vec4& color)
+{
+	m_verticesForTriangles.emplace_back(v0, color);
+	m_verticesForTriangles.emplace_back(v1, color);
+	m_verticesForTriangles.emplace_back(v2, color);
+}
+
 void GizmoRenderer::draw()
 {
-	if (m_verticesForLines.empty()) {
+	if (m_verticesForLines.empty() && m_verticesForTriangles.empty()) {
 		return;
 	}
-
-	m_renderDevice.fillBuffer(m_vertexBuffer, m_verticesForLines);
 
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 	m_renderDevice.setRasterizer({.depthClip = false});
-	m_renderDevice.draw(m_vertexBuffer, uint32_t(m_verticesForLines.size()), Topology::LineList);
 
-	m_verticesForLines.clear();
+	if (!m_verticesForLines.empty()) {
+		m_renderDevice.fillBuffer(m_vertexBuffer, m_verticesForLines);
+		m_renderDevice.draw(m_vertexBuffer, uint32_t(m_verticesForLines.size()), Topology::LineList);
+		m_verticesForLines.clear();
+	}
+
+	if (!m_verticesForTriangles.empty()) {
+		m_renderDevice.fillBuffer(m_vertexBuffer, m_verticesForTriangles);
+		m_renderDevice.draw(m_vertexBuffer, uint32_t(m_verticesForTriangles.size()), Topology::TriangleList);
+		m_verticesForTriangles.clear();
+	}
 }
 
 } // namespace Anker

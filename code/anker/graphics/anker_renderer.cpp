@@ -89,8 +89,6 @@ void Renderer::draw(const Scene& scene)
 
 	m_spriteRenderer.draw(scene);
 
-	gizmoRenderer.draw();
-
 	////////////////////////////////////////////////////////////
 	// Post Processing
 
@@ -100,6 +98,8 @@ void Renderer::draw(const Scene& scene)
 	m_renderDevice.bindTexturePS(0, m_sceneRenderTarget);
 	m_postProcessRenderer.draw(cameraParams->postProcessParams);
 	m_renderDevice.unbindTexturePS(0);
+
+	gizmoRenderer.draw();
 }
 
 void Renderer::onResize(Vec2i)

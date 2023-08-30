@@ -45,6 +45,11 @@ inline Vec3 gammaReverse(const Vec3& color, float gamma = 2.2f)
 	return pow(color, Vec3(gamma));
 }
 
+inline Vec4 gammaReverse(const Vec4& color, float gamma = 2.2f)
+{
+	return pow(color, Vec4(gamma, gamma, gamma, 1));
+}
+
 // clang-format off
 template <> constexpr const char* typeName<Vec2>() { return "Vec2"; }
 template <> constexpr const char* typeName<Vec2i>() { return "Vec2i"; }
