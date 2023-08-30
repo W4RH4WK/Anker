@@ -5,6 +5,21 @@
 
 namespace Anker {
 
+// Degree converts floats and doubles between degrees and radians. Use * to
+// convert to radians (read as "value in degrees"). Use / to convert to degrees
+// (read as "value to degrees"). All angles are typically stored in radians.
+// Degrees are commonly used for UI and when hard-coding values.
+struct DegreesTag {};
+constexpr DegreesTag Degrees;
+inline constexpr auto operator*(std::floating_point auto value, DegreesTag)
+{
+	return value * static_cast<decltype(value)>(0.01745329251994329576923690768489);
+}
+inline constexpr auto operator/(std::floating_point auto value, DegreesTag)
+{
+	return value * static_cast<decltype(value)>(57.295779513082320876798154814105);
+}
+
 using Vec2 = glm::vec2;
 constexpr Vec2 Vec2Up = {0, -1};
 constexpr Vec2 Vec2Down = {0, 1};

@@ -146,7 +146,7 @@ void SpriteRenderer::draw(const Scene& scene)
 				Vec2 spriteScale = Vec2(texture->info.size) / sprite->pixelToMeter;
 
 				m_instanceData.push_back({
-				    .transform = scale(transform->mat3(), spriteScale),
+				    .transform = scale(Mat3(*transform), spriteScale),
 				    .color = sprite->color,
 				});
 			}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "anker_enum_utils.hpp"
+#include "anker_math.hpp"
 #include "anker_type_utils.hpp"
 
 namespace ImGui {
@@ -24,9 +25,9 @@ inline bool ToggleButton(const char* label, bool* v)
 inline bool DragFloatDegree(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f,
                             const char* format = "%.3f", ImGuiSliderFlags flags = 0)
 {
-	float vDegree = glm::degrees(*v);
-	if (ImGui::DragFloat(label, &vDegree, v_speed, v_min, v_max, format, flags)) {
-		*v = glm::radians(vDegree);
+	float v_degrees = *v / Anker::Degrees;
+	if (ImGui::DragFloat(label, &v_degrees, v_speed, v_min, v_max, format, flags)) {
+		*v = v_degrees * Anker::Degrees;
 		return true;
 	}
 	return false;

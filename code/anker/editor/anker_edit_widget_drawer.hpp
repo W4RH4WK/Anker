@@ -61,7 +61,7 @@ class EditWidgetDrawer {
 	{
 		float valueCopy = value;
 		if constexpr (has_attribute<attr::Radians>(member)) {
-			valueCopy = glm::degrees(valueCopy);
+			valueCopy = valueCopy / Degrees;
 		}
 
 		bool changed = false;
@@ -74,18 +74,18 @@ class EditWidgetDrawer {
 
 		if (changed) {
 			if constexpr (has_attribute<attr::Radians>(member)) {
-				valueCopy = glm::radians(valueCopy);
+				valueCopy = valueCopy * Degrees;
 			}
 			value = valueCopy;
 		}
 		return changed;
 	}
 
-	bool field(const char* name, Vec2& value) { return ImGui::InputFloat2(name, value_ptr(value)); }
+	bool field(const char* name, Vec2& value) { return ImGui::InputFloat2(name, &value.x); }
 
-	bool field(const char* name, Vec3& value) { return ImGui::InputFloat3(name, value_ptr(value)); }
+	bool field(const char* name, Vec3& value) { return ImGui::InputFloat3(name, &value.x); }
 
-	bool field(const char* name, Vec4& value) { return ImGui::InputFloat4(name, value_ptr(value)); }
+	bool field(const char* name, Vec4& value) { return ImGui::InputFloat4(name, &value.x); }
 
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec3& value)

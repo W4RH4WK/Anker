@@ -9,13 +9,13 @@ bool serialize(EditWidgetDrawer& draw, PhysicsBody& body)
 	bool changed = false;
 
 	auto position = as<Vec2>(body.body->GetPosition());
-	auto rotation = glm::degrees(body.body->GetTransform().q.GetAngle());
+	auto rotation = body.body->GetTransform().q.GetAngle() / Degrees;
 
 	changed |= draw.field("position", position);
 	changed |= draw.field("rotation", rotation);
 
 	if (changed) {
-		body.body->SetTransform(as<b2Vec2>(position), glm::radians(rotation));
+		body.body->SetTransform(as<b2Vec2>(position), rotation * Degrees);
 		body.body->SetAwake(true);
 	}
 

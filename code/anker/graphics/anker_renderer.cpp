@@ -62,7 +62,7 @@ void Renderer::draw(const Scene& scene)
 
 	SceneConstantBuffer sceneCb;
 	{
-		Mat3 view = cameraTransform->mat3();
+		Mat3 view = *cameraTransform;
 		view = scale(view, Vec2(cameraParams->distance));
 
 		// Correct for varying aspect ratio. Generally we want to keep the

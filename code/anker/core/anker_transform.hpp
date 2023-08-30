@@ -5,23 +5,19 @@
 namespace Anker {
 
 struct Transform2D {
-	Vec2 position = Vec2(0);
-	float rotation = 0;
-	Vec2 scale = Vec2(1);
+	explicit Transform2D(Vec2 position = Vec2(0), float rotation = 0, Vec2 scale = Vec2(1))
+	    : position(position), rotation(rotation), scale(scale)
+	{}
 
-	uint32_t layer = 0;
-
-	static Transform2D fromMat3(const Mat4& mat)
+	// GLM conversion
+	Transform2D(const Mat3& mat)
 	{
 		Mat2 rotationMat = Mat2(mat);
-		return Transform2D{
-		    .position = mat[2],
-		    .rotation = std::atan2(rotationMat[1][0], rotationMat[0][0]),
-		    .scale = {length(rotationMat[0]), length(rotationMat[1])},
-		};
+		position = mat[2];
+		rotation = std::atan2(rotationMat[1][0], rotationMat[0][0]);
+		scale = {length(rotationMat[0]), length(rotationMat[1])};
 	}
-
-	Mat3 mat3() const
+	operator Mat3() const
 	{
 		Mat3 mat = Mat3Id;
 		mat = glm::translate(mat, position);
@@ -29,6 +25,16 @@ struct Transform2D {
 		mat = glm::scale(mat, scale);
 		return mat;
 	}
+
+	// Box2D conversion
+	Transform2D(b2Transform transform) : Transform2D(as<Vec2>(transform.p), transform.q.GetAngle()) {}
+	operator b2Transform() const { return b2Transform(as<b2Vec2>(position), b2Rot(rotation)); }
+
+	Vec2 position;
+	float rotation;
+	Vec2 scale;
+
+	uint32_t layer = 0;
 };
 
 inline Transform2D inverse(Transform2D transform)
@@ -53,21 +59,6 @@ inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 	v = glm::rotate(v, transform.rotation);
 	v *= transform.scale;
 	return v;
-}
-
-template <>
-inline b2Transform as<b2Transform>(const Transform2D& t)
-{
-	return b2Transform(as<b2Vec2>(t.position), b2Rot(t.rotation));
-}
-
-template <>
-inline Transform2D as<Transform2D>(const b2Transform& transform)
-{
-	return Transform2D{
-	    .position = as<Vec2>(transform.p),
-	    .rotation = transform.q.GetAngle(),
-	};
 }
 
 } // namespace Anker
