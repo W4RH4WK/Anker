@@ -18,3 +18,15 @@ void log(Severity severity, std::string_view function, long line, std::string_vi
 }
 
 } // namespace Anker::Log
+
+namespace Anker {
+
+// Box2D Log Hook
+void b2Log(const char* format, va_list args)
+{
+	std::array<char, 1024> buffer;
+	vsnprintf(buffer.data(), buffer.size(), format, args);
+	ANKER_INFO("Box2d: {}", buffer.data());
+}
+
+} // namespace Anker

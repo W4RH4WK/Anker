@@ -1,5 +1,6 @@
 #pragma once
 
+#include "anker_conversion.hpp"
 #include "anker_type_utils.hpp"
 
 namespace Anker {
@@ -60,6 +61,11 @@ template <> constexpr const char* typeName<Quat>() { return "Quat"; }
 template <> constexpr const char* typeName<Mat2>() { return "Mat2"; }
 template <> constexpr const char* typeName<Mat3>() { return "Mat3"; }
 template <> constexpr const char* typeName<Mat4>() { return "Mat4"; }
+
+template <> inline Vec2 as<Vec2>(const b2Vec2& v) { return std::bit_cast<Vec2>(v); }
+template <> inline b2Vec2 as<b2Vec2>(const Vec2& v) { return std::bit_cast<b2Vec2>(v); }
+template <> inline Vec4 as<Vec4>(const b2Color& v) { return std::bit_cast<Vec4>(v); }
+template <> inline b2Color as<b2Color>(const Vec4& v) { return std::bit_cast<b2Color>(v); }
 // clang-format on
 
 } // namespace Anker

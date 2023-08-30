@@ -49,25 +49,23 @@ struct B2_API b2JointUserData
 	uintptr_t pointer;
 };
 
-namespace Anker {
-void* b2Alloc(int32 size);
-void b2Free(void* mem);
-void b2Log(const char* string, va_list args);
-} // namespace Anker
-
 // Memory Allocation
 
 /// Implement this function to use your own memory allocator.
 inline void* b2Alloc(int32 size)
 {
-	return Anker::b2Alloc(size);
+	return operator new(size);
 }
 
 /// If you implement b2Alloc, you should also implement this function.
 inline void b2Free(void* mem)
 {
-	Anker::b2Free(mem);
+	operator delete(mem);
 }
+
+namespace Anker {
+void b2Log(const char* string, va_list args);
+} // namespace Anker
 
 /// Implement this to use your own logging.
 inline void b2Log(const char* string, ...)

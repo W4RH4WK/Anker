@@ -17,18 +17,18 @@ class B2DebugDraw : public b2Draw {
 	virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override
 	{
 		for (int i = 1; i < vertexCount; ++i) {
-			m_gizmos.addLine(toVec(vertices[i - 1]), toVec(vertices[i]), toVec(color));
+			m_gizmos.addLine(as<Vec2>(vertices[i - 1]), as<Vec2>(vertices[i]), as<Vec4>(color));
 		}
-		m_gizmos.addLine(toVec(vertices[vertexCount - 1]), toVec(vertices[0]), toVec(color));
+		m_gizmos.addLine(as<Vec2>(vertices[vertexCount - 1]), as<Vec2>(vertices[0]), as<Vec4>(color));
 	}
 
 	virtual void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override
 	{
 		DrawPolygon(vertices, vertexCount, color);
 
-		Vec4 fillColor = toVec(color) * 0.5f;
+		Vec4 fillColor = as<Vec4>(color) * 0.5f;
 		for (int i = 1; i < vertexCount - 1; ++i) {
-			m_gizmos.addTriangle(toVec(vertices[0]), toVec(vertices[i]), toVec(vertices[i + 1]), fillColor);
+			m_gizmos.addTriangle(as<Vec2>(vertices[0]), as<Vec2>(vertices[i]), as<Vec2>(vertices[i + 1]), fillColor);
 		}
 	}
 
@@ -38,7 +38,7 @@ class B2DebugDraw : public b2Draw {
 
 	virtual void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override
 	{
-		m_gizmos.addLine(toVec(p1), toVec(p2), toVec(color));
+		m_gizmos.addLine(as<Vec2>(p1), as<Vec2>(p2), as<Vec4>(color));
 	}
 
 	virtual void DrawTransform(const b2Transform&) override {}
@@ -63,7 +63,7 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 	scene.physicsWorld->DebugDraw();
 
 	for (auto [_, transform, body] : scene.registry.view<Transform2D, PhysicsBody>().each()) {
-		transform = toTransform(body.body->GetTransform());
+		transform = as<Transform2D>(body.body->GetTransform());
 	}
 }
 
@@ -85,26 +85,6 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 		}
 	};
 	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>(scene);
-}
-
-////////////////////////////////////////////////////////////
-// Box2D Hooks
-
-void* b2Alloc(int32_t size)
-{
-	return operator new(size);
-}
-
-void b2Free(void* mem)
-{
-	operator delete(mem);
-}
-
-void b2Log(const char* format, va_list args)
-{
-	std::array<char, 1024> buffer;
-	vsnprintf(buffer.data(), buffer.size(), format, args);
-	ANKER_INFO("Box2d: {}", buffer.data());
 }
 
 } // namespace Anker

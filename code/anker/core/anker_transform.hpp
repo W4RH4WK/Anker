@@ -55,15 +55,17 @@ inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 	return v;
 }
 
-inline b2Transform toB2Transform(const Transform2D& t)
+template <>
+inline b2Transform as<b2Transform>(const Transform2D& t)
 {
-	return b2Transform(toB2Vec(t.position), b2Rot(t.rotation));
+	return b2Transform(as<b2Vec2>(t.position), b2Rot(t.rotation));
 }
 
-inline Transform2D toTransform(const b2Transform& transform)
+template <>
+inline Transform2D as<Transform2D>(const b2Transform& transform)
 {
 	return Transform2D{
-	    .position = toVec(transform.p),
+	    .position = as<Vec2>(transform.p),
 	    .rotation = transform.q.GetAngle(),
 	};
 }
