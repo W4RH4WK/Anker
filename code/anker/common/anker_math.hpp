@@ -51,8 +51,6 @@ struct Vec2T {
 
 	constexpr double ratio() const { return double(x) / double(y); }
 
-	constexpr void rotate(T angle) { *this = glm::rotate(glm::vec<2, T>(*this), angle); }
-
 	friend constexpr auto operator<=>(Vec2T, Vec2T) = default;
 
 	T x = 0;
@@ -85,6 +83,12 @@ template <typename T>
 const Vec2T<T> Vec2T<T>::UiLeft{-1, 0};
 template <typename T>
 const Vec2T<T> Vec2T<T>::UiRight{1, 0};
+
+template <typename T>
+constexpr Vec2T<T> rotate(Vec2T<T> v, T angle)
+{
+	return glm::rotate(glm::vec<2, T>(v), angle);
+}
 
 template <typename T>
 constexpr Vec2T<T>& operator+=(Vec2T<T>& a, Vec2T<T> b)
@@ -161,14 +165,135 @@ using Vec2u = Vec2T<unsigned>;
 using Vec2d = Vec2T<double>;
 
 ////////////////////////////////////////////////////////////
+// Vector 3D
 
-using Vec3 = glm::vec3;
-constexpr Vec3 Vec3Up = {0, 1, 0};
-constexpr Vec3 Vec3Down = {0, -1, 0};
-constexpr Vec3 Vec3Left = {-1, 0, 0};
-constexpr Vec3 Vec3Right = {1, 0, 0};
-constexpr Vec3 Vec3Forward = {0, 0, -1};
-constexpr Vec3 Vec3Backward = {0, 0, 1};
+template <typename T>
+struct Vec3T {
+	constexpr Vec3T() = default;
+	constexpr Vec3T(T v) : x(v), y(v), z(v) {}
+	constexpr Vec3T(T x, T y, T z) : x(x), y(y), z(z) {}
+
+	constexpr Vec3T(const Vec3T&) = default;
+	constexpr Vec3T& operator=(const Vec3T&) = default;
+	constexpr Vec3T(Vec3T&&) noexcept = default;
+	constexpr Vec3T& operator=(Vec3T&&) noexcept = default;
+
+	constexpr Vec3T(glm::vec<3, T> v) : x(v.x), y(v.y), z(v.z) {}
+	constexpr operator glm::vec<3, T>() const { return {x, y, z}; }
+
+	constexpr Vec3T(b2Vec3 v) requires(std::is_same_v<T, float>) : x(v.x), y(v.y), z(v.z) {}
+	constexpr operator b2Vec3() const requires(std::is_same_v<T, float>) { return {x, y, z}; }
+
+	template <typename TT>
+	explicit constexpr operator Vec3T<TT>() const
+	{
+		return {TT(x), TT(y), TT(z)};
+	}
+
+	constexpr double length() const { return glm::length(glm::vec<3, T>(*this)); }
+	constexpr double lengthSquared() const { return glm::length2(glm::vec<3, T>(*this)); }
+
+	friend constexpr auto operator<=>(Vec3T, Vec3T) = default;
+
+	T x = 0;
+	T y = 0;
+	T z = 0;
+
+	static const Vec3T Zero, One;
+};
+
+template <typename T>
+const Vec3T<T> Vec3T<T>::Zero{0, 0, 0};
+template <typename T>
+const Vec3T<T> Vec3T<T>::One{1, 1, 1};
+
+template <typename T>
+constexpr Vec3T<T> pow(const Vec3T<T>& v, T exp)
+{
+	return glm::pow(glm::vec<3, T>(v), glm::vec<3, T>(exp));
+}
+
+template <typename T>
+constexpr Vec3T<T>& operator+=(Vec3T<T>& a, Vec3T<T> b)
+{
+	a.x += b.x;
+	a.y += b.y;
+	a.z += b.z;
+	return a;
+}
+
+template <typename T>
+constexpr Vec3T<T>& operator-=(Vec3T<T>& a, Vec3T<T> b)
+{
+	a.x -= b.x;
+	a.y -= b.y;
+	a.z -= b.z;
+	return a;
+}
+
+template <typename T, typename C>
+constexpr Vec3T<T>& operator*=(Vec3T<T>& v, C c)
+{
+	v.x *= c;
+	v.y *= c;
+	v.z *= c;
+	return v;
+}
+
+template <typename T>
+constexpr Vec3T<T>& operator*=(Vec3T<T>& a, Vec3T<T> b)
+{
+	a.x *= b.x;
+	a.y *= b.y;
+	a.z *= b.z;
+	return a;
+}
+
+template <typename T, typename C>
+constexpr Vec3T<T>& operator/=(Vec3T<T>& v, C c)
+{
+	v.x /= c;
+	v.y /= c;
+	v.z /= c;
+	return v;
+}
+
+template <typename T>
+constexpr Vec3T<T>& operator/=(Vec3T<T>& a, Vec3T<T> b)
+{
+	a.x /= b.x;
+	a.y /= b.y;
+	a.z /= b.z;
+	return a;
+}
+
+// clang-format off
+template <typename T>
+constexpr Vec3T<T> operator-(Vec3T<T> v) { return {-v.x, -v.y, -v.z}; }
+template <typename T>
+constexpr Vec3T<T> operator+(Vec3T<T> a, Vec3T<T> b) { return a += b; }
+template <typename T>
+constexpr Vec3T<T> operator-(Vec3T<T> a, Vec3T<T> b) { return a -= b; }
+template <typename T, typename C>
+constexpr Vec3T<T> operator*(C c, Vec3T<T> v) { return v *= c; }
+template <typename T, typename C>
+constexpr Vec3T<T> operator*(Vec3T<T> v, C c) { return v *= c; }
+template <typename T>
+constexpr Vec3T<T> operator*(Vec3T<T> a, Vec3T<T> b) { return a *= b; }
+template <typename T, typename C>
+constexpr Vec3T<T> operator/(Vec3T<T> v, C c) { return v /= c; }
+template <typename T, typename C>
+constexpr Vec3T<T> operator/(C c, Vec3T<T> v) { return {c / v.x, c / v.y, c / v.z}; }
+template <typename T>
+constexpr Vec3T<T> operator/(Vec3T<T> a, Vec3T<T> b) { return a /= b; }
+// clang-format on
+
+using Vec3 = Vec3T<float>;
+using Vec3i = Vec3T<int>;
+using Vec3u = Vec3T<unsigned>;
+using Vec3d = Vec3T<double>;
+
+////////////////////////////////////////////////////////////
 
 using Vec4 = glm::vec4;
 
@@ -184,9 +309,9 @@ constexpr Mat3 Mat3Id = glm::identity<Mat3>();
 using Mat4 = glm::mat4;
 constexpr Mat4 Mat4Id = glm::identity<Mat4>();
 
-inline Vec3 gammaReverse(const Vec3& color, float gamma = 2.2f)
+inline Vec3 gammaReverse(Vec3 color, float gamma = 2.2f)
 {
-	return pow(color, Vec3(gamma));
+	return pow(color, gamma);
 }
 
 inline Vec4 gammaReverse(const Vec4& color, float gamma = 2.2f)
@@ -229,9 +354,9 @@ struct fmt::formatter<Anker::Vec2T<T>> : formatter<T> {
 };
 
 template <typename T>
-struct fmt::formatter<glm::vec<3, T>> : formatter<T> {
+struct fmt::formatter<Anker::Vec3T<T>> : formatter<T> {
 	template <typename FormatContext>
-	auto format(const glm::vec<3, T>& vec, FormatContext& ctx)
+	auto format(const Anker::Vec3T<T>& vec, FormatContext& ctx)
 	{
 		auto out = ctx.out();
 		*out = '(';

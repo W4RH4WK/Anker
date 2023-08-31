@@ -91,7 +91,7 @@ class EditWidgetDrawer {
 	bool field(ReflDescriptor member, const char* name, Vec3& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
-			return ImGui::ColorEdit3(name, value_ptr(value));
+			return ImGui::ColorEdit3(name, &value.x);
 		} else {
 			return field(name, value);
 		}
@@ -101,7 +101,7 @@ class EditWidgetDrawer {
 	bool field(ReflDescriptor member, const char* name, Vec4& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
-			return ImGui::ColorEdit4(name, value_ptr(value));
+			return ImGui::ColorEdit4(name, &value.x);
 		} else {
 			return field(name, value);
 		}

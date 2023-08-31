@@ -410,7 +410,7 @@ void RenderDevice::setRenderTarget(const Texture& target, const Texture* depth)
 
 void RenderDevice::clearRenderTarget(const Texture& target, const Texture* depth, const Vec3& clearColor)
 {
-	m_context->ClearRenderTargetView(target.renderTargetView.Get(), value_ptr(clearColor));
+	m_context->ClearRenderTargetView(target.renderTargetView.Get(), &clearColor.x);
 	if (depth) {
 		m_context->ClearDepthStencilView(depth->depthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}

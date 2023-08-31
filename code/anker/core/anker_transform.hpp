@@ -48,7 +48,7 @@ inline Transform2D inverse(Transform2D transform)
 inline Vec2 operator*(const Transform2D& transform, Vec2 v)
 {
 	v *= transform.scale;
-	v.rotate(transform.rotation);
+	v = rotate(v, transform.rotation);
 	v += transform.position;
 	return v;
 }
@@ -56,7 +56,7 @@ inline Vec2 operator*(const Transform2D& transform, Vec2 v)
 inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 {
 	v += transform.position;
-	v.rotate(transform.rotation);
+	v = rotate(v, transform.rotation);
 	v *= transform.scale;
 	return v;
 }
