@@ -17,6 +17,7 @@ add_library(glfw STATIC
 	src/wgl_context.c
 	src/egl_context.c
 	src/osmesa_context.c)
+
 target_compile_definitions(glfw PRIVATE
 	_GLFW_WIN32
 	_GLFW_USE_HYBRID_HPG

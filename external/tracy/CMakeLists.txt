@@ -1,5 +1,4 @@
-add_library(tracy STATIC
-	public/TracyClient.cpp)
+add_library(tracy STATIC public/TracyClient.cpp)
 target_compile_definitions(tracy PUBLIC
 	TRACY_ENABLE
 	TRACY_ONLY_LOCALHOST)
