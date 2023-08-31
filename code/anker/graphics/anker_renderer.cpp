@@ -63,12 +63,11 @@ void Renderer::draw(const Scene& scene)
 	SceneConstantBuffer sceneCb;
 	{
 		Mat3 view = *cameraTransform;
-		view = scale(view, Vec2(cameraParams->distance));
+		view = scale(view, glm::vec2(cameraParams->distance));
 
 		// Correct for varying aspect ratio. Generally we want to keep the
 		// vertical size as is when the window gets wider.
-		Vec2 backBufferSize = m_renderDevice.backBuffer().info.size;
-		float aspectRatio = backBufferSize.x / backBufferSize.y;
+		auto aspectRatio = m_renderDevice.backBuffer().info.size.ratio();
 		if (aspectRatio < 1.0f) {
 			view = scale(view, {1.0f, 1.0f / aspectRatio});
 		} else {

@@ -17,9 +17,9 @@ class B2DebugDraw : public b2Draw {
 	virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override
 	{
 		for (int i = 1; i < vertexCount; ++i) {
-			m_gizmos.addLine(as<Vec2>(vertices[i - 1]), as<Vec2>(vertices[i]), as<Vec4>(color));
+			m_gizmos.addLine(vertices[i - 1], vertices[i], as<Vec4>(color));
 		}
-		m_gizmos.addLine(as<Vec2>(vertices[vertexCount - 1]), as<Vec2>(vertices[0]), as<Vec4>(color));
+		m_gizmos.addLine(vertices[vertexCount - 1], vertices[0], as<Vec4>(color));
 	}
 
 	virtual void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override
@@ -28,7 +28,7 @@ class B2DebugDraw : public b2Draw {
 
 		Vec4 fillColor = as<Vec4>(color) * 0.5f;
 		for (int i = 1; i < vertexCount - 1; ++i) {
-			m_gizmos.addTriangle(as<Vec2>(vertices[0]), as<Vec2>(vertices[i]), as<Vec2>(vertices[i + 1]), fillColor);
+			m_gizmos.addTriangle(vertices[0], vertices[i], vertices[i + 1], fillColor);
 		}
 	}
 
@@ -38,7 +38,7 @@ class B2DebugDraw : public b2Draw {
 
 	virtual void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override
 	{
-		m_gizmos.addLine(as<Vec2>(p1), as<Vec2>(p2), as<Vec4>(color));
+		m_gizmos.addLine(p1, p2, as<Vec4>(color));
 	}
 
 	virtual void DrawTransform(const b2Transform&) override {}
@@ -74,7 +74,7 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 		return;
 	}
 
-	const b2Vec2 gravity = {0, -10.0f};
+	const b2Vec2 gravity = 10.0f * Vec2::Down;
 
 	scene.physicsWorld = std::make_unique<b2World>(gravity);
 	scene.physicsWorld->SetDebugDraw(m_debugDraw.get());

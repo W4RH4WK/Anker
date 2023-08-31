@@ -20,19 +20,147 @@ inline constexpr auto operator/(std::floating_point auto value, DegreesTag)
 	return value * static_cast<decltype(value)>(57.295779513082320876798154814105);
 }
 
-using Vec2 = glm::vec2;
-constexpr Vec2 Vec2Up = {0, -1};
-constexpr Vec2 Vec2Down = {0, 1};
-constexpr Vec2 Vec2Left = {-1, 0};
-constexpr Vec2 Vec2Right = {1, 0};
+////////////////////////////////////////////////////////////
+// Vector 2D
 
-using Vec2i = glm::ivec2;
-constexpr Vec2i Vec2iUp = {0, -1};
-constexpr Vec2i Vec2iDown = {0, 1};
-constexpr Vec2i Vec2iLeft = {-1, 0};
-constexpr Vec2i Vec2iRight = {1, 0};
+template <typename T>
+struct Vec2T {
+	constexpr Vec2T() = default;
+	constexpr Vec2T(T v) : x(v), y(v) {}
+	constexpr Vec2T(T x, T y) : x(x), y(y) {}
 
-using Vec2u = glm::uvec2;
+	constexpr Vec2T(const Vec2T&) = default;
+	constexpr Vec2T& operator=(const Vec2T&) = default;
+	constexpr Vec2T(Vec2T&&) noexcept = default;
+	constexpr Vec2T& operator=(Vec2T&&) noexcept = default;
+
+	constexpr Vec2T(glm::vec<2, T> v) : x(v.x), y(v.y) {}
+	constexpr operator glm::vec<2, T>() const { return {x, y}; }
+
+	constexpr Vec2T(b2Vec2 v) requires(std::is_same_v<T, float>) : x(v.x), y(v.y) {}
+	constexpr operator b2Vec2() const requires(std::is_same_v<T, float>) { return {x, y}; }
+
+	template <typename TT>
+	explicit constexpr operator Vec2T<TT>() const
+	{
+		return {TT(x), TT(y)};
+	}
+
+	constexpr double length() const { return glm::length(glm::vec<2, T>(*this)); }
+	constexpr double lengthSquared() const { return glm::length2(glm::vec<2, T>(*this)); }
+
+	constexpr double ratio() const { return double(x) / double(y); }
+
+	constexpr void rotate(T angle) { *this = glm::rotate(glm::vec<2, T>(*this), angle); }
+
+	friend constexpr auto operator<=>(Vec2T, Vec2T) = default;
+
+	T x = 0;
+	T y = 0;
+
+	static const Vec2T Zero, One;
+	static const Vec2T Up, Down, Left, Right;
+	static const Vec2T UiUp, UiDown, UiLeft, UiRight;
+};
+
+template <typename T>
+const Vec2T<T> Vec2T<T>::Zero{0, 0};
+template <typename T>
+const Vec2T<T> Vec2T<T>::One{1, 1};
+
+template <typename T>
+const Vec2T<T> Vec2T<T>::Up{0, 1};
+template <typename T>
+const Vec2T<T> Vec2T<T>::Down{0, -1};
+template <typename T>
+const Vec2T<T> Vec2T<T>::Left{-1, 0};
+template <typename T>
+const Vec2T<T> Vec2T<T>::Right{1, 0};
+
+template <typename T>
+const Vec2T<T> Vec2T<T>::UiUp{0, -1};
+template <typename T>
+const Vec2T<T> Vec2T<T>::UiDown{0, 1};
+template <typename T>
+const Vec2T<T> Vec2T<T>::UiLeft{-1, 0};
+template <typename T>
+const Vec2T<T> Vec2T<T>::UiRight{1, 0};
+
+template <typename T>
+constexpr Vec2T<T>& operator+=(Vec2T<T>& a, Vec2T<T> b)
+{
+	a.x += b.x;
+	a.y += b.y;
+	return a;
+}
+
+template <typename T>
+constexpr Vec2T<T>& operator-=(Vec2T<T>& a, Vec2T<T> b)
+{
+	a.x -= b.x;
+	a.y -= b.y;
+	return a;
+}
+
+template <typename T, typename C>
+constexpr Vec2T<T>& operator*=(Vec2T<T>& v, C c)
+{
+	v.x *= c;
+	v.y *= c;
+	return v;
+}
+
+template <typename T>
+constexpr Vec2T<T>& operator*=(Vec2T<T>& a, Vec2T<T> b)
+{
+	a.x *= b.x;
+	a.y *= b.y;
+	return a;
+}
+
+template <typename T, typename C>
+constexpr Vec2T<T>& operator/=(Vec2T<T>& v, C c)
+{
+	v.x /= c;
+	v.y /= c;
+	return v;
+}
+
+template <typename T>
+constexpr Vec2T<T>& operator/=(Vec2T<T>& a, Vec2T<T> b)
+{
+	a.x /= b.x;
+	a.y /= b.y;
+	return a;
+}
+
+// clang-format off
+template <typename T>
+constexpr Vec2T<T> operator-(Vec2T<T> v) { return {-v.x, -v.y}; }
+template <typename T>
+constexpr Vec2T<T> operator+(Vec2T<T> a, Vec2T<T> b) { return a += b; }
+template <typename T>
+constexpr Vec2T<T> operator-(Vec2T<T> a, Vec2T<T> b) { return a -= b; }
+template <typename T, typename C>
+constexpr Vec2T<T> operator*(C c, Vec2T<T> v) { return v *= c; }
+template <typename T, typename C>
+constexpr Vec2T<T> operator*(Vec2T<T> v, C c) { return v *= c; }
+template <typename T>
+constexpr Vec2T<T> operator*(Vec2T<T> a, Vec2T<T> b) { return a *= b; }
+template <typename T, typename C>
+constexpr Vec2T<T> operator/(Vec2T<T> v, C c) { return v /= c; }
+template <typename T, typename C>
+constexpr Vec2T<T> operator/(C c, Vec2T<T> v) { return {c / v.x, c / v.y}; }
+template <typename T>
+constexpr Vec2T<T> operator/(Vec2T<T> a, Vec2T<T> b) { return a /= b; }
+// clang-format on
+
+using Vec2 = Vec2T<float>;
+using Vec2i = Vec2T<int>;
+using Vec2u = Vec2T<unsigned>;
+using Vec2d = Vec2T<double>;
+
+////////////////////////////////////////////////////////////
 
 using Vec3 = glm::vec3;
 constexpr Vec3 Vec3Up = {0, 1, 0};
@@ -77,8 +205,6 @@ template <> constexpr const char* typeName<Mat2>() { return "Mat2"; }
 template <> constexpr const char* typeName<Mat3>() { return "Mat3"; }
 template <> constexpr const char* typeName<Mat4>() { return "Mat4"; }
 
-template <> inline Vec2 as<Vec2>(const b2Vec2& v) { return std::bit_cast<Vec2>(v); }
-template <> inline b2Vec2 as<b2Vec2>(const Vec2& v) { return std::bit_cast<b2Vec2>(v); }
 template <> inline Vec4 as<Vec4>(const b2Color& v) { return std::bit_cast<Vec4>(v); }
 template <> inline b2Color as<b2Color>(const Vec4& v) { return std::bit_cast<b2Color>(v); }
 // clang-format on
@@ -86,9 +212,9 @@ template <> inline b2Color as<b2Color>(const Vec4& v) { return std::bit_cast<b2C
 } // namespace Anker
 
 template <typename T>
-struct fmt::formatter<glm::vec<2, T>> : formatter<T> {
+struct fmt::formatter<Anker::Vec2T<T>> : formatter<T> {
 	template <typename FormatContext>
-	auto format(const glm::vec<2, T>& vec, FormatContext& ctx)
+	auto format(const Anker::Vec2T<T>& vec, FormatContext& ctx)
 	{
 		auto out = ctx.out();
 		*out = '(';

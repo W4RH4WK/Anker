@@ -68,7 +68,7 @@ static Status createTextureFromPNGorJPG(Texture& texture, std::span<uint8_t> ima
 		return FormatError;
 	}
 
-	texture.info.size = {image.width(), image.height()};
+	texture.info.size = {unsigned(image.width()), unsigned(image.height())};
 	texture.info.format = TextureFormat::R8G8B8A8_UNORM_SRGB;
 
 	const std::array inits = {
