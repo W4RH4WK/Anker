@@ -10,14 +10,14 @@ struct Transform2D {
 	{}
 
 	// GLM conversion
-	Transform2D(const Mat3& mat)
+	explicit Transform2D(const Mat3& mat)
 	{
 		Mat2 rotationMat = Mat2(mat);
 		position = glm::vec2(mat[2]);
 		rotation = std::atan2(rotationMat[1][0], rotationMat[0][0]);
 		scale = {length(rotationMat[0]), length(rotationMat[1])};
 	}
-	operator Mat3() const
+	explicit operator Mat3() const
 	{
 		Mat3 mat = Mat3Id;
 		mat = glm::translate(mat, glm::vec2(position));
