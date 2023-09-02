@@ -63,7 +63,9 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 	scene.physicsWorld->DebugDraw();
 
 	for (auto [_, transform, body] : scene.registry.view<Transform2D, PhysicsBody>().each()) {
-		transform = body.body->GetTransform();
+		if (body.body->IsAwake()) {
+			transform = body.transform();
+		}
 	}
 }
 
