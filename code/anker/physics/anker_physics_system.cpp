@@ -76,7 +76,7 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 
 	const b2Vec2 gravity = 10.0f * Vec2::Down;
 
-	scene.physicsWorld = std::make_unique<b2World>(gravity);
+	scene.physicsWorld.emplace(gravity);
 	scene.physicsWorld->SetDebugDraw(m_debugDraw.get());
 
 	static constexpr auto destroyPhysicsBody = [](Scene& scene, entt::registry& reg, EntityID entity) {

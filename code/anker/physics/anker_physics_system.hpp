@@ -2,7 +2,7 @@
 
 namespace Anker {
 
-using PhysicsWorldPtr = std::unique_ptr<b2World>;
+using PhysicsWorld = b2World;
 
 class Scene;
 class GizmoRenderer;

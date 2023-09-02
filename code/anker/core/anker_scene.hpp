@@ -19,7 +19,7 @@ class Scene {
 	EntityHandle entityHandle(EntityID);
 	EntityCHandle entityHandle(EntityID) const;
 
-	PhysicsWorldPtr physicsWorld;
+	std::optional<PhysicsWorld> physicsWorld;
 
 	entt::registry registry;
 
