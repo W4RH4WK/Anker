@@ -57,9 +57,9 @@ int main()
 
 	{
 		auto e = g_engine->activeScene->createEntity("testsprite");
-		e.emplace<Transform2D>(Transform2D(Vec2(-10.0f, 0.0f)));
+		e.emplace<Transform2D>();
 		e.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
-		e.emplace<PhysicsBody>(PhysicsBody{.body = body});
+		e.emplace<PhysicsBody>(PhysicsBody{.body = body}).setTransform(Transform2D(Vec2(0.0f, 5.0f), 15.0f * Degrees));
 
 		g_engine->activeScene->activeCamera.emplace<EditorCamera>();
 	}
