@@ -43,10 +43,13 @@ class ComponentRegistry {
 		    .sortOrder = sortOrder,
 		    .id = entt::type_hash<Component>(),
 
-		    .addTo = [](EntityHandle entity) { entity.emplace<Component>(); },
 		    .removeFrom = [](EntityHandle entity) { entity.remove<Component>(); },
 		    .isPresentIn = [](EntityCHandle entity) { return entity.try_get<Component>(); },
 		};
+
+		if constexpr (std::is_default_constructible_v<Component>) {
+			info.addTo = [](EntityHandle entity) { entity.emplace<Component>(); };
+		}
 
 #if 0
 		if constexpr (Serializable<JsonReader, Component>) {

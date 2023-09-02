@@ -84,7 +84,7 @@ void Inspector::drawAddComponentButton(EntityHandle entity)
 	}
 	if (ImGui::BeginPopup("addCompMenu")) {
 		for (auto* component : g_engine->componentRegistry.components()) {
-			if (component->hideInEditor || component->isPresentIn(entity)) {
+			if (component->hideInEditor || component->isPresentIn(entity) || !component->addTo) {
 				continue;
 			}
 			if (ImGui::Selectable(component->name.c_str())) {
