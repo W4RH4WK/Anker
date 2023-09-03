@@ -1,7 +1,7 @@
 #pragma once
 
 #include <anker/editor/anker_editor_camera.hpp>
-#include <anker/editor/anker_editor_inspector.hpp>
+#include <anker/editor/anker_inspector.hpp>
 
 namespace Anker {
 
