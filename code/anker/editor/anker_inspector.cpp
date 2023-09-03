@@ -61,7 +61,7 @@ void Inspector::tick(float, Scene& scene)
 
 void Inspector::drawMenuBarEntry()
 {
-	ImGui::ToggleButton("ECS", &m_enabled);
+	ImGui::ToggleButton("Entities", &m_enabled);
 }
 
 void Inspector::drawNameWidget(EntityHandle entity)

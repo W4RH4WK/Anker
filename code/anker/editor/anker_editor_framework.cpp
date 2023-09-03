@@ -1,10 +1,10 @@
-#include <anker/editor/anker_editor_system.hpp>
+#include <anker/editor/anker_editor_framework.hpp>
 
 #include <anker/core/anker_engine.hpp>
 
 namespace Anker {
 
-void EditorSystem::tick(float dt, Scene& scene)
+void EditorFramework::tick(float dt, Scene& scene)
 {
 	m_inspector.tick(dt, scene);
 	m_cameraSystem.tick(dt, scene);

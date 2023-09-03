@@ -5,7 +5,7 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_imgui_system.hpp>
 #include <anker/core/anker_scene.hpp>
-#include <anker/editor/anker_editor_system.hpp>
+#include <anker/editor/anker_editor_framework.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
 #include <anker/physics/anker_physics_system.hpp>
@@ -52,7 +52,7 @@ class Engine {
 
 	ScenePtr activeScene;
 
-	std::optional<EditorSystem> editorSystem;
+	std::optional<EditorFramework> editor;
 
 	using Clock = std::chrono::steady_clock;
 

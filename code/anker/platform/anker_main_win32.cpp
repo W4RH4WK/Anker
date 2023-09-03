@@ -25,7 +25,7 @@ int main()
 	dataLoader.addSource(&dataLoaderFs);
 
 	g_engine.emplace(dataLoader);
-	g_engine->editorSystem.emplace();
+	g_engine->editor.emplace();
 
 	g_engine->activeScene = g_engine->createScene();
 

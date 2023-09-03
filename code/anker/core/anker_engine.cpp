@@ -35,8 +35,8 @@ void Engine::tick()
 
 	imguiSystem.newFrame();
 
-	if (editorSystem) {
-		editorSystem->tick(dt, *activeScene);
+	if (editor) {
+		editor->tick(dt, *activeScene);
 	}
 
 	// ImGui::ShowDemoWindow();
