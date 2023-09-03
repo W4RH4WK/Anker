@@ -10,7 +10,12 @@ namespace Anker {
 
 void EditorCameraSystem::tick(float, Scene& scene)
 {
-	auto [transform, camera, editorCamera] = scene.activeCamera.try_get<Transform2D, Camera, EditorCamera>();
+	auto activeCamera = scene.activeCamera();
+	if (!activeCamera) {
+		return;
+	}
+
+	auto [transform, camera, editorCamera] = activeCamera.try_get<Transform2D, Camera, EditorCamera>();
 	if (!transform || !camera || !editorCamera) {
 		return;
 	}
@@ -33,7 +38,7 @@ void EditorCameraSystem::drawMenuBarEntry(Scene& scene)
 		for (auto [entityID, _, __] : scene.registry.view<Transform2D, Camera>().each()) {
 			auto entity = scene.entityHandle(entityID);
 			if (ImGui::MenuItem(entityLabel(entity).c_str())) {
-				scene.activeCamera = entity;
+				scene.setActiveCamera(entity);
 			}
 		}
 
@@ -44,7 +49,7 @@ void EditorCameraSystem::drawMenuBarEntry(Scene& scene)
 			camera.emplace<Transform2D>();
 			camera.emplace<Camera>();
 			camera.emplace<EditorCamera>();
-			scene.activeCamera = camera;
+			scene.setActiveCamera(camera);
 		}
 
 		ImGui::EndMenu();

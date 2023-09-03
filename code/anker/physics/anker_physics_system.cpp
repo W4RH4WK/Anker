@@ -59,34 +59,34 @@ PhysicsSystem::PhysicsSystem(GizmoRenderer& gizmoRenderer)
 
 void PhysicsSystem::tick(float dt, Scene& scene)
 {
-	scene.physicsWorld->Step(dt, 6, 2);
-	scene.physicsWorld->DebugDraw();
+	auto& physicsWorld = scene.registry.ctx().get<b2World>();
+	physicsWorld.Step(dt, 6, 2);
+	physicsWorld.DebugDraw();
 
-	for (auto [_, transform, body] : scene.registry.view<Transform2D, PhysicsBody>().each()) {
+	for (auto [entity, body] : scene.registry.view<PhysicsBody>().each()) {
 		if (body.body->IsAwake()) {
-			transform = body.transform();
+			scene.registry.emplace_or_replace<Transform2D>(entity, body.transform());
 		}
 	}
 }
 
 void PhysicsSystem::addPhysicsWorld(Scene& scene)
 {
-	if (scene.physicsWorld) {
+	if (scene.registry.ctx().contains<b2World>()) {
 		ANKER_WARN("Scene already has PhysicsWorld attached");
 		return;
 	}
 
 	const b2Vec2 gravity = 10.0f * Vec2::Down;
 
-	scene.physicsWorld.emplace(gravity);
-	scene.physicsWorld->SetDebugDraw(m_debugDraw.get());
+	auto& physicsWorld = scene.registry.ctx().emplace<b2World>(gravity);
+	physicsWorld.SetDebugDraw(m_debugDraw.get());
 
-	static constexpr auto destroyPhysicsBody = [](Scene& scene, entt::registry& reg, EntityID entity) {
-		if (scene.physicsWorld) {
-			scene.physicsWorld->DestroyBody(reg.get<PhysicsBody>(entity).body);
-		}
+	static constexpr auto destroyPhysicsBody = [](entt::registry& reg, EntityID entity) {
+		auto& physicsWorld = reg.ctx().get<b2World>();
+		physicsWorld.DestroyBody(reg.get<PhysicsBody>(entity).body);
 	};
-	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>(scene);
+	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>();
 }
 
 } // namespace Anker

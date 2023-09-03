@@ -1,7 +1,5 @@
 #pragma once
 
-#include <anker/physics/anker_physics_system.hpp>
-
 namespace Anker {
 
 class Scene;
@@ -19,11 +17,11 @@ class Scene {
 	EntityHandle entityHandle(EntityID);
 	EntityCHandle entityHandle(EntityID) const;
 
-	std::optional<PhysicsWorld> physicsWorld;
+	EntityHandle activeCamera();
+	EntityCHandle activeCamera() const;
+	void setActiveCamera(EntityID);
 
 	entt::registry registry;
-
-	EntityHandle activeCamera;
 };
 
 } // namespace Anker

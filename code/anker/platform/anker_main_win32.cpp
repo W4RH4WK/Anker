@@ -29,10 +29,12 @@ int main()
 
 	g_engine->activeScene = g_engine->createScene();
 
+	auto& physicsWorld = g_engine->activeScene->registry.ctx().get<b2World>();
+
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(0.0f, -10.0f);
 
-	b2Body* groundBody = g_engine->activeScene->physicsWorld->CreateBody(&groundBodyDef);
+	b2Body* groundBody = physicsWorld.CreateBody(&groundBodyDef);
 
 	b2PolygonShape groundBox;
 	groundBox.SetAsBox(50.0f, 10.0f);
@@ -43,7 +45,7 @@ int main()
 	bodyDef.type = b2_dynamicBody;
 	bodyDef.position.Set(0.0f, 4.0f);
 
-	b2Body* body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
+	b2Body* body = physicsWorld.CreateBody(&bodyDef);
 
 	b2PolygonShape dynamicBox;
 	dynamicBox.SetAsBox(1.0f, 1.0f);
@@ -59,9 +61,9 @@ int main()
 		auto e = g_engine->activeScene->createEntity("testsprite");
 		e.emplace<Transform2D>();
 		e.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
-		e.emplace<PhysicsBody>(PhysicsBody{.body = body}).setTransform(Transform2D(Vec2(0.0f, 5.0f), 15.0f * Degrees));
+		e.emplace<PhysicsBody>(PhysicsBody{.body = body}).setTransform(Transform2D(Vec2(0.0f, 15.0f), 15.0f * Degrees));
 
-		g_engine->activeScene->activeCamera.emplace<EditorCamera>();
+		g_engine->activeScene->activeCamera().emplace<EditorCamera>();
 	}
 
 	while (!g_platform->shouldShutdown()) {

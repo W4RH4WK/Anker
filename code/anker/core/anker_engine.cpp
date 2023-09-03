@@ -54,9 +54,10 @@ ScenePtr Engine::createScene()
 
 	physicsSystem.addPhysicsWorld(*scene);
 
-	scene->activeCamera = scene->createEntity("Camera");
-	scene->activeCamera.emplace<Transform2D>();
-	scene->activeCamera.emplace<Camera>();
+	auto camera = scene->createEntity("Camera");
+	camera.emplace<Transform2D>();
+	camera.emplace<Camera>();
+	scene->setActiveCamera(camera);
 
 	return scene;
 }

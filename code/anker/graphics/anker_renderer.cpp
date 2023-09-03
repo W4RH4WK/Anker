@@ -45,14 +45,15 @@ void Renderer::draw(const Scene& scene)
 {
 	ANKER_PROFILE_ZONE();
 
-	if (!scene.activeCamera) {
+	auto camera = scene.activeCamera();
+	if (!camera) {
 		ANKER_WARN("No active camera");
 		m_renderDevice.setRenderTarget(m_renderDevice.backBuffer());
 		m_renderDevice.clearRenderTarget(m_renderDevice.backBuffer());
 		return;
 	}
 
-	auto [cameraTransform, cameraParams] = scene.activeCamera.try_get<Transform2D, Camera>();
+	auto [cameraTransform, cameraParams] = camera.try_get<Transform2D, Camera>();
 	if (!cameraTransform || !cameraParams) {
 		ANKER_WARN("Invalid active camera");
 		m_renderDevice.setRenderTarget(m_renderDevice.backBuffer());
