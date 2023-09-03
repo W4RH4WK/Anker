@@ -113,6 +113,7 @@ RenderDevice::RenderDevice(DataLoader& dataLoader) : m_dataLoader(dataLoader)
 	    // BGRA format is preferred as this format is common among display
 	    // controllers.
 	    .BufferDesc = {.Format = DXGI_FORMAT_B8G8R8A8_UNORM},
+
 	    .SampleDesc = {.Count = 1},
 	    .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
 	    .BufferCount = 2,
@@ -527,7 +528,7 @@ void RenderDevice::onResize(Vec2i)
 void RenderDevice::createMainRenderTarget()
 {
 	// Grab back buffer from swap chain
-	HRESULT hresult = m_dxgiSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), &m_backBuffer.texture);
+	HRESULT hresult = m_dxgiSwapchain->GetBuffer(0, IID_ID3D11Texture2D, &m_backBuffer.texture);
 	if (FAILED(hresult)) {
 		ANKER_FATAL("IDXGISwapChain::GetBuffer failed: {}", win32ErrorMessage(hresult));
 	}
