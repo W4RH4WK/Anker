@@ -19,6 +19,8 @@ class PhysicsSystem {
 
 	void addPhysicsWorld(Scene&);
 
+	bool debugDraw = false;
+
   private:
 	std::unique_ptr<b2Draw> m_debugDraw;
 };

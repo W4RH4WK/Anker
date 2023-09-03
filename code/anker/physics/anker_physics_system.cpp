@@ -61,7 +61,10 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 {
 	auto& physicsWorld = scene.registry.ctx().get<b2World>();
 	physicsWorld.Step(dt, 6, 2);
-	physicsWorld.DebugDraw();
+
+	if (debugDraw) {
+		physicsWorld.DebugDraw();
+	}
 
 	for (auto [entity, body] : scene.registry.view<PhysicsBody>().each()) {
 		if (body.body->IsAwake()) {

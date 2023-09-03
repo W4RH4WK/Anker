@@ -21,7 +21,7 @@ class Inspector {
 	void drawAddComponentButton(EntityHandle entity);
 	void drawComponentEditor(EntityHandle);
 
-	bool m_enabled = true;
+	bool m_enabled = false;
 
 	std::optional<EntityID> m_selectedEntity;
 };

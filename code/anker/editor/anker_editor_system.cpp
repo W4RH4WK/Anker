@@ -12,6 +12,9 @@ void EditorSystem::tick(float dt, Scene& scene)
 	if (ImGui::BeginMainMenuBar()) {
 		m_inspector.drawMenuBarEntry();
 		m_cameraSystem.drawMenuBarEntry(scene);
+
+		ImGui::ToggleButton("PhysDbg", &g_engine->physicsSystem.debugDraw);
+
 		ImGui::EndMainMenuBar();
 	}
 }
