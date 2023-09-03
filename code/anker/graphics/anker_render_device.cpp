@@ -116,7 +116,7 @@ RenderDevice::RenderDevice(DataLoader& dataLoader) : m_dataLoader(dataLoader)
 	    .SampleDesc = {.Count = 1},
 	    .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
 	    .BufferCount = 2,
-	    .OutputWindow = *g_platform,
+	    .OutputWindow = g_platform->nativeWindow(),
 	    .Windowed = true,
 	    .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
 	    .Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING,

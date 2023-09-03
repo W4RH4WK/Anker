@@ -2,6 +2,8 @@
 
 namespace Anker {
 
+using NativeWindow = HWND;
+
 // The Platform abstracts away various operating system specific parts, like
 // window management and mouse cursor handling. It is initialized before the
 // engine and can be accessed globally. Certain events (e.g. window resize) are
@@ -21,34 +23,35 @@ class Platform {
 
 	////////////////////////////////////////////////////////////
 	// Window
-
+  public:
 	Vec2i windowSize();
 
 	GLFWwindow* glfwWindow() { return m_glfwWindow; }
-	operator GLFWwindow*() { return m_glfwWindow; }
-
-	HWND nativeHandle() { return m_nativeWindow; }
-	operator HWND() { return m_nativeWindow; }
-
-	////////////////////////////////////////////////////////////
-	// Input / Cursor
-
-	Vec2 cursorPosition();
-
-	void hideCursor();
-
-	////////////////////////////////////////////////////////////
-	// ImGui
-
-	void imguiImplInit();
-	void imguiImplNewFrame();
-	void imguiImplShutdown();
+	NativeWindow nativeWindow() { return m_nativeWindow; }
 
   private:
 	GLFWwindow* m_glfwWindow = nullptr;
-	HWND m_nativeWindow = nullptr;
+	NativeWindow m_nativeWindow = nullptr;
 
+	////////////////////////////////////////////////////////////
+	// Input / Cursor
+  public:
+	Vec2 cursorPosition();
+
+	// Hide cursor state is reset on Platform::tick. Any system that wants to
+	// hide the cursor has to call this function on every tick. If no system
+	// calls this function, the cursor is shown.
+	void hideCursor();
+
+  private:
 	bool m_hideCursor = false;
+
+	////////////////////////////////////////////////////////////
+	// ImGui
+  public:
+	void imguiImplInit();
+	void imguiImplNewFrame();
+	void imguiImplShutdown();
 };
 
 inline std::optional<Platform> g_platform;
