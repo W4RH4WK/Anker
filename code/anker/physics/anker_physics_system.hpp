@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/physics/anker_physics_debug_draw.hpp>
+
 namespace Anker {
 
 using PhysicsWorld = b2World;
@@ -22,7 +24,7 @@ class PhysicsSystem {
 	bool debugDraw = false;
 
   private:
-	std::unique_ptr<b2Draw> m_debugDraw;
+	PhysicsDebugDraw m_debugDraw;
 };
 
 } // namespace Anker
