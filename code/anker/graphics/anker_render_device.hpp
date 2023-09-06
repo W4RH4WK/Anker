@@ -268,6 +268,16 @@ class RenderDevice {
 	                   const GpuBuffer& instanceDataBuffer, uint32_t instanceCount, //
 	                   Topology = Topology::TriangleList);
 
+	////////////////////////////////////////////////////////////
+	// ImGui
+
+	void imguiImplInit();
+	void imguiImplShutdown();
+	void imguiImplNewFrame();
+	void imguiImplRender();
+
+	////////////////////////////////////////////////////////////
+
 	void present();
 
 	void onResize(Vec2i size);

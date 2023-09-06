@@ -5,33 +5,32 @@
 
 namespace Anker {
 
-ImguiSystem::ImguiSystem(RenderDevice& renderDevice)
+ImguiSystem::ImguiSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevice)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	g_platform->imguiImplInit();
-	ImGui_ImplDX11_Init(renderDevice.device(), renderDevice.context());
+	renderDevice.imguiImplInit();
 }
 
 ImguiSystem::~ImguiSystem()
 {
-	ImGui_ImplDX11_Shutdown();
+	m_renderDevice.imguiImplShutdown();
 	g_platform->imguiImplShutdown();
 	ImGui::DestroyContext();
 }
 
 void ImguiSystem::newFrame()
 {
-
 	g_platform->imguiImplNewFrame();
-	ImGui_ImplDX11_NewFrame();
+	m_renderDevice.imguiImplNewFrame();
 	ImGui::NewFrame();
 }
 
 void ImguiSystem::draw()
 {
 	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	m_renderDevice.imguiImplRender();
 }
 
 } // namespace Anker

@@ -87,8 +87,6 @@ using Microsoft::WRL::ComPtr;
 #include <box2d/box2d.h>
 
 #include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_glfw.h>
 #include <imgui_stdlib.h>
 
 // #include <ImGuizmo.h>

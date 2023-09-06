@@ -1,5 +1,7 @@
 #include <anker/graphics/anker_render_device.hpp>
 
+#include <imgui_impl_dx11.h>
+
 #include <ddspp.h>
 
 #include <anker/core/anker_data_loader.hpp>
@@ -503,6 +505,26 @@ void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer,                 
 
 	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY(topology));
 	m_context->DrawIndexedInstanced(indexCount, instanceCount, 0, 0, 0);
+}
+
+void RenderDevice::imguiImplInit()
+{
+	ImGui_ImplDX11_Init(m_device.Get(), m_context.Get());
+}
+
+void RenderDevice::imguiImplShutdown()
+{
+	ImGui_ImplDX11_Shutdown();
+}
+
+void RenderDevice::imguiImplNewFrame()
+{
+	ImGui_ImplDX11_NewFrame();
+}
+
+void RenderDevice::imguiImplRender()
+{
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void RenderDevice::present()

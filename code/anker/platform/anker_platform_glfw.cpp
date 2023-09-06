@@ -1,5 +1,7 @@
 #include <anker/platform/anker_platform_glfw.hpp>
 
+#include <imgui_impl_glfw.h>
+
 #include <anker/core/anker_engine.hpp>
 
 namespace Anker {

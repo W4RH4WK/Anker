@@ -16,6 +16,9 @@ class ImguiSystem {
 	void newFrame();
 
 	void draw();
+
+private:
+	RenderDevice& m_renderDevice;
 };
 
 } // namespace Anker
