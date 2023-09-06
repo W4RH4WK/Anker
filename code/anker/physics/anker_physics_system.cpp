@@ -18,7 +18,7 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 	}
 
 	for (auto [entity, body] : scene.registry.view<PhysicsBody>().each()) {
-		if (body.body->IsAwake()) {
+		if (body.body && body.body->IsAwake()) {
 			scene.registry.emplace_or_replace<Transform2D>(entity, body.transform());
 		}
 	}
@@ -38,7 +38,9 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 
 	static constexpr auto destroyPhysicsBody = [](entt::registry& reg, EntityID entity) {
 		auto& physicsWorld = reg.ctx().get<b2World>();
-		physicsWorld.DestroyBody(reg.get<PhysicsBody>(entity).body);
+		if (auto* body = reg.get<PhysicsBody>(entity).body) {
+			physicsWorld.DestroyBody(body);
+		}
 	};
 	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>();
 }

@@ -5,11 +5,21 @@
 namespace Anker {
 
 struct PhysicsBody {
-	Transform2D transform() const { return body->GetTransform(); }
+	Transform2D transform() const
+	{
+		if (body) {
+			return body->GetTransform();
+		} else {
+			return Transform2D{};
+		}
+	}
+
 	void setTransform(const Transform2D& transform)
 	{
-		body->SetTransform(transform.position, transform.rotation);
-		body->SetAwake(true);
+		if (body) {
+			body->SetTransform(transform.position, transform.rotation);
+			body->SetAwake(true);
+		}
 	}
 
 	b2Body* body = nullptr;
