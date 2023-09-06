@@ -24,24 +24,29 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 	}
 }
 
+static void destroyPhysicsBody(entt::registry& reg, EntityID entity)
+{
+	auto& physicsWorld = reg.ctx().get<PhysicsWorld>();
+	if (auto* body = reg.get<PhysicsBody>(entity).body) {
+		physicsWorld.DestroyBody(body);
+	}
+}
+
 void PhysicsSystem::addPhysicsWorld(Scene& scene)
 {
-	if (scene.registry.ctx().contains<b2World>()) {
+	if (scene.physicsWorld) {
 		ANKER_WARN("Scene already has PhysicsWorld attached");
 		return;
 	}
 
 	const b2Vec2 gravity = 10.0f * Vec2::Down;
 
-	auto& physicsWorld = scene.registry.ctx().emplace<b2World>(gravity);
-	physicsWorld.SetDebugDraw(&m_debugDraw);
+	scene.physicsWorld.emplace(gravity);
+	scene.physicsWorld->SetDebugDraw(&m_debugDraw);
 
-	static constexpr auto destroyPhysicsBody = [](entt::registry& reg, EntityID entity) {
-		auto& physicsWorld = reg.ctx().get<b2World>();
-		if (auto* body = reg.get<PhysicsBody>(entity).body) {
-			physicsWorld.DestroyBody(body);
-		}
-	};
+	// Adding an alias for when we don't have access to the Scene object.
+	scene.registry.ctx().emplace<PhysicsWorld&>(scene.physicsWorld);
+
 	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>();
 }
 

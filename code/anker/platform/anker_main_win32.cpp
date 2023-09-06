@@ -29,41 +29,49 @@ int main()
 
 	g_engine->activeScene = g_engine->createScene();
 
-	auto& physicsWorld = g_engine->activeScene->registry.ctx().get<b2World>();
-
-	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, -10.0f);
-
-	b2Body* groundBody = physicsWorld.CreateBody(&groundBodyDef);
-
-	b2PolygonShape groundBox;
-	groundBox.SetAsBox(50.0f, 10.0f);
-
-	groundBody->CreateFixture(&groundBox, 0.0f);
-
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 4.0f);
-
-	b2Body* body = physicsWorld.CreateBody(&bodyDef);
-
-	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(1.0f, 1.0f);
-
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &dynamicBox;
-	fixtureDef.density = 1.0f;
-	fixtureDef.friction = 0.3f;
-
-	body->CreateFixture(&fixtureDef);
+	g_engine->activeScene->activeCamera().emplace<EditorCamera>();
 
 	{
-		auto e = g_engine->activeScene->createEntity("testsprite");
-		e.emplace<Transform2D>();
-		e.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
-		e.emplace<PhysicsBody>(PhysicsBody{.body = body}).setTransform(Transform2D(Vec2(0.0f, 15.0f), 15.0f * Degrees));
+		auto ground = g_engine->activeScene->createEntity("Ground");
+		ground.emplace<Transform2D>();
 
-		g_engine->activeScene->activeCamera().emplace<EditorCamera>();
+		auto& physicsBody = ground.emplace<PhysicsBody>();
+
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position = {0, -10};
+
+		physicsBody.body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
+
+		b2PolygonShape groundBox;
+		groundBox.SetAsBox(50, 10);
+
+		physicsBody.body->CreateFixture(&groundBox, 0);
+	}
+
+	{
+		auto player = g_engine->activeScene->createEntity("Player");
+		player.emplace<Transform2D>();
+		player.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
+
+		auto& physicsBody = player.emplace<PhysicsBody>();
+
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_dynamicBody;
+		bodyDef.position = {0, 10};
+		bodyDef.angle = 15.0f * Degrees;
+
+		physicsBody.body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
+
+		b2PolygonShape dynamicBox;
+		dynamicBox.SetAsBox(1.0f, 1.0f);
+
+		b2FixtureDef fixtureDef;
+		fixtureDef.shape = &dynamicBox;
+		fixtureDef.density = 1.0f;
+		fixtureDef.friction = 0.3f;
+
+		physicsBody.body->CreateFixture(&fixtureDef);
 	}
 
 	while (!g_platform->shouldShutdown()) {
