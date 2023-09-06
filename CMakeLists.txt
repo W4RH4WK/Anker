@@ -44,6 +44,10 @@ function(anker_compile_options target)
 		# Colorize compiler output
 		$<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color>
 		$<$<CXX_COMPILER_ID:Clang,AppleClang>:-fcolor-diagnostics>)
+
+	target_compile_definitions(${target} PUBLIC
+		$<$<BOOL:${WIN32}>:ANKER_PLATFORM_WINDOWS>
+		$<$<BOOL:${UNIX}>:ANKER_PLATFORM_LINUX>)
 endfunction()
 
 file(GLOB_RECURSE anker_srcs CONFIGURE_DEPENDS

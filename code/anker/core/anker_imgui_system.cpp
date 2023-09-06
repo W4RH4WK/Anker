@@ -1,7 +1,7 @@
 #include <anker/core/anker_imgui_system.hpp>
 
 #include <anker/graphics/anker_render_device.hpp>
-#include <anker/platform/anker_platform_win32.hpp>
+#include <anker/platform/anker_platform.hpp>
 
 namespace Anker {
 

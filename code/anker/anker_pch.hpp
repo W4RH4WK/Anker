@@ -21,7 +21,11 @@
 #include <variant>
 #include <vector>
 
-#if _WIN32
+////////////////////////////////////////////////////////////
+// Platform
+
+#if ANKER_PLATFORM_WINDOWS
+
 #define NOMINMAX
 #include <windows.h>
 #undef NOMINMAX
@@ -32,15 +36,25 @@
 #include <d3d11.h>
 #pragma comment(lib, "d3d11.lib")
 
-#include <d3dcompiler.h>
-#pragma comment(lib, "d3dcompiler.lib")
-
 #include <wrl.h>
 using Microsoft::WRL::ComPtr;
 
 #undef near
 #undef far
-#endif // _WIN32
+
+#define GLFW_INCLUDE_NONE
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
+#elif ANKER_PLATFORM_LINUX
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
+#endif
+
+////////////////////////////////////////////////////////////
 
 #include <refl.hpp>
 
@@ -69,11 +83,6 @@ using Microsoft::WRL::ComPtr;
 #include <rapidjson/prettywriter.h>
 
 #include <entt/entt.hpp>
-
-#define GLFW_INCLUDE_NONE
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 
 #include <box2d/box2d.h>
 

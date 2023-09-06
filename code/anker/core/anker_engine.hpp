@@ -8,7 +8,7 @@
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
 #include <anker/physics/anker_physics_system.hpp>
-#include <anker/platform/anker_input_system_win32.hpp>
+#include <anker/platform/anker_input_system.hpp>
 
 namespace Anker {
 

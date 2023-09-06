@@ -1,7 +1,7 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
-#include <anker/platform/anker_platform_win32.hpp>
+#include <anker/platform/anker_platform.hpp>
 
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_editor_camera.hpp>

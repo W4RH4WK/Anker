@@ -2,8 +2,9 @@
 
 namespace Anker {
 
-inline std::string win32ErrorMessage(DWORD error)
+inline std::string win32ErrorMessage(uint32_t error)
 {
+#if ANKER_PLATFORM_WINDOWS
 	if (error == 0) {
 		return to_string(OK);
 	}
@@ -19,11 +20,9 @@ inline std::string win32ErrorMessage(DWORD error)
 	std::string message = fmt::format("{:#x} {}", error, std::string_view(buffer, size));
 	LocalFree(buffer);
 	return message;
-}
-
-inline std::string win32LastErrorMessage()
-{
-	return win32ErrorMessage(GetLastError());
+#elif ANKER_PLATFORM_LINUX
+	return fmt::format("{:#x}", error);
+#endif
 }
 
 } // namespace Anker

@@ -3,7 +3,7 @@
 #include <ddspp.h>
 
 #include <anker/core/anker_data_loader.hpp>
-#include <anker/platform/anker_platform_win32.hpp>
+#include <anker/platform/anker_platform.hpp>
 
 namespace Anker {
 

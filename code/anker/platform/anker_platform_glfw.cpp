@@ -1,4 +1,4 @@
-#include <anker/platform/anker_platform_win32.hpp>
+#include <anker/platform/anker_platform_glfw.hpp>
 
 #include <anker/core/anker_engine.hpp>
 
@@ -33,7 +33,9 @@ Platform::Platform()
 		}
 	});
 
+#if ANKER_PLATFORM_WINDOWS
 	m_nativeWindow = glfwGetWin32Window(m_glfwWindow);
+#endif
 
 	ANKER_CHECK(glfwRawMouseMotionSupported());
 	glfwSetInputMode(m_glfwWindow, GLFW_RAW_MOUSE_MOTION, true);

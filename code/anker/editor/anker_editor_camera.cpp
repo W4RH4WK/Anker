@@ -4,7 +4,7 @@
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
-#include <anker/platform/anker_platform_win32.hpp>
+#include <anker/platform/anker_platform.hpp>
 
 namespace Anker {
 
