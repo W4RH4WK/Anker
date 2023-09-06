@@ -42,15 +42,7 @@ using Microsoft::WRL::ComPtr;
 #undef near
 #undef far
 
-#define GLFW_INCLUDE_NONE
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-
 #elif ANKER_PLATFORM_LINUX
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 
 #endif
 
