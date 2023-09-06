@@ -1,3 +1,5 @@
+require 'set'
+
 # Rake.application.options.trace_rules = true
 
 TOOLS_DIR = File.join(__dir__, '..', 'tools')
@@ -8,7 +10,7 @@ TEXASSEMBLE = File.join(TOOLS_DIR, 'texassemble.exe')
 
 SHADER_DEBUG = ENV['SHADER_DEBUG'] == '1'
 
-###
+############################################################
 
 VERTEX_SHADERS = FileList[
   'shaders/basic_2d',
@@ -26,10 +28,29 @@ TEXTURES = FileList[
   'fallback/fallback_texture.png',
 ]
 
-###
+############################################################
+
+# Returns a list of all shader dependencies. Transitive dependencies are
+# included, the given file is included as first element as well.
+def shader_dependencies(file)
+  def shader_dependencies_recursive(file, children)
+    IO.foreach(file) do |line|
+      if line =~ /#include *["<](.*)[">]/
+        child = File.join(File.dirname(file), $1)
+        if not children.include?(child) and File.exist?(child)
+          children << child
+          shader_dependencies_recursive(child, children)
+        end
+      end
+    end
+  end
+  children = Set[]
+  shader_dependencies_recursive(file, children)
+  FileList[file, Array(children)]
+end
 
 VERTEX_SHADERS.each do |shader|
-  file shader.pathmap('%p.vs.fxo') => shader.pathmap('%p.hlsl') do |t|
+  file shader.pathmap('%p.vs.fxo') => shader_dependencies(shader.pathmap('%p.hlsl')) do |t|
     flags = SHADER_DEBUG ? '/Od /Zi /Zss' : '/O3 /Qstrip_debug'
     sh "#{FXC} /nologo /T vs_5_0 /D ANKER_VS #{t.source} /Fo #{t.name} #{flags}"
   end
@@ -37,7 +58,7 @@ end
 task shaders: VERTEX_SHADERS.pathmap('%p.vs.fxo')
 
 PIXEL_SHADERS.each do |shader|
-  file shader.pathmap('%p.ps.fxo') => shader.pathmap('%p.hlsl') do |t|
+  file shader.pathmap('%p.ps.fxo') => shader_dependencies(shader.pathmap('%p.hlsl')) do |t|
     flags = SHADER_DEBUG ? '/Od /Zi /Zss' : '/O3 /Qstrip_debug'
     sh "#{FXC} /nologo /T ps_5_0 /D ANKER_PS #{t.source} /Fo #{t.name} #{flags}"
   end
@@ -56,7 +77,7 @@ task default: [:shaders, :textures]
 desc "Continuously run rake to build assets"
 task :watch do
   while true
-    sh "rake" do
+    sh "rake", verbose: false do
       # ignore failure
     end
     sleep 2
