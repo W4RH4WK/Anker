@@ -1,6 +1,6 @@
 #include <anker/editor/anker_inspector.hpp>
 
-#include <anker/core/anker_engine.hpp>
+#include <anker/core/anker_components.hpp>
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
@@ -83,12 +83,12 @@ void Inspector::drawAddComponentButton(EntityHandle entity)
 		ImGui::OpenPopup("addCompMenu");
 	}
 	if (ImGui::BeginPopup("addCompMenu")) {
-		for (auto* component : g_engine->componentRegistry.components()) {
-			if (component->hideInEditor || component->isPresentIn(entity) || !component->addTo) {
+		for (auto& component : components()) {
+			if (component.flags & ComponentFlag::HideInInspector || component.isPresentIn(entity) || !component.addTo) {
 				continue;
 			}
-			if (ImGui::Selectable(component->name.c_str())) {
-				component->addTo(entity);
+			if (ImGui::Selectable(component.name)) {
+				component.addTo(entity);
 			}
 		}
 		ImGui::EndPopup();
@@ -100,19 +100,19 @@ void Inspector::drawComponentEditor(EntityHandle entity)
 	const auto treeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen;
 
 	EditWidgetDrawer drawer;
-	for (const auto* component : g_engine->componentRegistry.components()) {
-		if (component->hideInEditor || !component->isPresentIn(entity)) {
+	for (auto& component : components()) {
+		if (component.flags & ComponentFlag::HideInInspector || !component.isPresentIn(entity)) {
 			continue;
 		}
 
-		bool opened = ImGui::TreeNodeEx(component->name.c_str(), treeFlags);
+		bool opened = ImGui::TreeNodeEx(component.name, treeFlags);
 
 		// context menu
 		{
-			ImGui::PushID(component->name.c_str());
+			ImGui::PushID(component.name);
 			if (ImGui::BeginPopupContextItem()) {
 				if (ImGui::MenuItem("Delete")) {
-					component->removeFrom(entity);
+					component.removeFrom(entity);
 				}
 				ImGui::EndPopup();
 			}
@@ -120,8 +120,8 @@ void Inspector::drawComponentEditor(EntityHandle entity)
 		}
 
 		if (opened) {
-			if (component->drawEditWidget) {
-				component->drawEditWidget(drawer, entity);
+			if (component.drawEditWidget) {
+				component.drawEditWidget(drawer, entity);
 			} else {
 				ImGui::TextDisabled("No editWidget defined");
 			}
