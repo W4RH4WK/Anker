@@ -4,11 +4,9 @@
 
 // With the defer utility you can define a function that will be executed
 // automatically at the end of the current scope.
-#define ANKER_DEFER const auto ANKER_TEMPORARY(ankerDeferer) = ::Anker::Internal::DeferHolderTag{} + [&]()
+#define ANKER_DEFER(f) const auto ANKER_TEMPORARY(ankerDeferer) = ::Anker::Internal::DeferHolder(f);
 
 namespace Anker::Internal {
-
-enum DeferHolderTag {};
 
 template <typename T>
 class DeferHolder {
@@ -23,11 +21,5 @@ class DeferHolder {
   private:
 	T m_function;
 };
-
-template <typename T>
-inline DeferHolder<T> operator+(DeferHolderTag, T&& function)
-{
-	return DeferHolder<T>(std::forward<T>(function));
-}
 
 } // namespace Anker::Internal
