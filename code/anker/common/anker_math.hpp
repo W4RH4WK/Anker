@@ -441,6 +441,30 @@ using Vec4u = Vec4T<unsigned>;
 using Vec4d = Vec4T<double>;
 
 ////////////////////////////////////////////////////////////
+// Rect 2D
+
+template <typename T>
+struct Rect2T {
+	static constexpr Rect2T fromPoints(Vec2T<T> a, Vec2T<T> b)
+	{
+		T width = a.x < b.x ? b.x - a.x : a.x - b.x;
+		T height = a.y < b.y ? b.y - a.y : a.y - b.y;
+
+		Vec2T<T> offset = {std::min(a.x, b.x), std::min(a.y, b.y)};
+
+		return {{width, height}, offset};
+	}
+
+	Vec2T<T> size = Vec2T<T>::Zero;
+	Vec2T<T> offset = Vec2T<T>::Zero;
+};
+
+using Rect2 = Rect2T<float>;
+using Rect2i = Rect2T<int>;
+using Rect2u = Rect2T<unsigned>;
+using Rect2d = Rect2T<double>;
+
+////////////////////////////////////////////////////////////
 // Other Common Math Types
 
 using Quat = glm::quat;

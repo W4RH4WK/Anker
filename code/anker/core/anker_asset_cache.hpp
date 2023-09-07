@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/graphics/anker_font.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 
 #include <anker/core/anker_asset.hpp>
@@ -36,6 +37,9 @@ class AssetCache {
 	AssetPtr<Texture> loadTexture(std::string_view identifier);
 	AssetPtr<Texture> loadTextureUncached(std::string_view identifier);
 
+	AssetPtr<Font> loadFont(std::string_view identifier);
+	AssetPtr<Font> loadFontUncached(std::string_view identifier);
+
 	////////////////////////////////////////////////////////////
 
 	// Reload assets that have been modified according to the underlying
@@ -61,6 +65,7 @@ class AssetCache {
 	Cache<VertexShader> m_vertexShaderCache;
 	Cache<PixelShader> m_pixelShaderCache;
 	Cache<Texture> m_textureCache;
+	Cache<Font> m_fontCache;
 };
 
 } // namespace Anker

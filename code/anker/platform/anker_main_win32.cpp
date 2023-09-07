@@ -5,6 +5,7 @@
 
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
+#include <anker/graphics/anker_font.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
@@ -49,10 +50,13 @@ int main()
 		physicsBody.body->CreateFixture(&groundBox, 0);
 	}
 
+	auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
+
 	{
 		auto player = g_engine->activeScene->createEntity("Player");
 		player.emplace<Transform2D>();
 		player.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
+		*(player.get<Sprite>().texture) = font->texture;
 
 		auto& physicsBody = player.emplace<PhysicsBody>();
 

@@ -63,6 +63,31 @@ AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 	return texture;
 }
 
+AssetPtr<Font> AssetCache::loadFont(std::string_view identifier)
+{
+	if (auto it = m_fontCache.find(identifier); it != m_fontCache.end()) {
+		return it->second;
+	}
+	return m_fontCache[std::string{identifier}] = loadFontUncached(identifier);
+}
+
+AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
+{
+	ByteBuffer fontData;
+	if (not m_dataLoader.load(std::string{identifier} + ".ttf", fontData)) {
+		return nullptr;
+	}
+
+	auto font = makeAssetPtr<Font>();
+	font->name = identifier;
+
+	if (not Font::load(*font, fontData, m_renderDevice)) {
+		return nullptr;
+	}
+
+	return font;
+}
+
 void AssetCache::reloadModifiedAssets()
 {
 	for (const auto& modifiedAssetFilepath : m_dataLoader.modifiedFiles()) {
@@ -92,6 +117,7 @@ void AssetCache::clearUnused()
 	std::erase_if(m_vertexShaderCache, isUnused);
 	std::erase_if(m_pixelShaderCache, isUnused);
 	std::erase_if(m_textureCache, isUnused);
+	std::erase_if(m_fontCache, isUnused);
 }
 
 void AssetCache::clearAll()
@@ -99,6 +125,7 @@ void AssetCache::clearAll()
 	m_vertexShaderCache.clear();
 	m_pixelShaderCache.clear();
 	m_textureCache.clear();
+	m_fontCache.clear();
 }
 
 } // namespace Anker

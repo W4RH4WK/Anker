@@ -22,6 +22,7 @@ enum StatusCode : uint8_t {
 	WriteError,
 	FormatError,
 	GraphicsError,
+	FontError,
 };
 constexpr std::array StatusCodeEntries{
     std::pair{OK, "OK"},
@@ -31,6 +32,7 @@ constexpr std::array StatusCodeEntries{
     std::pair{WriteError, "WriteError"},
     std::pair{FormatError, "FormatError"},
     std::pair{GraphicsError, "GraphicsError"},
+    std::pair{FontError, "FontError"},
 };
 ANKER_ENUM_TO_FROM_STRING(StatusCode)
 
