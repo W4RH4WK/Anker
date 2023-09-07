@@ -1,11 +1,12 @@
 #include <anker/core/anker_asset_cache.hpp>
 
 #include <anker/core/anker_data_loader.hpp>
+#include <anker/ui/anker_ui_system.hpp>
 
 namespace Anker {
 
-AssetCache::AssetCache(DataLoader& dataLoader, RenderDevice& renderDevice)
-    : m_dataLoader(dataLoader), m_renderDevice(renderDevice)
+AssetCache::AssetCache(DataLoader& dataLoader, RenderDevice& renderDevice, UISystem& uiSystem)
+    : m_dataLoader(dataLoader), m_renderDevice(renderDevice), m_uiSystem(uiSystem)
 {}
 
 AssetPtr<VertexShader> AssetCache::loadVertexShader(std::string_view identifier,
@@ -73,17 +74,10 @@ AssetPtr<Font> AssetCache::loadFont(std::string_view identifier)
 
 AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
 {
-	ByteBuffer fontData;
-	if (not m_dataLoader.load(std::string{identifier} + ".ttf", fontData)) {
-		return nullptr;
-	}
-
 	auto font = makeAssetPtr<Font>();
-	font->name = identifier;
 
-	if (not Font::load(*font, fontData, m_renderDevice)) {
-		return nullptr;
-	}
+	// Ignoring status here since a fallback font is used on failure.
+	(void)m_uiSystem.loadFont(*font, identifier);
 
 	return font;
 }

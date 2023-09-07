@@ -8,9 +8,10 @@ namespace Anker {
 Engine::Engine(DataLoader& dataLoader)
     : dataLoader(dataLoader),
       renderDevice(dataLoader),
+      uiSystem(dataLoader, renderDevice),
       imguiSystem(renderDevice),
       inputSystem(imguiSystem),
-      assetCache(dataLoader, renderDevice),
+      assetCache(dataLoader, renderDevice, uiSystem),
       renderer(renderDevice, assetCache),
       physicsSystem(renderer.gizmoRenderer)
 {

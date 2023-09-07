@@ -9,6 +9,7 @@
 #include <anker/graphics/anker_renderer.hpp>
 #include <anker/physics/anker_physics_system.hpp>
 #include <anker/platform/anker_input_system.hpp>
+#include <anker/ui/anker_ui_system.hpp>
 
 namespace Anker {
 
@@ -40,6 +41,7 @@ class Engine {
 
 	RenderDevice renderDevice;
 	ImguiSystem imguiSystem;
+	UISystem uiSystem;
 	InputSystem inputSystem;
 
 	AssetCache assetCache;

@@ -5,7 +5,6 @@
 
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
-#include <anker/graphics/anker_font.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 

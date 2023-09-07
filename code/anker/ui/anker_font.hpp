@@ -4,17 +4,7 @@
 
 namespace Anker {
 
-class RenderDevice;
-
 struct Font {
-	static Status load(Font&, std::span<const uint8_t>, RenderDevice&);
-
-	Font() = default;
-	Font(const Font&) = delete;
-	Font& operator=(const Font&) = delete;
-	Font(Font&&) noexcept = delete;
-	Font& operator=(Font&&) noexcept = delete;
-
 	// We only support the 96 printable ASCII characters for now, starting with
 	// SPACE at char 32.
 	static constexpr unsigned CharStart = 32;
@@ -43,8 +33,6 @@ struct Font {
 	std::array<int, CharCount * CharCount> kerningTable{};
 
 	Texture texture;
-
-	std::string name;
 };
 
 } // namespace Anker

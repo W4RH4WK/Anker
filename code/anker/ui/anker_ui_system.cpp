@@ -1,14 +1,23 @@
-#include <anker/graphics/anker_font.hpp>
+#include <anker/ui/anker_ui_system.hpp>
 
 #include <stb_rect_pack.h>
 #include <stb_truetype.h>
 
+#include <anker/core/anker_data_loader.hpp>
+#include <anker/graphics/anker_render_device.hpp>
+
 namespace Anker {
 
-Status Font::load(Font& font, std::span<const uint8_t> fontData, RenderDevice& renderDevice)
+UISystem::UISystem(DataLoader& dataLoader, RenderDevice& renderDevice)
+    : m_dataLoader(dataLoader), m_renderDevice(renderDevice)
 {
-	ANKER_PROFILE_ZONE_T(font.name);
+	if (not loadFont(m_systemFont, "fonts/FTAnchorYard-Regular")) {
+		ANKER_WARN("Failed to load system font");
+	}
+}
 
+static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, RenderDevice& renderDevice)
+{
 	stbtt_fontinfo info;
 	if (!stbtt_InitFont(&info, fontData.data(), 0)) {
 		ANKER_ERROR("stbtt_InitFont failed");
@@ -29,7 +38,7 @@ Status Font::load(Font& font, std::span<const uint8_t> fontData, RenderDevice& r
 
 		stbtt_pack_range range = {
 		    .font_size = 32.0f,
-		    .first_unicode_codepoint_in_range = CharStart,
+		    .first_unicode_codepoint_in_range = font.CharStart,
 		    .num_chars = int(charData.size()),
 		    .chardata_for_range = charData.data(),
 		};
@@ -50,7 +59,6 @@ Status Font::load(Font& font, std::span<const uint8_t> fontData, RenderDevice& r
 	}
 
 	font.texture.info = {
-	    .name = font.name,
 	    .size = {512, 512},
 	    .format = TextureFormat::R8_UNORM,
 	    .bindFlags = GpuBindFlag::Shader,
@@ -65,19 +73,35 @@ Status Font::load(Font& font, std::span<const uint8_t> fontData, RenderDevice& r
 		stbtt_GetKerningTable(&info, entries.data(), int(entries.size()));
 
 		for (auto& entry : entries) {
-			bool inRange = CharStart <= entry.glyph1 && entry.glyph1 <= CharEnd //
-			            && CharStart <= entry.glyph2 && entry.glyph2 <= CharEnd;
-			if (!inRange) {
-				continue;
+			bool inRange = font.CharStart <= entry.glyph1 && entry.glyph1 <= font.CharEnd //
+			            && font.CharStart <= entry.glyph2 && entry.glyph2 <= font.CharEnd;
+			if (inRange) {
+				auto index1 = entry.glyph1 - font.CharStart;
+				auto index2 = entry.glyph2 - font.CharStart;
+				font.kerningTable[index1 * font.CharCount + index2] = entry.advance;
 			}
-
-			auto index1 = entry.glyph1 - CharStart;
-			auto index2 = entry.glyph2 - CharStart;
-			font.kerningTable[index1 * CharCount + index2] = entry.advance;
 		}
 	}
 
 	return OK;
+}
+
+Status UISystem::loadFont(Font& font, std::string_view identifier)
+{
+	ANKER_PROFILE_ZONE_T(identifier);
+
+	font.texture.info.name = identifier;
+
+	ByteBuffer fontData;
+	if (m_dataLoader.load(std::string{identifier} + ".ttf", fontData)) {
+		if (loadFontFromTTF(font, fontData, m_renderDevice)) {
+			return OK;
+		}
+	}
+
+	ANKER_ERROR("{}: Missing, using fallback!", identifier);
+	font = systemFont();
+	return ReadError;
 }
 
 } // namespace Anker
