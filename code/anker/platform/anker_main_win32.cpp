@@ -49,13 +49,13 @@ int main()
 		physicsBody.body->CreateFixture(&groundBox, 0);
 	}
 
-	auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
+	//auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
 
 	{
 		auto player = g_engine->activeScene->createEntity("Player");
 		player.emplace<Transform2D>();
 		player.emplace<Sprite>().texture = g_engine->assetCache.loadTexture("textures/player");
-		*(player.get<Sprite>().texture) = font->texture;
+		//*(player.get<Sprite>().texture) = font->texture;
 
 		auto& physicsBody = player.emplace<PhysicsBody>();
 

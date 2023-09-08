@@ -4,6 +4,7 @@
 #include <anker/graphics/anker_post_process_renderer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_sprite_renderer.hpp>
+#include <anker/ui/anker_text_renderer.hpp>
 
 namespace Anker {
 
@@ -29,6 +30,8 @@ class Renderer {
 
 	SpriteRenderer m_spriteRenderer;
 	PostProcessRenderer m_postProcessRenderer;
+
+	TextRenderer m_textRenderer;
 
 	GpuBuffer m_sceneConstantBuffer;
 	Texture m_sceneRenderTarget;

@@ -11,7 +11,7 @@ namespace Anker {
 UISystem::UISystem(DataLoader& dataLoader, RenderDevice& renderDevice)
     : m_dataLoader(dataLoader), m_renderDevice(renderDevice)
 {
-	if (not loadFont(m_systemFont, "fonts/FTAnchorYard-Regular")) {
+	if (not loadFont(m_systemFont, "fonts/Roboto")) {
 		ANKER_WARN("Failed to load system font");
 	}
 }
@@ -24,12 +24,14 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 		return FontError;
 	}
 
-	std::vector<uint8_t> bitmap(512 * 512);
+	const Vec2u texSize = font.texture.info.size;
+
+	std::vector<uint8_t> bitmap(texSize.x * texSize.y);
 
 	// Render glyphs to bitmap and populate the font's charData.
 	{
 		stbtt_pack_context packContext;
-		if (!stbtt_PackBegin(&packContext, bitmap.data(), 512, 512, 0, 8, nullptr)) {
+		if (!stbtt_PackBegin(&packContext, bitmap.data(), texSize.x, texSize.y, 0, 8, nullptr)) {
 			ANKER_ERROR("stbtt_PackBegin failed");
 			return FontError;
 		}
@@ -49,23 +51,19 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 
 		stbtt_PackEnd(&packContext);
 
-		std::ranges::transform(charData, font.charData.begin(), [](auto& c) {
+		std::ranges::transform(charData, font.charData.begin(), [&](auto& c) {
 			return Font::CharData{
-			    .texCoords = Rect2u::fromPoints({c.x0, c.y0}, {c.x1, c.y1}),
-			    .visualOffset = {c.xoff, c.yoff},
+			    .texRect = Rect2::fromPoints(Vec2(c.x0, c.y0) / Vec2(texSize), Vec2(c.x1, c.y1) / Vec2(texSize)),
+			    .visRect = Rect2::fromPoints({c.xoff, -c.yoff}, {c.xoff2, -c.yoff2}),
 			    .xAdvance = c.xadvance,
 			};
 		});
 	}
 
-	font.texture.info = {
-	    .size = {512, 512},
-	    .format = TextureFormat::R8_UNORM,
-	    .bindFlags = GpuBindFlag::Shader,
-	};
-	std::array textureInit = {TextureInit{.data = bitmap.data(), .rowPitch = 512}};
-
-	ANKER_TRY(renderDevice.createTexture(font.texture, textureInit));
+	font.texture.info.format = TextureFormat::R8_UNORM;
+	font.texture.info.bindFlags = GpuBindFlag::Shader;
+	std::array texInit = {TextureInit{.data = bitmap.data(), .rowPitch = texSize.x}};
+	ANKER_TRY(renderDevice.createTexture(font.texture, texInit));
 
 	// We copy over the kerning table so the can release the loaded font data.
 	if (info.kern) {
@@ -91,6 +89,7 @@ Status UISystem::loadFont(Font& font, std::string_view identifier)
 	ANKER_PROFILE_ZONE_T(identifier);
 
 	font.texture.info.name = identifier;
+	font.texture.info.size = {512, 512};
 
 	ByteBuffer fontData;
 	if (m_dataLoader.load(std::string{identifier} + ".ttf", fontData)) {

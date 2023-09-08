@@ -57,7 +57,7 @@ struct Vec2T {
 
 	static const Vec2T Zero, One;
 	static const Vec2T Up, Down, Left, Right;
-	static const Vec2T UiUp, UiDown, UiLeft, UiRight;
+	static const Vec2T WorldUp, WorldDown, WorldLeft, WorldRight;
 };
 
 template <typename T>
@@ -65,23 +65,25 @@ const Vec2T<T> Vec2T<T>::Zero{0, 0};
 template <typename T>
 const Vec2T<T> Vec2T<T>::One{1, 1};
 
+// Default coordinate system: -Y is up
 template <typename T>
-const Vec2T<T> Vec2T<T>::Up{0, 1};
+const Vec2T<T> Vec2T<T>::Up{0, -1};
 template <typename T>
-const Vec2T<T> Vec2T<T>::Down{0, -1};
+const Vec2T<T> Vec2T<T>::Down{0, 1};
 template <typename T>
 const Vec2T<T> Vec2T<T>::Left{-1, 0};
 template <typename T>
 const Vec2T<T> Vec2T<T>::Right{1, 0};
 
+// World coordinate system: +Y is up
 template <typename T>
-const Vec2T<T> Vec2T<T>::UiUp{0, -1};
+const Vec2T<T> Vec2T<T>::WorldUp{0, 1};
 template <typename T>
-const Vec2T<T> Vec2T<T>::UiDown{0, 1};
+const Vec2T<T> Vec2T<T>::WorldDown{0, -1};
 template <typename T>
-const Vec2T<T> Vec2T<T>::UiLeft{-1, 0};
+const Vec2T<T> Vec2T<T>::WorldLeft{-1, 0};
 template <typename T>
-const Vec2T<T> Vec2T<T>::UiRight{1, 0};
+const Vec2T<T> Vec2T<T>::WorldRight{1, 0};
 
 template <typename T>
 constexpr Vec2T<T> rotate(Vec2T<T> v, T angle)
@@ -445,6 +447,10 @@ using Vec4d = Vec4T<double>;
 
 template <typename T>
 struct Rect2T {
+	Rect2T() = default;
+	explicit Rect2T(Vec2T<T> size) : size(size) {}
+	explicit Rect2T(Vec2T<T> size, Vec2T<T> offset) : size(size), offset(offset) {}
+
 	static constexpr Rect2T fromPoints(Vec2T<T> a, Vec2T<T> b)
 	{
 		T width = a.x < b.x ? b.x - a.x : a.x - b.x;
@@ -452,8 +458,22 @@ struct Rect2T {
 
 		Vec2T<T> offset = {std::min(a.x, b.x), std::min(a.y, b.y)};
 
-		return {{width, height}, offset};
+		return Rect2T({width, height}, offset);
 	}
+
+	constexpr Vec2T<T> center() const { return {offset.x + size.x / 2, offset.y + size.y / 2}; }
+
+	// Default coordinate system: -Y is up
+	constexpr Vec2T<T> topLeft() const { return {offset.x, offset.y}; }
+	constexpr Vec2T<T> topRight() const { return {offset.x + size.x, offset.y}; }
+	constexpr Vec2T<T> bottomLeft() const { return {offset.x, offset.y + size.y}; }
+	constexpr Vec2T<T> bottomRight() const { return {offset.x + size.x, offset.y + size.y}; }
+
+	// World coordinate system: +Y is up
+	constexpr Vec2T<T> topLeftWorld() const { return {offset.x, offset.y + size.y}; }
+	constexpr Vec2T<T> topRightWorld() const { return {offset.x + size.x, offset.y + size.y}; }
+	constexpr Vec2T<T> bottomLeftWorld() const { return {offset.x, offset.y}; }
+	constexpr Vec2T<T> bottomRightWorld() const { return {offset.x + size.x, offset.y}; }
 
 	Vec2T<T> size = Vec2T<T>::Zero;
 	Vec2T<T> offset = Vec2T<T>::Zero;

@@ -39,7 +39,7 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 		return;
 	}
 
-	const b2Vec2 gravity = 10.0f * Vec2::Down;
+	const b2Vec2 gravity = 10.0f * Vec2::WorldDown;
 
 	scene.physicsWorld.emplace(gravity);
 	scene.physicsWorld->SetDebugDraw(&m_debugDraw);

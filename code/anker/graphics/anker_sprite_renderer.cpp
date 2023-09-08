@@ -75,15 +75,15 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	    });
 	m_pixelShader = assetCache.loadPixelShader("shaders/basic_2d.ps");
 
-	const std::array vertices{
+	m_vertexBuffer.info = {
+	    .name = "SpriteRenderer Vertex Buffer",
+	    .bindFlags = GpuBindFlag::VertexBuffer,
+	};
+	const std::array vertices = {
 	    Vertex{.position = {-0.5f, 0.5f}, .uv = {0, 0}},
 	    Vertex{.position = {-0.5f, -0.5f}, .uv = {0, 1}},
 	    Vertex{.position = {0.5f, 0.5f}, .uv = {1, 0}},
 	    Vertex{.position = {0.5f, -0.5f}, .uv = {1, 1}},
-	};
-	m_vertexBuffer.info = {
-	    .name = "SpriteRenderer Vertex Buffer",
-	    .bindFlags = GpuBindFlag::VertexBuffer,
 	};
 	if (not m_renderDevice.createBuffer(m_vertexBuffer, vertices)) {
 		ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");

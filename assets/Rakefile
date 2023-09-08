@@ -16,12 +16,14 @@ VERTEX_SHADERS = FileList[
   'shaders/basic_2d',
   'shaders/gizmo',
   'shaders/screen',
+  'shaders/text',
 ]
 
 PIXEL_SHADERS = FileList[
   'shaders/basic_2d',
   'shaders/gizmo',
   'shaders/post_process',
+  'shaders/text',
 ]
 
 TEXTURES = FileList[

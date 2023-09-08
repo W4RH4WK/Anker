@@ -4,6 +4,8 @@
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
 
+#include <anker/core/anker_engine.hpp>
+
 namespace Anker {
 
 struct SceneConstantBuffer {
@@ -15,7 +17,8 @@ Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
     : gizmoRenderer(renderDevice, assetCache),
       m_renderDevice(renderDevice),
       m_spriteRenderer(renderDevice, assetCache),
-      m_postProcessRenderer(renderDevice, assetCache)
+      m_postProcessRenderer(renderDevice, assetCache),
+      m_textRenderer(renderDevice, assetCache)
 {
 	m_sceneConstantBuffer.info = {
 	    .name = "Scene Constant Buffer",
@@ -84,10 +87,14 @@ void Renderer::draw(const Scene& scene)
 	////////////////////////////////////////////////////////////
 	// Scene Rendering
 
+	m_renderDevice.setRasterizer({.depthClip = false});
+
 	m_renderDevice.clearRenderTarget(m_sceneRenderTarget);
 	m_renderDevice.setRenderTarget(m_sceneRenderTarget);
 
 	m_spriteRenderer.draw(scene);
+
+	m_textRenderer.draw(g_engine->uiSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
 
 	////////////////////////////////////////////////////////////
 	// Post Processing
