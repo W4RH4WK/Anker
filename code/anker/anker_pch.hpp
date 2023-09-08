@@ -10,6 +10,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <numbers>
 #include <ranges>
 #include <span>
 #include <stack>
