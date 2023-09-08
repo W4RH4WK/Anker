@@ -5,11 +5,11 @@
 #include <anker/core/anker_imgui_system.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/editor/anker_editor_framework.hpp>
+#include <anker/graphics/anker_font_system.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
 #include <anker/physics/anker_physics_system.hpp>
 #include <anker/platform/anker_input_system.hpp>
-#include <anker/ui/anker_ui_system.hpp>
 
 namespace Anker {
 
@@ -40,8 +40,8 @@ class Engine {
 	DataLoader& dataLoader;
 
 	RenderDevice renderDevice;
+	FontSystem fontSystem;
 	ImguiSystem imguiSystem;
-	UISystem uiSystem;
 	InputSystem inputSystem;
 
 	AssetCache assetCache;

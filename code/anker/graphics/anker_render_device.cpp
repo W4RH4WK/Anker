@@ -134,7 +134,8 @@ RenderDevice::RenderDevice(DataLoader& dataLoader) : m_dataLoader(dataLoader)
 
 	setRasterizer();
 
-	if (not loadTexture(m_fallbackTexture, "fallback/fallback_texture")) {
+	m_fallbackTexture = makeAssetPtr<Texture>();
+	if (not loadTexture(*m_fallbackTexture, "fallback/fallback_texture")) {
 		ANKER_WARN("Fallback texture could not be loaded!");
 	}
 }
@@ -289,8 +290,6 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 		}
 	}
 
-	ANKER_ERROR("{}: Missing, using fallback!", identifier);
-	texture = fallbackTexture();
 	return ReadError;
 }
 

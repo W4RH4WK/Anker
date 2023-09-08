@@ -94,7 +94,7 @@ void Renderer::draw(const Scene& scene)
 
 	m_spriteRenderer.draw(scene);
 
-	m_textRenderer.draw(g_engine->uiSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
+	m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
 
 	////////////////////////////////////////////////////////////
 	// Post Processing

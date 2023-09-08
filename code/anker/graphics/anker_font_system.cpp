@@ -1,4 +1,4 @@
-#include <anker/ui/anker_ui_system.hpp>
+#include <anker/graphics/anker_font_system.hpp>
 
 #include <stb_rect_pack.h>
 #include <stb_truetype.h>
@@ -8,15 +8,16 @@
 
 namespace Anker {
 
-UISystem::UISystem(DataLoader& dataLoader, RenderDevice& renderDevice)
+FontSystem::FontSystem(DataLoader& dataLoader, RenderDevice& renderDevice)
     : m_dataLoader(dataLoader), m_renderDevice(renderDevice)
 {
-	if (not loadFont(m_systemFont, "fonts/Roboto")) {
-		ANKER_WARN("Failed to load system font");
+	m_systemFont = makeAssetPtr<Font>();
+	if (not loadFont(*m_systemFont, "fonts/Roboto")) {
+		ANKER_FATAL("Failed to load system font");
 	}
 }
 
-static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, RenderDevice& renderDevice)
+Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData)
 {
 	stbtt_fontinfo info;
 	if (!stbtt_InitFont(&info, fontData.data(), 0)) {
@@ -24,7 +25,7 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 		return FontError;
 	}
 
-	const Vec2u texSize = font.texture.info.size;
+	const Vec2u texSize = font.m_texture.info.size;
 
 	std::vector<uint8_t> bitmap(texSize.x * texSize.y);
 
@@ -36,7 +37,7 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 			return FontError;
 		}
 
-		std::vector<stbtt_packedchar> charData(font.charData.size());
+		std::vector<stbtt_packedchar> charData(font.m_charData.size());
 
 		stbtt_pack_range range = {
 		    .font_size = 32.0f,
@@ -51,19 +52,20 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 
 		stbtt_PackEnd(&packContext);
 
-		std::ranges::transform(charData, font.charData.begin(), [&](auto& c) {
+		std::ranges::transform(charData, font.m_charData.begin(), [&](auto& c) {
 			return Font::CharData{
-			    .texRect = Rect2::fromPoints(Vec2(c.x0, c.y0) / Vec2(texSize), Vec2(c.x1, c.y1) / Vec2(texSize)),
+			    .texRect = Rect2::fromPoints(Vec2(c.x0, c.y0) / Vec2(texSize), //
+			                                 Vec2(c.x1, c.y1) / Vec2(texSize)),
 			    .visRect = Rect2::fromPoints({c.xoff, -c.yoff}, {c.xoff2, -c.yoff2}),
 			    .xAdvance = c.xadvance,
 			};
 		});
 	}
 
-	font.texture.info.format = TextureFormat::R8_UNORM;
-	font.texture.info.bindFlags = GpuBindFlag::Shader;
+	font.m_texture.info.format = TextureFormat::R8_UNORM;
+	font.m_texture.info.bindFlags = GpuBindFlag::Shader;
 	std::array texInit = {TextureInit{.data = bitmap.data(), .rowPitch = texSize.x}};
-	ANKER_TRY(renderDevice.createTexture(font.texture, texInit));
+	ANKER_TRY(m_renderDevice.createTexture(font.m_texture, texInit));
 
 	// We copy over the kerning table so the can release the loaded font data.
 	if (info.kern) {
@@ -76,7 +78,7 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 			if (inRange) {
 				auto index1 = entry.glyph1 - font.CharStart;
 				auto index2 = entry.glyph2 - font.CharStart;
-				font.kerningTable[index1 * font.CharCount + index2] = entry.advance;
+				font.m_kerningTable[index1 * font.CharCount + index2] = entry.advance;
 			}
 		}
 	}
@@ -84,22 +86,20 @@ static Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData, Ren
 	return OK;
 }
 
-Status UISystem::loadFont(Font& font, std::string_view identifier)
+Status FontSystem::loadFont(Font& font, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
-	font.texture.info.name = identifier;
-	font.texture.info.size = {512, 512};
+	font.m_texture.info.name = identifier;
+	font.m_texture.info.size = {512, 512};
 
 	ByteBuffer fontData;
 	if (m_dataLoader.load(std::string{identifier} + ".ttf", fontData)) {
-		if (loadFontFromTTF(font, fontData, m_renderDevice)) {
+		if (loadFontFromTTF(font, fontData)) {
 			return OK;
 		}
 	}
 
-	ANKER_ERROR("{}: Missing, using fallback!", identifier);
-	font = systemFont();
 	return ReadError;
 }
 

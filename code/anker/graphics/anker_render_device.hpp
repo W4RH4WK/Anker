@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/core/anker_asset.hpp>
+
 namespace Anker {
 
 class DataLoader;
@@ -284,7 +286,8 @@ class RenderDevice {
 	void onResize(Vec2i size);
 
 	const Texture& backBuffer() const { return m_backBuffer; }
-	const Texture& fallbackTexture() const { return m_fallbackTexture; }
+
+	AssetPtr<Texture> fallbackTexture() const { return m_fallbackTexture; }
 
 	// Avoid directly accessing these if possible:
 	ID3D11Device* device() { return m_device.Get(); }
@@ -315,7 +318,7 @@ class RenderDevice {
 
 	Texture m_backBuffer;
 
-	Texture m_fallbackTexture;
+	AssetPtr<Texture> m_fallbackTexture;
 };
 
 } // namespace Anker

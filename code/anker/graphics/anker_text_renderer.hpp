@@ -5,7 +5,7 @@
 
 namespace Anker {
 
-struct Font;
+class Font;
 class AssetCache;
 
 class TextRenderer {

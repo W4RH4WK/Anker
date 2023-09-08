@@ -1,14 +1,14 @@
 #pragma once
 
+#include <anker/graphics/anker_font.hpp>
 #include <anker/graphics/anker_render_device.hpp>
-#include <anker/ui/anker_font.hpp>
 
 #include <anker/core/anker_asset.hpp>
 
 namespace Anker {
 
 class DataLoader;
-class UISystem;
+class FontSystem;
 
 // The AssetCache is in charge of loading various different types of assets and
 // setting them up so they can be used directly. For example, loading a texture
@@ -21,7 +21,7 @@ class UISystem;
 // Functions with the Uncached suffix will always bypass the cache.
 class AssetCache {
   public:
-	AssetCache(DataLoader&, RenderDevice&, UISystem&);
+	AssetCache(DataLoader&, RenderDevice&, FontSystem&);
 
 	AssetCache(const AssetCache&) = delete;
 	AssetCache& operator=(const AssetCache&) = delete;
@@ -59,7 +59,7 @@ class AssetCache {
   private:
 	DataLoader& m_dataLoader;
 	RenderDevice& m_renderDevice;
-	UISystem& m_uiSystem;
+	FontSystem& m_fontSystem;
 
 	template <typename T>
 	using Cache = StringMap<AssetPtr<T>>;

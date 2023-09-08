@@ -1,7 +1,7 @@
-#include <anker/ui/anker_text_renderer.hpp>
+#include <anker/graphics/anker_text_renderer.hpp>
 
 #include <anker/core/anker_asset_cache.hpp>
-#include <anker/ui/anker_font.hpp>
+#include <anker/graphics/anker_font.hpp>
 
 namespace Anker {
 
@@ -47,7 +47,7 @@ void TextRenderer::draw(const Font& font, std::string_view text)
 	Vec2 cursor = {0, 0};
 
 	for (unsigned i = 0; i < text.size(); ++i) {
-		auto& charData = font[text[i]];
+		auto& charData = font.charData(text[i]);
 
 		if (i != 0) {
 			cursor.x += font.kern(text[i - 1], text[i]);
@@ -94,7 +94,7 @@ void TextRenderer::draw(const Font& font, std::string_view text)
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	m_renderDevice.bindTexturePS(0, font.texture);
+	m_renderDevice.bindTexturePS(0, font.texture());
 	m_renderDevice.draw(m_vertexBuffer, uint32_t(vertices.size()));
 	m_renderDevice.unbindTexturePS(0);
 }

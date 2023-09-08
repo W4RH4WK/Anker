@@ -1,12 +1,12 @@
 #include <anker/core/anker_asset_cache.hpp>
 
 #include <anker/core/anker_data_loader.hpp>
-#include <anker/ui/anker_ui_system.hpp>
+#include <anker/graphics/anker_font_system.hpp>
 
 namespace Anker {
 
-AssetCache::AssetCache(DataLoader& dataLoader, RenderDevice& renderDevice, UISystem& uiSystem)
-    : m_dataLoader(dataLoader), m_renderDevice(renderDevice), m_uiSystem(uiSystem)
+AssetCache::AssetCache(DataLoader& dataLoader, RenderDevice& renderDevice, FontSystem& fontSystem)
+    : m_dataLoader(dataLoader), m_renderDevice(renderDevice), m_fontSystem(fontSystem)
 {}
 
 AssetPtr<VertexShader> AssetCache::loadVertexShader(std::string_view identifier,
@@ -58,8 +58,10 @@ AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 {
 	auto texture = makeAssetPtr<Texture>();
 
-	// Ignoring status here since a fallback texture is used on failure.
-	(void)m_renderDevice.loadTexture(*texture, identifier);
+	if (not m_renderDevice.loadTexture(*texture, identifier)) {
+		ANKER_WARN("{}: Missing, using fallback!", identifier);
+		texture = m_renderDevice.fallbackTexture();
+	}
 
 	return texture;
 }
@@ -76,8 +78,10 @@ AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
 {
 	auto font = makeAssetPtr<Font>();
 
-	// Ignoring status here since a fallback font is used on failure.
-	(void)m_uiSystem.loadFont(*font, identifier);
+	if (not m_fontSystem.loadFont(*font, identifier)) {
+		ANKER_WARN("{}: Missing, using fallback!", identifier);
+		font = m_fontSystem.systemFont();
+	}
 
 	return font;
 }

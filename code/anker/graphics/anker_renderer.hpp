@@ -4,7 +4,7 @@
 #include <anker/graphics/anker_post_process_renderer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_sprite_renderer.hpp>
-#include <anker/ui/anker_text_renderer.hpp>
+#include <anker/graphics/anker_text_renderer.hpp>
 
 namespace Anker {
 
