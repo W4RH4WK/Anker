@@ -205,7 +205,7 @@ Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_vi
 	vertexShader.inputLayout.Reset();
 
 	ByteBuffer binary;
-	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
+	ANKER_TRY(m_dataLoader.load(binary, std::string{identifier} + ShaderFileExtension));
 
 	HRESULT hresult = m_device->CreateVertexShader(binary.data(), binary.size(), nullptr, &vertexShader.shader);
 	if (FAILED(hresult)) {
@@ -235,7 +235,7 @@ Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view 
 	pixelShader.shader.Reset();
 
 	ByteBuffer binary;
-	ANKER_TRY(m_dataLoader.load(std::string{identifier} + ShaderFileExtension, binary));
+	ANKER_TRY(m_dataLoader.load(binary, std::string{identifier} + ShaderFileExtension));
 
 	HRESULT hresult = m_device->CreatePixelShader(binary.data(), binary.size(), nullptr, &pixelShader.shader);
 	if (FAILED(hresult)) {
@@ -274,17 +274,17 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 	auto filepath = std::string(identifier);
 
 	ByteBuffer textureData;
-	if (m_dataLoader.load(filepath + ".dds", textureData)) {
+	if (m_dataLoader.load(textureData, filepath + ".dds")) {
 		if (createTextureFromDDS(texture, textureData, *this)) {
 			return OK;
 		}
 	}
-	if (m_dataLoader.load(filepath + ".png", textureData)) {
+	if (m_dataLoader.load(textureData, filepath + ".png")) {
 		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
 			return OK;
 		}
 	}
-	if (m_dataLoader.load(filepath + ".jpg", textureData)) {
+	if (m_dataLoader.load(textureData, filepath + ".jpg")) {
 		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
 			return OK;
 		}

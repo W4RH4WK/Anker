@@ -2,10 +2,10 @@
 
 namespace Anker {
 
-Status DataLoader::load(const fs::path& filepath, ByteBuffer& outBuffer) const
+Status DataLoader::load(ByteBuffer& outBuffer, const fs::path& filepath) const
 {
 	for (auto& source : m_sources) {
-		if (source->load(filepath, outBuffer)) {
+		if (source->load(outBuffer, filepath)) {
 			return OK;
 		}
 	}

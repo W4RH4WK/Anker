@@ -94,7 +94,7 @@ Status FontSystem::loadFont(Font& font, std::string_view identifier)
 	font.m_texture.info.size = {512, 512};
 
 	ByteBuffer fontData;
-	if (m_dataLoader.load(std::string{identifier} + ".ttf", fontData)) {
+	if (m_dataLoader.load(fontData, std::string{identifier} + ".ttf")) {
 		if (loadFontFromTTF(font, fontData)) {
 			return OK;
 		}

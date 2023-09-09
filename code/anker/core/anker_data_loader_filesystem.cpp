@@ -10,7 +10,7 @@ DataLoaderFilesystem::DataLoaderFilesystem(const fs::path& root) : m_root(root)
 	}
 }
 
-Status DataLoaderFilesystem::load(const fs::path& filepath, ByteBuffer& outBuffer) const
+Status DataLoaderFilesystem::load(ByteBuffer& outBuffer, const fs::path& filepath) const
 {
 	ANKER_TRY(readFile(m_root / filepath, outBuffer));
 
