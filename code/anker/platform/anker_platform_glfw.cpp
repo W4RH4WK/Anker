@@ -39,7 +39,7 @@ Platform::Platform()
 	m_nativeWindow = glfwGetWin32Window(m_glfwWindow);
 #endif
 
-	ANKER_CHECK(glfwRawMouseMotionSupported());
+	ANKER_ASSERT(glfwRawMouseMotionSupported());
 	glfwSetInputMode(m_glfwWindow, GLFW_RAW_MOUSE_MOTION, true);
 }
 
