@@ -26,14 +26,16 @@ class Font {
 		return m_charData[c - CharStart];
 	}
 
-	int kern(char a, char b) const
+	float kern(char a, char b) const
 	{
 		if (inRange(a) && inRange(b)) {
-			return m_kerningTable[(a - CharStart) * CharCount + (b - CharStart)];
+			return m_scale * m_kerningTable[(a - CharStart) * CharCount + (b - CharStart)];
 		} else {
 			return 0;
 		}
 	}
+
+	float scale() const { return m_scale; }
 
 	const Texture& texture() const { return m_texture; }
 
@@ -43,11 +45,13 @@ class Font {
 	static constexpr unsigned CharStart = 32;
 	static constexpr unsigned CharEnd = 128;
 	static constexpr unsigned CharCount = CharEnd - CharStart;
-	static bool inRange(char c) { return CharStart <= c && c <= CharEnd; }
+	static bool inRange(int c) { return CharStart <= c && c <= CharEnd; }
 
 	std::array<CharData, CharCount> m_charData{};
 
 	std::array<int, CharCount * CharCount> m_kerningTable{};
+
+	float m_scale = 0;
 
 	Texture m_texture;
 

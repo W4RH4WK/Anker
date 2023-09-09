@@ -25,6 +25,9 @@ Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData
 		return FontError;
 	}
 
+	const float fontHeight = 32;
+	font.m_scale = stbtt_ScaleForPixelHeight(&info, fontHeight);
+
 	const Vec2u texSize = font.m_texture.info.size;
 
 	std::vector<uint8_t> bitmap(texSize.x * texSize.y);
@@ -39,16 +42,11 @@ Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData
 
 		std::vector<stbtt_packedchar> charData(font.m_charData.size());
 
-		stbtt_pack_range range = {
-		    .font_size = 32.0f,
-		    .first_unicode_codepoint_in_range = font.CharStart,
-		    .num_chars = int(charData.size()),
-		    .chardata_for_range = charData.data(),
-		};
-
 		stbtt_PackSetOversampling(&packContext, 2, 2);
 
-		stbtt_PackFontRanges(&packContext, fontData.data(), 0, &range, 1);
+		stbtt_PackFontRange(&packContext, fontData.data(), //
+		                    0, fontHeight, font.CharStart, //
+		                    int(charData.size()), charData.data());
 
 		stbtt_PackEnd(&packContext);
 
@@ -73,9 +71,7 @@ Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData
 		stbtt_GetKerningTable(&info, entries.data(), int(entries.size()));
 
 		for (auto& entry : entries) {
-			bool inRange = font.CharStart <= entry.glyph1 && entry.glyph1 <= font.CharEnd //
-			            && font.CharStart <= entry.glyph2 && entry.glyph2 <= font.CharEnd;
-			if (inRange) {
+			if (font.inRange(entry.glyph1) && font.inRange(entry.glyph2)) {
 				auto index1 = entry.glyph1 - font.CharStart;
 				auto index2 = entry.glyph2 - font.CharStart;
 				font.m_kerningTable[index1 * font.CharCount + index2] = entry.advance;
