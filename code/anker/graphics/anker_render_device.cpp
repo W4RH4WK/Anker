@@ -295,6 +295,8 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 
 Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit> inits)
 {
+	ANKER_ASSERT(texture.info.size != Vec2u::Zero);
+
 	D3D11_TEXTURE2D_DESC desc{
 	    .Width = texture.info.size.x,
 	    .Height = texture.info.size.y,

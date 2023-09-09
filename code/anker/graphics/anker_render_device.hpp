@@ -119,7 +119,7 @@ ANKER_ENUM_FLAGS(TextureFlag)
 
 struct TextureInfo {
 	std::string name;
-	Vec2u size = {64, 64};
+	Vec2u size = Vec2u::Zero;
 	uint32_t mipLevels = 1;
 	uint32_t arraySize = 1;
 	TextureFormat format = TextureFormat::R8G8B8A8_UNORM;
