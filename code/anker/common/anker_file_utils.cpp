@@ -5,7 +5,7 @@ namespace Anker {
 template <typename Buffer>
 static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 {
-	ANKER_PROFILE_ZONE_T(filepath.string());
+	ANKER_PROFILE_ZONE_T(filepath.generic_string());
 
 	std::ifstream file(filepath, std::ios::binary);
 	if (!file) {
@@ -45,7 +45,7 @@ Status writeFile(const fs::path& filepath, std::span<const uint8_t> data)
 
 Status writeFile(const fs::path& filepath, std::string_view data)
 {
-	ANKER_PROFILE_ZONE_T(filepath.string());
+	ANKER_PROFILE_ZONE_T(filepath.generic_string());
 
 	std::ofstream file(filepath, std::ios::binary);
 	if (!file) {
@@ -66,7 +66,7 @@ Status writeFile(const fs::path& filepath, std::string_view data)
 
 fs::path stripFileExtensions(const fs::path& filepath)
 {
-	return stripFileExtensions(filepath.string());
+	return fs::path(filepath).replace_extension();
 }
 
 std::string stripFileExtensions(const std::string& filepath)

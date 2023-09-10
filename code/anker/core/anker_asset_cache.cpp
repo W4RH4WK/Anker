@@ -89,7 +89,7 @@ AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
 void AssetCache::reloadModifiedAssets()
 {
 	for (const auto& modifiedAssetFilepath : m_dataLoader.modifiedFiles()) {
-		auto modifiedAssetIdentifier = stripFileExtensions(modifiedAssetFilepath.string());
+		auto modifiedAssetIdentifier = stripFileExtensions(modifiedAssetFilepath).generic_string();
 
 		if (auto it = m_vertexShaderCache.find(modifiedAssetIdentifier); it != m_vertexShaderCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
