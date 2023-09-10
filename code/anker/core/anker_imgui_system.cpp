@@ -9,20 +9,20 @@ ImguiSystem::ImguiSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevi
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	g_platform->imguiImplInit();
+	Platform::imguiImplInit();
 	renderDevice.imguiImplInit();
 }
 
 ImguiSystem::~ImguiSystem()
 {
 	m_renderDevice.imguiImplShutdown();
-	g_platform->imguiImplShutdown();
+	Platform::imguiImplShutdown();
 	ImGui::DestroyContext();
 }
 
 void ImguiSystem::newFrame()
 {
-	g_platform->imguiImplNewFrame();
+	Platform::imguiImplNewFrame();
 	m_renderDevice.imguiImplNewFrame();
 	ImGui::NewFrame();
 }

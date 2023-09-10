@@ -10,7 +10,7 @@ InputSystem::InputSystem(ImguiSystem& imgui) : m_imgui(imgui) {}
 void InputSystem::tick(float)
 {
 	// Track relative cursor movement
-	Vec2 cursor = g_platform->cursorPosition();
+	Vec2 cursor = Platform::cursorPosition();
 	const Vec2 cursorDelta = cursor - m_previousCursorPosition;
 	m_previousCursorPosition = cursor;
 
@@ -20,7 +20,7 @@ void InputSystem::tick(float)
 		return;
 	}
 
-	auto* window = g_platform->glfwWindow();
+	auto* window = Platform::glfwWindow();
 	// auto pressed = [&](int key) { return glfwGetKey(m_window, key) == GLFW_PRESS; };
 	auto mousePressed = [&](int button) { return glfwGetMouseButton(window, button) == GLFW_PRESS; };
 

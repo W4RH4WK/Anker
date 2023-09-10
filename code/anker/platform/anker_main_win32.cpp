@@ -18,7 +18,8 @@ int main()
 		freopen_s(&f, "CONOUT$", "w", stdout);
 	}
 
-	g_platform.emplace();
+	Platform::initialize();
+	Platform::createMainWindow();
 
 	DataLoader dataLoader;
 	DataLoaderFilesystem dataLoaderFs("assets");
@@ -49,7 +50,7 @@ int main()
 		physicsBody.body->CreateFixture(&groundBox, 0);
 	}
 
-	//auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
+	// auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
 
 	{
 		auto player = g_engine->activeScene->createEntity("Player");
@@ -77,13 +78,15 @@ int main()
 		physicsBody.body->CreateFixture(&fixtureDef);
 	}
 
-	while (!g_platform->shouldShutdown()) {
-		g_platform->tick();
+	while (!Platform::shouldShutdown()) {
+		Platform::tick();
 		g_engine->tick();
 	}
 
 	g_engine.reset();
-	g_platform.reset();
+
+	Platform::destroyMainWindow();
+	Platform::finalize();
 
 	return 0;
 }

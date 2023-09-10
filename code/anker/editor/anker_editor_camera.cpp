@@ -26,7 +26,7 @@ void EditorCameraSystem::tick(float, Scene& scene)
 
 	auto& actions = g_engine->inputSystem.actions();
 	if (actions.editorCameraActivate) {
-		g_platform->hideCursor();
+		Platform::hideCursor();
 		transform->position += actions.editorCameraPan * editorCamera->speed * camera->distance;
 		camera->distance -= actions.editorCameraZoom;
 	}

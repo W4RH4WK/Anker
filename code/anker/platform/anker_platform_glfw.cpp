@@ -4,9 +4,14 @@
 
 #include <anker/core/anker_engine.hpp>
 
-namespace Anker {
+namespace Anker::Platform {
 
-Platform::Platform()
+static GLFWwindow* g_glfwWindow = nullptr;
+static NativeWindow g_nativeWindow = nullptr;
+
+static bool g_hideCursor = false;
+
+void initialize()
 {
 	glfwSetErrorCallback([](int error_code, const char* description) { //
 		ANKER_ERROR("GLFW: {} {}", error_code, description);
@@ -15,87 +20,104 @@ Platform::Platform()
 	if (!glfwInit()) {
 		ANKER_FATAL("Failed to initialize GLFW");
 	}
+}
 
+void finalize()
+{
+	glfwTerminate();
+}
+
+void tick()
+{
+	glfwPollEvents();
+
+	// Any component that wants to hide the cursor calls hideCursor. If none
+	// does, we display the cursor as normal.
+	glfwSetInputMode(g_glfwWindow, GLFW_CURSOR, g_hideCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+	g_hideCursor = false;
+}
+
+bool shouldShutdown()
+{
+	return glfwWindowShouldClose(g_glfwWindow);
+}
+
+void createMainWindow()
+{
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-	m_glfwWindow = glfwCreateWindow(1280, 720, "Anker", nullptr, nullptr);
-	if (!m_glfwWindow) {
+	g_glfwWindow = glfwCreateWindow(1280, 720, "Anker", nullptr, nullptr);
+	if (!g_glfwWindow) {
 		ANKER_FATAL("Could not create window");
 	}
 
-	glfwSetWindowSizeCallback(m_glfwWindow, [](GLFWwindow*, int width, int height) {
+	glfwSetWindowSizeCallback(g_glfwWindow, [](GLFWwindow*, int width, int height) {
 		if (width > 0 && height > 0 && g_engine) {
 			g_engine->onResize({width, height});
 		}
 	});
 
-	glfwSetScrollCallback(m_glfwWindow, [](GLFWwindow*, double, double yoffset) {
+	glfwSetScrollCallback(g_glfwWindow, [](GLFWwindow*, double, double yoffset) {
 		if (g_engine) {
 			g_engine->inputSystem.onScroll(float(yoffset));
 		}
 	});
 
 #if ANKER_PLATFORM_WINDOWS
-	m_nativeWindow = glfwGetWin32Window(m_glfwWindow);
+	g_nativeWindow = glfwGetWin32Window(g_glfwWindow);
 #endif
 
 	ANKER_ASSERT(glfwRawMouseMotionSupported());
-	glfwSetInputMode(m_glfwWindow, GLFW_RAW_MOUSE_MOTION, true);
+	glfwSetInputMode(g_glfwWindow, GLFW_RAW_MOUSE_MOTION, true);
 }
 
-Platform::~Platform()
+void destroyMainWindow()
 {
-	glfwDestroyWindow(m_glfwWindow);
-	glfwTerminate();
+	glfwDestroyWindow(g_glfwWindow);
 }
 
-void Platform::tick()
-{
-	glfwPollEvents();
-
-	// Any component that wants to hide the cursor calls hideCursor. If none
-	// does, we display the cursor as normal.
-	glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, m_hideCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-	m_hideCursor = false;
-}
-
-bool Platform::shouldShutdown()
-{
-	return glfwWindowShouldClose(m_glfwWindow);
-}
-
-Vec2i Platform::windowSize()
+Vec2i windowSize()
 {
 	Vec2i size;
-	glfwGetWindowSize(m_glfwWindow, &size.x, &size.y);
+	glfwGetWindowSize(g_glfwWindow, &size.x, &size.y);
 	return size;
 }
 
-Vec2 Platform::cursorPosition()
+GLFWwindow* glfwWindow()
+{
+	return g_glfwWindow;
+}
+
+NativeWindow nativeWindow()
+{
+	return g_nativeWindow;
+}
+
+Vec2 cursorPosition()
 {
 	double x, y;
-	glfwGetCursorPos(m_glfwWindow, &x, &y);
+	glfwGetCursorPos(g_glfwWindow, &x, &y);
 	return {float(x), float(y)};
 }
 
-void Platform::hideCursor()
+void hideCursor()
 {
-	m_hideCursor = true;
+	g_hideCursor = true;
 }
 
-void Platform::imguiImplInit()
+void imguiImplInit()
 {
-	ImGui_ImplGlfw_InitForOther(m_glfwWindow, true);
+	ImGui_ImplGlfw_InitForOther(g_glfwWindow, true);
 }
 
-void Platform::imguiImplNewFrame()
+void imguiImplNewFrame()
 {
 	ImGui_ImplGlfw_NewFrame();
 }
 
-void Platform::imguiImplShutdown()
+void imguiImplShutdown()
 {
 	ImGui_ImplGlfw_Shutdown();
 }
 
-} // namespace Anker
+} // namespace Anker::Platform
