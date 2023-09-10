@@ -5,8 +5,8 @@
 
 namespace Anker {
 
-AssetCache::AssetCache(DataLoader& dataLoader, RenderDevice& renderDevice, FontSystem& fontSystem)
-    : m_dataLoader(dataLoader), m_renderDevice(renderDevice), m_fontSystem(fontSystem)
+AssetCache::AssetCache(RenderDevice& renderDevice, FontSystem& fontSystem)
+    : m_renderDevice(renderDevice), m_fontSystem(fontSystem)
 {}
 
 AssetPtr<VertexShader> AssetCache::loadVertexShader(std::string_view identifier,
@@ -88,7 +88,7 @@ AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
 
 void AssetCache::reloadModifiedAssets()
 {
-	for (const auto& modifiedAssetFilepath : m_dataLoader.modifiedFiles()) {
+	for (const auto& modifiedAssetFilepath : g_assetDataLoader.modifiedFiles()) {
 		auto modifiedAssetIdentifier = stripFileExtensions(modifiedAssetFilepath).generic_string();
 
 		if (auto it = m_vertexShaderCache.find(modifiedAssetIdentifier); it != m_vertexShaderCache.end()) {

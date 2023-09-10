@@ -2,7 +2,18 @@
 
 namespace Anker {
 
-class IDataLoaderSource;
+class IDataLoaderSource {
+  public:
+	virtual Status load(ByteBuffer&, const fs::path&) const = 0;
+	virtual bool exists(const fs::path&) const = 0;
+
+	// Inserts the file paths of files that have been modified since the
+	// previous call to modifiedFiles. Implementation is optional. This is
+	// primarily used to enable hot-reloading for certain assets.
+	virtual void modifiedFiles(std::insert_iterator<std::unordered_set<fs::path>>) {}
+
+	~IDataLoaderSource() noexcept {}
+};
 
 // The DataLoader is a generic loader for binary data that can come from various
 // different sources -- most commonly the file system or a compressed archive.
@@ -27,7 +38,7 @@ class DataLoader {
 	void removeSource(IDataLoaderSource*);
 	void clearSources();
 
-	void tick(float dt);
+	void tick();
 
 	// Provides a set of identifiers that have been modified. The set is cleared
 	// and populated on tick.
@@ -37,20 +48,11 @@ class DataLoader {
 	std::vector<IDataLoaderSource*> m_sources;
 
 	std::unordered_set<fs::path> m_modifiedFiles;
-	float m_modifiedFilesTimer = 0;
+
+	Clock::time_point m_lastModifiedFilesCheck{};
 };
 
-class IDataLoaderSource {
-  public:
-	virtual Status load(ByteBuffer&, const fs::path&) const = 0;
-	virtual bool exists(const fs::path&) const = 0;
-
-	// Inserts the file paths of files that have been modified since the
-	// previous call to modifiedFiles. Implementation is optional. This is
-	// primarily used to enable hot-reloading for certain assets.
-	virtual void modifiedFiles(std::insert_iterator<std::unordered_set<fs::path>>) {}
-
-	~IDataLoaderSource() noexcept {}
-};
+// Global loader for loading asset data.
+inline DataLoader g_assetDataLoader;
 
 } // namespace Anker

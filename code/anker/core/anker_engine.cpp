@@ -5,13 +5,12 @@
 
 namespace Anker {
 
-Engine::Engine(DataLoader& dataLoader)
-    : dataLoader(dataLoader),
-      renderDevice(dataLoader),
-      fontSystem(dataLoader, renderDevice),
+Engine::Engine()
+    : renderDevice(),
+      fontSystem(renderDevice),
       imguiSystem(renderDevice),
       inputSystem(imguiSystem),
-      assetCache(dataLoader, renderDevice, fontSystem),
+      assetCache(renderDevice, fontSystem),
       renderer(renderDevice, assetCache),
       physicsSystem(renderer.gizmoRenderer)
 {
@@ -31,7 +30,6 @@ void Engine::tick()
 
 	inputSystem.tick(dt);
 
-	dataLoader.tick(dt);
 	assetCache.reloadModifiedAssets();
 
 	imguiSystem.newFrame();

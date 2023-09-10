@@ -21,11 +21,7 @@ int main()
 	Platform::initialize();
 	Platform::createMainWindow();
 
-	DataLoader dataLoader;
-	DataLoaderFilesystem dataLoaderFs("assets");
-	dataLoader.addSource(&dataLoaderFs);
-
-	g_engine.emplace(dataLoader);
+	g_engine.emplace();
 	g_engine->editor.emplace();
 
 	g_engine->activeScene = g_engine->createScene();

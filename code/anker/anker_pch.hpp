@@ -88,6 +88,8 @@ using Microsoft::WRL::ComPtr;
 
 namespace Anker {
 
+using Clock = std::chrono::steady_clock;
+
 using namespace entt::literals;
 
 // Recent MSVC workaround

@@ -2,12 +2,16 @@
 
 #include <imgui_impl_glfw.h>
 
+#include <anker/core/anker_data_loader.hpp>
+#include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
 
 namespace Anker::Platform {
 
 static GLFWwindow* g_glfwWindow = nullptr;
 static NativeWindow g_nativeWindow = nullptr;
+
+static std::optional<DataLoaderFilesystem> g_assetDataLoaderFs;
 
 static bool g_hideCursor = false;
 
@@ -20,15 +24,21 @@ void initialize()
 	if (!glfwInit()) {
 		ANKER_FATAL("Failed to initialize GLFW");
 	}
+
+	g_assetDataLoader.addSource(&g_assetDataLoaderFs.emplace("assets"));
 }
 
 void finalize()
 {
+	g_assetDataLoader.removeSource(&*g_assetDataLoaderFs);
+	g_assetDataLoaderFs.reset();
 	glfwTerminate();
 }
 
 void tick()
 {
+	g_assetDataLoader.tick();
+
 	glfwPollEvents();
 
 	// Any component that wants to hide the cursor calls hideCursor. If none

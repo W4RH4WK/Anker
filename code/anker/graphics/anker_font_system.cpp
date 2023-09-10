@@ -8,8 +8,7 @@
 
 namespace Anker {
 
-FontSystem::FontSystem(DataLoader& dataLoader, RenderDevice& renderDevice)
-    : m_dataLoader(dataLoader), m_renderDevice(renderDevice)
+FontSystem::FontSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevice)
 {
 	m_systemFont = makeAssetPtr<Font>();
 	if (not loadFont(*m_systemFont, "fonts/Roboto")) {
@@ -90,7 +89,7 @@ Status FontSystem::loadFont(Font& font, std::string_view identifier)
 	font.m_texture.info.size = {512, 512};
 
 	ByteBuffer fontData;
-	if (m_dataLoader.load(fontData, std::string{identifier} + ".ttf")) {
+	if (g_assetDataLoader.load(fontData, std::string{identifier} + ".ttf")) {
 		if (loadFontFromTTF(font, fontData)) {
 			return OK;
 		}

@@ -7,7 +7,6 @@
 
 namespace Anker {
 
-class DataLoader;
 class FontSystem;
 
 // The AssetCache is in charge of loading various different types of assets and
@@ -21,7 +20,7 @@ class FontSystem;
 // Functions with the Uncached suffix will always bypass the cache.
 class AssetCache {
   public:
-	AssetCache(DataLoader&, RenderDevice&, FontSystem&);
+	AssetCache(RenderDevice&, FontSystem&);
 
 	AssetCache(const AssetCache&) = delete;
 	AssetCache& operator=(const AssetCache&) = delete;
@@ -53,11 +52,10 @@ class AssetCache {
 
 	////////////////////////////////////////////////////////////
 
-	DataLoader& dataLoader() { return m_dataLoader; }
 	RenderDevice& renderDevice() { return m_renderDevice; }
+	FontSystem& fontSystem() { return m_fontSystem; }
 
   private:
-	DataLoader& m_dataLoader;
 	RenderDevice& m_renderDevice;
 	FontSystem& m_fontSystem;
 

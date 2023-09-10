@@ -20,7 +20,7 @@ namespace Anker {
 
 class Engine {
   public:
-	explicit Engine(DataLoader&);
+	explicit Engine();
 
 	Engine(const Engine&) = delete;
 	Engine& operator=(const Engine&) = delete;
@@ -36,8 +36,6 @@ class Engine {
 	ScenePtr createScene();
 
 	void onResize(Vec2i size);
-
-	DataLoader& dataLoader;
 
 	RenderDevice renderDevice;
 	FontSystem fontSystem;

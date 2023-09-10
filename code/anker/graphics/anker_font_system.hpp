@@ -5,12 +5,11 @@
 
 namespace Anker {
 
-class DataLoader;
 class RenderDevice;
 
 class FontSystem {
   public:
-	FontSystem(DataLoader&, RenderDevice&);
+	FontSystem(RenderDevice&);
 	FontSystem(const FontSystem&) = delete;
 	FontSystem& operator=(const FontSystem&) = delete;
 	FontSystem(FontSystem&&) noexcept = delete;
@@ -23,7 +22,6 @@ class FontSystem {
   private:
 	Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData);
 
-	DataLoader& m_dataLoader;
 	RenderDevice& m_renderDevice;
 
 	AssetPtr<Font> m_systemFont;

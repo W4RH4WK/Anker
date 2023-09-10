@@ -39,13 +39,16 @@ void DataLoader::clearSources()
 	m_sources.clear();
 }
 
-void DataLoader::tick(float dt)
+void DataLoader::tick()
 {
+	using namespace std::chrono_literals;
+
 	m_modifiedFiles.clear();
 
 	// Query for modifications, but only every second, not every frame.
-	if (m_modifiedFilesTimer -= dt; m_modifiedFilesTimer <= 0) {
-		m_modifiedFilesTimer = 1;
+	if (auto now = Clock::now(); now - m_lastModifiedFilesCheck < 1s) {
+		m_lastModifiedFilesCheck = now;
+
 		auto inserter = std::inserter(m_modifiedFiles, m_modifiedFiles.end());
 		for (auto& source : m_sources) {
 			source->modifiedFiles(inserter);

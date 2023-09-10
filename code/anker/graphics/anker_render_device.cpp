@@ -83,7 +83,7 @@ static Status createTextureFromPNGorJPG(Texture& texture, std::span<uint8_t> ima
 	return device.createTexture(texture, inits);
 }
 
-RenderDevice::RenderDevice(DataLoader& dataLoader) : m_dataLoader(dataLoader)
+RenderDevice::RenderDevice()
 {
 	const D3D_FEATURE_LEVEL levels[] = {
 	    D3D_FEATURE_LEVEL_11_0,
@@ -205,7 +205,7 @@ Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_vi
 	vertexShader.inputLayout.Reset();
 
 	ByteBuffer binary;
-	ANKER_TRY(m_dataLoader.load(binary, std::string{identifier} + ShaderFileExtension));
+	ANKER_TRY(g_assetDataLoader.load(binary, std::string{identifier} + ShaderFileExtension));
 
 	HRESULT hresult = m_device->CreateVertexShader(binary.data(), binary.size(), nullptr, &vertexShader.shader);
 	if (FAILED(hresult)) {
@@ -235,7 +235,7 @@ Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view 
 	pixelShader.shader.Reset();
 
 	ByteBuffer binary;
-	ANKER_TRY(m_dataLoader.load(binary, std::string{identifier} + ShaderFileExtension));
+	ANKER_TRY(g_assetDataLoader.load(binary, std::string{identifier} + ShaderFileExtension));
 
 	HRESULT hresult = m_device->CreatePixelShader(binary.data(), binary.size(), nullptr, &pixelShader.shader);
 	if (FAILED(hresult)) {
@@ -274,17 +274,17 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 	auto filepath = std::string(identifier);
 
 	ByteBuffer textureData;
-	if (m_dataLoader.load(textureData, filepath + ".dds")) {
+	if (g_assetDataLoader.load(textureData, filepath + ".dds")) {
 		if (createTextureFromDDS(texture, textureData, *this)) {
 			return OK;
 		}
 	}
-	if (m_dataLoader.load(textureData, filepath + ".png")) {
+	if (g_assetDataLoader.load(textureData, filepath + ".png")) {
 		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
 			return OK;
 		}
 	}
-	if (m_dataLoader.load(textureData, filepath + ".jpg")) {
+	if (g_assetDataLoader.load(textureData, filepath + ".jpg")) {
 		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
 			return OK;
 		}

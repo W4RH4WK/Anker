@@ -6,6 +6,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include <anker/core/anker_data_loader.hpp>
+
 // The Platform abstracts away various operating system specific parts, like
 // window management and mouse cursor handling. It is initialized before the
 // engine and can be accessed globally. Certain events (e.g. window resize) are
