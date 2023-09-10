@@ -2,6 +2,7 @@
 
 #include <anker/core/anker_asset.hpp>
 #include <anker/graphics/anker_render_device.hpp>
+#include <anker/graphics/anker_render_layers.hpp>
 
 namespace Anker {
 
@@ -16,7 +17,9 @@ class SpriteRenderer {
 	SpriteRenderer(SpriteRenderer&&) noexcept = delete;
 	SpriteRenderer& operator=(SpriteRenderer&&) noexcept = delete;
 
-	void draw(const Scene&);
+	void collectRenderLayers(const Scene&, std::insert_iterator<std::set<RenderLayer>>);
+
+	void draw(const Scene&, RenderLayer);
 
   private:
 	struct Vertex {
@@ -26,6 +29,7 @@ class SpriteRenderer {
 
 	struct InstanceData {
 		Mat4 transform = Mat4Id;
+		Vec4 textureRect = Vec4(0);
 		Vec4 color = Vec4(0);
 	};
 

@@ -70,7 +70,7 @@ struct GpuBuffer {
 ////////////////////////////////////////////////////////////
 // Samplers
 
-enum class FilterMode { Point, Linear, Anisotropic };
+enum class FilterMode { Point, Linear };
 enum class TexAddressMode { Wrap = 1, Mirror = 2, Clamp = 3, Border = 4, MirrorOnce = 5 };
 
 enum class CompareFunc {
@@ -85,7 +85,7 @@ enum class CompareFunc {
 };
 
 struct SamplerDesc {
-	FilterMode filterMode = FilterMode::Anisotropic;
+	FilterMode filterMode = FilterMode::Point;
 	TexAddressMode addressModeU = TexAddressMode::Border;
 	TexAddressMode addressModeV = TexAddressMode::Border;
 	TexAddressMode addressModeW = TexAddressMode::Border;
@@ -116,7 +116,7 @@ ANKER_ENUM_FLAGS(TextureFlag)
 
 struct TextureInfo {
 	std::string name;
-	Vec2u size = Vec2u::Zero;
+	Vec2u size;
 	uint32_t mipLevels = 1;
 	uint32_t arraySize = 1;
 	TextureFormat format = TextureFormat::R8G8B8A8_UNORM;

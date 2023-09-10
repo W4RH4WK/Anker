@@ -1,11 +1,13 @@
 #include "anker_file_utils.hpp"
 
+#include "anker_assert.hpp"
+
 namespace Anker {
 
 template <typename Buffer>
 static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 {
-	ANKER_PROFILE_ZONE_T(filepath.generic_string());
+	ANKER_PROFILE_ZONE_T(filepath.string());
 
 	std::ifstream file(filepath, std::ios::binary);
 	if (!file) {
@@ -45,7 +47,7 @@ Status writeFile(const fs::path& filepath, std::span<const uint8_t> data)
 
 Status writeFile(const fs::path& filepath, std::string_view data)
 {
-	ANKER_PROFILE_ZONE_T(filepath.generic_string());
+	ANKER_PROFILE_ZONE_T(filepath.string());
 
 	std::ofstream file(filepath, std::ios::binary);
 	if (!file) {
@@ -77,6 +79,18 @@ std::string stripFileExtensions(const std::string& filepath)
 std::string_view stripFileExtensions(std::string_view filepath)
 {
 	return filepath.substr(0, filepath.find_last_of('.'));
+}
+
+std::string toIdentifier(fs::path filepath)
+{
+	ANKER_ASSERT(filepath.is_relative());
+
+	filepath = fs::relative(filepath, ""); // normalize
+	filepath.replace_extension();          // strip extension
+
+	std::string result = filepath.string();
+	std::ranges::replace(result, '\\', '/');
+	return result;
 }
 
 } // namespace Anker

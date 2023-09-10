@@ -13,19 +13,17 @@ const auto ShaderFileExtension = ".fxo";
 
 static D3D11_SAMPLER_DESC convertSamplerDesc(const SamplerDesc& desc)
 {
-	auto filter = D3D11_FILTER_ANISOTROPIC;
+	auto filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	switch (desc.filterMode) {
 	case FilterMode::Point: filter = D3D11_FILTER_MIN_MAG_MIP_POINT; break;
-	case FilterMode::Linear: filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; break;
-	case FilterMode::Anisotropic: filter = D3D11_FILTER_ANISOTROPIC; break;
+	case FilterMode::Linear: filter = D3D11_FILTER_MINIMUM_MIN_MAG_MIP_LINEAR; break;
 	}
 
 	return {
-	    .Filter = D3D11_FILTER_ANISOTROPIC,
+	    .Filter = filter,
 	    .AddressU = D3D11_TEXTURE_ADDRESS_MODE(desc.addressModeU),
 	    .AddressV = D3D11_TEXTURE_ADDRESS_MODE(desc.addressModeV),
 	    .AddressW = D3D11_TEXTURE_ADDRESS_MODE(desc.addressModeW),
-	    .MaxAnisotropy = 16,
 	    .ComparisonFunc = D3D11_COMPARISON_FUNC(desc.compareFunc),
 	};
 }
@@ -143,6 +141,8 @@ RenderDevice::RenderDevice()
 Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init)
 {
 	buffer.info.size = std::max(buffer.info.size, uint32_t(init.size()));
+	ANKER_ASSERT(buffer.info.size != 0);
+
 	buffer.buffer.Reset();
 
 	D3D11_BUFFER_DESC desc{
@@ -295,7 +295,7 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 
 Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit> inits)
 {
-	ANKER_ASSERT(texture.info.size != Vec2u::Zero);
+	ANKER_ASSERT(texture.info.size != Vec2u(0));
 
 	D3D11_TEXTURE2D_DESC desc{
 	    .Width = texture.info.size.x,
@@ -343,7 +343,7 @@ Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit
 		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc{
 		    .Format = desc.Format,
 		    .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
-		    .Texture2D = {.MipLevels = desc.MipLevels},
+		    .Texture2D = {.MipLevels = UINT(-1)},
 		};
 
 		if (texture.info.flags & TextureFlag::Cubemap) {
@@ -611,8 +611,7 @@ ID3D11RasterizerState* RenderDevice::rasterizerStateFromDesc(const RasterizerDes
 	ComPtr<ID3D11RasterizerState> rasterizer;
 	const D3D11_RASTERIZER_DESC d3d11Desc{
 	    .FillMode = desc.wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID,
-	    .CullMode = D3D11_CULL_BACK,
-	    .FrontCounterClockwise = true, // due to GLTF compatibility
+	    .CullMode = D3D11_CULL_NONE,
 	    .DepthClipEnable = desc.depthClip,
 	};
 	HRESULT hresult = m_device->CreateRasterizerState(&d3d11Desc, &rasterizer);

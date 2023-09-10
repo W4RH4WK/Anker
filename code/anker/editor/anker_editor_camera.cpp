@@ -20,6 +20,8 @@ void EditorCameraSystem::tick(float, Scene& scene)
 		return;
 	}
 
+	//g_engine->renderer.gizmoRenderer.addGrid(32);
+
 	if (ImGui::GetIO().WantCaptureMouse) {
 		return;
 	}

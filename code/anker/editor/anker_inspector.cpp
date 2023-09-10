@@ -1,10 +1,12 @@
 #include <anker/editor/anker_inspector.hpp>
 
 #include <anker/core/anker_components.hpp>
+#include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
+#include <anker/graphics/anker_gizmo_renderer.hpp>
 
 namespace Anker {
 
@@ -57,6 +59,12 @@ void Inspector::tick(float, Scene& scene)
 	ImGui::EndChild();
 
 	ImGui::End();
+
+	if (m_selectedEntity) {
+		if (auto entity = scene.entityHandle(*m_selectedEntity)) {
+			drawSelectionGizmo(entity);
+		}
+	}
 }
 
 void Inspector::drawMenuBarEntry()
@@ -127,6 +135,15 @@ void Inspector::drawComponentEditor(EntityHandle entity)
 			}
 			ImGui::TreePop();
 		}
+	}
+}
+
+void Inspector::drawSelectionGizmo(EntityCHandle entity)
+{
+	if (auto* transform = entity.try_get<Transform2D>()) {
+		g_engine->renderer.gizmoRenderer.addRect(
+		    Rect2(transform->scale, transform->position - transform->scale / 2.0f), //
+		    {0.95f, 0.60f, 0.22f, 1});
 	}
 }
 

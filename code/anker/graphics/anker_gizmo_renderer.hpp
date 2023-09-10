@@ -22,6 +22,10 @@ class GizmoRenderer {
 
 	void addTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, const Vec4& color = Vec4(1));
 
+	void addRect(const Rect2&, const Vec4& color = Vec4(1));
+
+	void addGrid(float size, Vec4 color = {0.2f, 0.2f, 0.2f, 1});
+
 	void draw();
 
   private:

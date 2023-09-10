@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/game/anker_map.hpp>
 #include <anker/physics/anker_physics_system.hpp>
 
 namespace Anker {

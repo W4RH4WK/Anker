@@ -5,7 +5,7 @@
 namespace Anker {
 
 struct Transform2D {
-	explicit Transform2D(Vec2 position = Vec2::Zero, float rotation = 0, Vec2 scale = Vec2::One)
+	explicit Transform2D(Vec2 position = Vec2(0), float rotation = 0, Vec2 scale = Vec2(1))
 	    : position(position), rotation(rotation), scale(scale)
 	{}
 
@@ -30,9 +30,9 @@ struct Transform2D {
 	Transform2D(b2Transform transform) : Transform2D(transform.p, transform.q.GetAngle()) {}
 	operator b2Transform() const { return b2Transform(position, b2Rot(rotation)); }
 
-	Vec2 position = Vec2::Zero;
+	Vec2 position;
 	float rotation = 0;
-	Vec2 scale = Vec2::One;
+	Vec2 scale = Vec2(1);
 
 	uint32_t layer = 0;
 };

@@ -41,6 +41,7 @@ void Engine::tick()
 	// ImGui::ShowDemoWindow();
 
 	physicsSystem.tick(dt, *activeScene);
+	parallaxSystem.tick(dt, *activeScene);
 
 	renderer.draw(*activeScene);
 	imguiSystem.draw();

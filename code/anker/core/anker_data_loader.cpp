@@ -46,7 +46,7 @@ void DataLoader::tick()
 	m_modifiedFiles.clear();
 
 	// Query for modifications, but only every second, not every frame.
-	if (auto now = Clock::now(); now - m_lastModifiedFilesCheck < 1s) {
+	if (auto now = Clock::now(); now - m_lastModifiedFilesCheck > 1s) {
 		m_lastModifiedFilesCheck = now;
 
 		auto inserter = std::inserter(m_modifiedFiles, m_modifiedFiles.end());

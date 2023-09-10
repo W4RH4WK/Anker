@@ -20,8 +20,8 @@ class TextRenderer {
 
   private:
 	struct Vertex {
-		Vec2 position = Vec2::Zero;
-		Vec2 uv = Vec2::Zero;
+		Vec2 position;
+		Vec2 uv;
 	};
 
 	RenderDevice& m_renderDevice;

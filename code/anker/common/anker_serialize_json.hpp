@@ -41,6 +41,10 @@ class JsonReader {
 		m_values.push(&m_doc);
 	}
 
+	explicit JsonReader(std::span<const uint8_t> input)
+	    : JsonReader(std::string_view(reinterpret_cast<const char*>(input.data()), input.size()))
+	{}
+
 	void operator()(bool& outValue) { outValue = current().GetBool(); }
 	void operator()(int& outValue) { outValue = current().GetInt(); }
 	void operator()(uint32_t& outValue) { outValue = current().GetUint(); }
@@ -170,7 +174,8 @@ class JsonReader {
 		}
 	}
 
-	// Invokes function for each member of the given value.
+	// Invokes function for each field in the object or element in the array
+	// (depending on F's signature), located at the given field key.
 	template <typename F>
 	bool forEach(const char* key, F function)
 	{
@@ -183,7 +188,8 @@ class JsonReader {
 		}
 	}
 
-	// Invokes function for each member of the given array element.
+	// Invokes function for each field in the object or element in the array
+	// (depending on F's signature), located at the given array index.
 	template <typename F>
 	bool forEach(uint32_t index, F function)
 	{

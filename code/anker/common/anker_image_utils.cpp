@@ -12,7 +12,7 @@ Image::Image(std::span<const uint8_t> imageData, int desiredChannels) : m_pixelS
 
 Image::Image(const fs::path& filepath, int desiredChannels) : m_pixelStride(desiredChannels)
 {
-	m_pixels = stbi_load(filepath.generic_string().c_str(), &m_width, &m_height, &m_channels, desiredChannels);
+	m_pixels = stbi_load(filepath.string().c_str(), &m_width, &m_height, &m_channels, desiredChannels);
 }
 
 Image::~Image()

@@ -58,6 +58,8 @@ class Flags {
 	constexpr explicit operator bool() const { return m_mask; }
 	constexpr bool operator!() const { return !m_mask; }
 
+	constexpr Flags<Enum> operator~() const { return Flags<Enum>(~m_mask); }
+
 	constexpr Flags<Enum> operator|(Flags<Enum> other) const { return Flags<Enum>(m_mask | other.m_mask); }
 	constexpr Flags<Enum> operator&(Flags<Enum> other) const { return Flags<Enum>(m_mask & other.m_mask); }
 

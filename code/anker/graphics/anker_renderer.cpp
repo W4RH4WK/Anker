@@ -3,6 +3,7 @@
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/graphics/anker_camera.hpp>
+#include <anker/graphics/anker_render_layers.hpp>
 
 #include <anker/core/anker_engine.hpp>
 
@@ -16,6 +17,7 @@ static_assert(sizeof(SceneConstantBuffer) % 16 == 0, "Constant Buffer size must 
 Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
     : gizmoRenderer(renderDevice, assetCache),
       m_renderDevice(renderDevice),
+      m_mapRenderer(renderDevice, assetCache),
       m_spriteRenderer(renderDevice, assetCache),
       m_postProcessRenderer(renderDevice, assetCache),
       m_textRenderer(renderDevice, assetCache)
@@ -85,16 +87,30 @@ void Renderer::draw(const Scene& scene)
 	m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
 
 	////////////////////////////////////////////////////////////
+	// Collect RenderLayers
+
+	std::set<RenderLayer> layersToRender;
+	{
+		auto inserter = std::inserter(layersToRender, layersToRender.end());
+		m_mapRenderer.collectRenderLayers(scene, inserter);
+		m_spriteRenderer.collectRenderLayers(scene, inserter);
+	}
+
+	////////////////////////////////////////////////////////////
 	// Scene Rendering
 
 	m_renderDevice.setRasterizer({.depthClip = false});
 
-	m_renderDevice.clearRenderTarget(m_sceneRenderTarget);
+	Vec3 clearColor = {0.1f, 0.17f, 0.24f};
+	m_renderDevice.clearRenderTarget(m_sceneRenderTarget, nullptr, gammaReverse(clearColor));
 	m_renderDevice.setRenderTarget(m_sceneRenderTarget);
 
-	m_spriteRenderer.draw(scene);
+	for (RenderLayer layer : layersToRender) {
+		m_mapRenderer.draw(scene, layer);
+		m_spriteRenderer.draw(scene, layer);
+	}
 
-	m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
+	//m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
 
 	////////////////////////////////////////////////////////////
 	// Post Processing

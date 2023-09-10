@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <numbers>
+#include <numeric>
 #include <ranges>
 #include <span>
 #include <stack>
@@ -55,7 +56,9 @@ using Microsoft::WRL::ComPtr;
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <cppitertools/enumerate.hpp>
 #include <cppitertools/groupby.hpp>
+#include <cppitertools/zip.hpp>
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>

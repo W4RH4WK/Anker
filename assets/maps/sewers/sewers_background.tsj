@@ -1,0 +1,14 @@
+{ "columns":6,
+ "image":"sewers_background.png",
+ "imageheight":1536,
+ "imagewidth":1536,
+ "margin":0,
+ "name":"Sewer Background",
+ "spacing":0,
+ "tilecount":36,
+ "tiledversion":"1.10.1",
+ "tileheight":256,
+ "tilewidth":256,
+ "type":"tileset",
+ "version":"1.10"
+}

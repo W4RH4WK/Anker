@@ -4,6 +4,8 @@
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
+#include <anker/game/anker_map.hpp>
+#include <anker/game/anker_parallax.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
@@ -41,6 +43,8 @@ constexpr std::array Components = {
     registerComponent<Sprite>("Sprite"),
     registerComponent<PhysicsBody>("PhysicsBody"),
     registerComponent<EditorCamera>("EditorCamera"),
+    registerComponent<MapLayer>("MapLayer"),
+    registerComponent<Parallax>("Parallax"),
 };
 
 const std::unordered_map<entt::id_type, const ComponentInfo*> ComponentsById = []() {

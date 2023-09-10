@@ -50,6 +50,24 @@ void GizmoRenderer::addTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, 
 	m_verticesForTriangles.emplace_back(v2, color);
 }
 
+void GizmoRenderer::addRect(const Rect2& rect, const Vec4& color)
+{
+	addLine(rect.topLeft(), rect.topRight(), color);
+	addLine(rect.topRight(), rect.bottomRight(), color);
+	addLine(rect.bottomRight(), rect.bottomLeft(), color);
+	addLine(rect.bottomLeft(), rect.topLeft(), color);
+}
+
+void GizmoRenderer::addGrid(float size, Vec4 color)
+{
+	for (float x = -size; x <= size; ++x) {
+		addLine({x, -size}, {x, size}, color);
+	}
+	for (float y = -size; y <= size; ++y) {
+		addLine({-size, y}, {size, y}, color);
+	}
+}
+
 void GizmoRenderer::draw()
 {
 	if (m_verticesForLines.empty() && m_verticesForTriangles.empty()) {

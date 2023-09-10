@@ -55,15 +55,9 @@ struct Vec2T {
 	T x = 0;
 	T y = 0;
 
-	static const Vec2T Zero, One;
 	static const Vec2T Up, Down, Left, Right;
 	static const Vec2T WorldUp, WorldDown, WorldLeft, WorldRight;
 };
-
-template <typename T>
-const Vec2T<T> Vec2T<T>::Zero{0, 0};
-template <typename T>
-const Vec2T<T> Vec2T<T>::One{1, 1};
 
 // Default coordinate system: -Y is up
 template <typename T>
@@ -199,14 +193,7 @@ struct Vec3T {
 	T x = 0;
 	T y = 0;
 	T z = 0;
-
-	static const Vec3T Zero, One;
 };
-
-template <typename T>
-const Vec3T<T> Vec3T<T>::Zero{0, 0, 0};
-template <typename T>
-const Vec3T<T> Vec3T<T>::One{1, 1, 1};
 
 template <typename T>
 constexpr Vec3T<T> pow(const Vec3T<T>& v, T exp)
@@ -335,14 +322,7 @@ struct Vec4T {
 	T y = 0;
 	T z = 0;
 	T w = 0;
-
-	static const Vec4T Zero, One;
 };
-
-template <typename T>
-const Vec4T<T> Vec4T<T>::Zero{0, 0, 0, 0};
-template <typename T>
-const Vec4T<T> Vec4T<T>::One{1, 1, 1, 1};
 
 template <typename T>
 constexpr Vec4T<T> pow(const Vec4T<T>& v, T exp)
@@ -461,6 +441,8 @@ struct Rect2T {
 		return Rect2T({width, height}, offset);
 	}
 
+	explicit operator Vec4T<T>() const { return {size.x, size.y, offset.x, offset.y}; }
+
 	constexpr Vec2T<T> center() const { return {offset.x + size.x / 2, offset.y + size.y / 2}; }
 
 	// Default coordinate system: -Y is up
@@ -475,8 +457,8 @@ struct Rect2T {
 	constexpr Vec2T<T> bottomLeftWorld() const { return {offset.x, offset.y}; }
 	constexpr Vec2T<T> bottomRightWorld() const { return {offset.x + size.x, offset.y}; }
 
-	Vec2T<T> size = Vec2T<T>::Zero;
-	Vec2T<T> offset = Vec2T<T>::Zero;
+	Vec2T<T> size;
+	Vec2T<T> offset;
 };
 
 using Rect2 = Rect2T<float>;

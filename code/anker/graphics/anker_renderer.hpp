@@ -5,6 +5,7 @@
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_sprite_renderer.hpp>
 #include <anker/graphics/anker_text_renderer.hpp>
+#include <anker/graphics/anker_map_renderer.hpp>
 
 namespace Anker {
 
@@ -28,6 +29,7 @@ class Renderer {
   private:
 	RenderDevice& m_renderDevice;
 
+	MapRenderer m_mapRenderer;
 	SpriteRenderer m_spriteRenderer;
 	PostProcessRenderer m_postProcessRenderer;
 
