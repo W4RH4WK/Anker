@@ -3,118 +3,45 @@
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
-#include <anker/game/anker_parallax.hpp>
+#include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
+#include <anker/graphics/anker_vertex.hpp>
 
 namespace Anker {
 
+struct SpriteRendererConstantBuffer {
+	Mat4 transform = Mat4Id; // Mat4 instead of Mat3 because of alignment
+	Vec4 color = Vec4(1);
+	Vec2 parallax = Vec2(1);
+	Vec2 _pad;
+};
+static_assert(sizeof(SpriteRendererConstantBuffer) % 16 == 0, "Constant Buffer size must be 16-byte aligned");
+
 SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCache) : m_renderDevice(renderDevice)
 {
-	m_vertexShader = assetCache.loadVertexShader( //
-	    "shaders/basic_2d.vs",                    //
-	    std::array{
-	        // Per Vertex
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "POSITION",
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, position),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TEXCOORD",
-	            .SemanticIndex = 0,
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, uv),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	        },
+	m_vertexShader = assetCache.loadVertexShader("shaders/sprite.vs", Vertex2D::ShaderInputs);
+	m_pixelShader = assetCache.loadPixelShader("shaders/sprite.ps");
 
-	        // Per Instance
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TRANSFORM",
-	            .SemanticIndex = 0,
-	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, transform) + 0 * sizeof(Vec4),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TRANSFORM",
-	            .SemanticIndex = 1,
-	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, transform) + 1 * sizeof(Vec4),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TRANSFORM",
-	            .SemanticIndex = 2,
-	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, transform) + 2 * sizeof(Vec4),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TRANSFORM",
-	            .SemanticIndex = 3,
-	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, transform) + 3 * sizeof(Vec4),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TEXTURE_RECT",
-	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, textureRect),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "INSTANCE_COLOR",
-	            .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, color),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "INSTANCE_PARALLAX",
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .InputSlot = 1,
-	            .AlignedByteOffset = offsetof(InstanceData, parallax),
-	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
-	            .InstanceDataStepRate = 1,
-	        },
-	    });
-	m_pixelShader = assetCache.loadPixelShader("shaders/basic_2d.ps");
+	m_constantBuffer.info = {
+	    .name = "SpriteRenderer Constant Buffer",
+	    .size = sizeof(SpriteRendererConstantBuffer),
+	    .stride = sizeof(SpriteRendererConstantBuffer),
+	    .bindFlags = GpuBindFlag::ConstantBuffer,
+	    .flags = GpuBufferFlag::CpuWriteable,
+	};
+	if (not m_renderDevice.createBuffer(m_constantBuffer)) {
+		ANKER_FATAL("Failed to create SpriteRenderer Constant Buffer");
+	}
 
 	m_vertexBuffer.info = {
 	    .name = "SpriteRenderer Vertex Buffer",
-	    .bindFlags = GpuBindFlag::VertexBuffer,
-	};
-	const std::array vertices = {
-	    Vertex{.position = {0, 1}, .uv = {0, 0}},
-	    Vertex{.position = {0, 0}, .uv = {0, 1}},
-	    Vertex{.position = {1, 1}, .uv = {1, 0}},
-	    Vertex{.position = {1, 0}, .uv = {1, 1}},
-	};
-	if (not m_renderDevice.createBuffer(m_vertexBuffer, vertices)) {
-		ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
-	}
-
-	m_instanceBuffer.info = {
-	    .name = "SpriteRenderer Instance Buffer",
-	    .size = 128 * sizeof(InstanceData),
-	    .stride = sizeof(InstanceData),
+	    .size = 4 * sizeof(Vertex2D),
+	    .stride = sizeof(Vertex2D),
 	    .bindFlags = GpuBindFlag::VertexBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
-	if (not m_renderDevice.createBuffer(m_instanceBuffer)) {
-		ANKER_FATAL("Field to create SpriteRenderer Instance Buffer");
+	if (not m_renderDevice.createBuffer(m_vertexBuffer)) {
+		ANKER_FATAL("Failed to create SpriteRenderer Vertex Buffer");
 	}
 }
 
@@ -129,64 +56,55 @@ void SpriteRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 {
 	ANKER_PROFILE_ZONE();
 
-	struct SpriteRef {
-		const Transform2D* transform = nullptr;
-		const Sprite* sprite = nullptr;
-		Vec2 parallax = Vec2(1);
-	};
-
-	// Collect all render-able sprites, on the target layer, and organize them
-	// in a list grouped by texture.
-	std::vector<SpriteRef> spritesToRender;
-	{
-		auto sprites = scene.registry.view<Transform2D, Sprite>();
-
-		for (auto [entity, transform, sprite] : sprites.each()) {
-			if (sprite.layer == layerToRender && sprite.texture) {
-				SpriteRef ref{
-				    .transform = &transform,
-				    .sprite = &sprite,
-				};
-				if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {
-					ref.parallax = parallax->factor;
-				}
-				spritesToRender.push_back(ref);
-			}
-		}
-
-		auto byTexture = [](auto& a, auto& b) { return a.sprite->texture.get() < b.sprite->texture.get(); };
-		std::ranges::sort(spritesToRender, byTexture);
-	}
-
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	// Iterate over the collected sprites and draw all sprites simultaneously
-	// that use the same texture.
-	auto getTexture = [](auto& a) { return a.sprite->texture.get(); };
-	for (auto& [texture, sprites] : spritesToRender | iter::groupby(getTexture)) {
-		m_instanceData.clear();
-
-		for (auto [transform, sprite, parallax] : sprites) {
-			Mat3 spriteTransform = Mat3(*transform);
-			spriteTransform = scale(
-			    spriteTransform, glm::vec2(Vec2(texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter));
-			spriteTransform = translate(spriteTransform, glm::vec2(sprite->offset));
-
-			m_instanceData.push_back({
-			    .transform = spriteTransform,
-			    .textureRect = Vec4(sprite->textureRect),
-			    .color = sprite->color,
-			    .parallax = parallax,
-			});
+	for (auto [entity, transform, sprite] : scene.registry.view<Transform2D, Sprite>().each()) {
+		if (sprite.layer != layerToRender || !sprite.texture) {
+			continue;
 		}
 
-		m_renderDevice.fillBuffer(m_instanceBuffer, m_instanceData);
+		{
+			SpriteRendererConstantBuffer cb = {
+			    .transform = Mat3(transform),
+			    .color = sprite.color,
+			};
+			if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {
+				cb.parallax = parallax->factor;
+			}
+			m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
+			m_renderDevice.bindBufferVS(1, m_constantBuffer);
+			m_renderDevice.bindBufferPS(1, m_constantBuffer);
+		}
 
-		m_renderDevice.bindTexturePS(0, *texture);
-		m_renderDevice.drawInstanced(m_vertexBuffer, 4,                                 //
-		                             m_instanceBuffer, uint32_t(m_instanceData.size()), //
-		                             Topology::TriangleStrip);
+		auto textureSize = Vec2(sprite.texture->info.size);
+		Rect2 spriteRect;
+		spriteRect.size = Vec2(sprite.texture->info.size) * sprite.textureRect.size / sprite.pixelToMeter;
+		spriteRect.offset = spriteRect.size * sprite.offset;
+
+		m_renderDevice.fillBuffer( //
+		    m_vertexBuffer,        //
+		    std::array{
+		        Vertex2D{
+		            .position = spriteRect.topLeftWorld(),
+		            .uv = sprite.textureRect.topLeft(),
+		        },
+		        Vertex2D{
+		            .position = spriteRect.bottomLeftWorld(),
+		            .uv = sprite.textureRect.bottomLeft(),
+		        },
+		        Vertex2D{
+		            .position = spriteRect.topRightWorld(),
+		            .uv = sprite.textureRect.topRight(),
+		        },
+		        Vertex2D{
+		            .position = spriteRect.bottomRightWorld(),
+		            .uv = sprite.textureRect.bottomRight(),
+		        },
+		    });
+
+		m_renderDevice.bindTexturePS(0, *sprite.texture);
+		m_renderDevice.draw(m_vertexBuffer, 4, Topology::TriangleStrip);
 		m_renderDevice.unbindTexturePS(0);
 	}
 }

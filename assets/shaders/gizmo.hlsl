@@ -14,7 +14,7 @@ struct PSInput {
 
 PSInput main(VSInput vin) {
   float3 pos = float3(vin.pos, 1.0f);
-  pos = mul((float3x3)Scene_view, pos);
+  pos = mul((float3x3)SceneView, pos);
 
   PSInput pin;
   pin.pos = float4(pos.xy, 0, 1);

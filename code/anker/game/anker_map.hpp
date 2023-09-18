@@ -1,6 +1,7 @@
 #pragma once
 
 #include <anker/core/anker_asset.hpp>
+#include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_render_layers.hpp>
 
@@ -28,6 +29,6 @@ Status loadMap(Scene&, std::string_view identifier, AssetCache&);
 REFL_TYPE(Anker::MapLayer)
 REFL_FIELD(name)
 REFL_FIELD(layer)
-REFL_FIELD(color)
+REFL_FIELD(color, Anker::attr::Color())
 REFL_FIELD(texture)
 REFL_END

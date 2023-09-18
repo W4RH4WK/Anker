@@ -4,8 +4,8 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
-#include <anker/game/anker_parallax.hpp>
 #include <anker/graphics/anker_map_renderer.hpp>
+#include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 
 namespace Anker {
