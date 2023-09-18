@@ -1,4 +1,5 @@
 #include "scene_cb.h.hlsl"
+#include "common.h.hlsl"
 
 struct VSInput {
   float2 pos : POSITION;
@@ -6,6 +7,7 @@ struct VSInput {
   float4x4 transform : TRANSFORM;
   float4 texRect : TEXTURE_RECT;
   float4 color : INSTANCE_COLOR;
+  float2 parallax : INSTANCE_PARALLAX;
 };
 
 struct PSInput {
@@ -19,6 +21,7 @@ struct PSInput {
 PSInput main(VSInput vin) {
   float3 pos = float3(vin.pos, 1);
   pos = mul((float3x3)vin.transform, pos);
+  pos.xy = applyParallax(vin.parallax, pos.xy, SceneCameraPos);
   pos = mul((float3x3)Scene_view, pos);
 
   PSInput pin;

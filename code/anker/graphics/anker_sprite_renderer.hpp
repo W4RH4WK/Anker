@@ -31,6 +31,7 @@ class SpriteRenderer {
 		Mat4 transform = Mat4Id;
 		Vec4 textureRect = Vec4(0);
 		Vec4 color = Vec4(0);
+		Vec2 parallax = Vec2(1);
 	};
 
 	RenderDevice& m_renderDevice;

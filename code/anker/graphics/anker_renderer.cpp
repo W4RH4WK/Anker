@@ -11,6 +11,8 @@ namespace Anker {
 
 struct SceneConstantBuffer {
 	Mat4 view = Mat4Id; // Mat4 instead of Mat3 because of alignment
+	Vec2 cameraPosition;
+	Vec2 _pad;
 };
 static_assert(sizeof(SceneConstantBuffer) % 16 == 0, "Constant Buffer size must be 16-byte aligned");
 
@@ -66,8 +68,9 @@ void Renderer::draw(const Scene& scene)
 		return;
 	}
 
-	SceneConstantBuffer sceneCb;
 	{
+		SceneConstantBuffer sceneCb;
+
 		Mat3 view = Mat3(*cameraTransform);
 		view = scale(view, glm::vec2(cameraParams->distance));
 
@@ -81,10 +84,12 @@ void Renderer::draw(const Scene& scene)
 		}
 
 		sceneCb.view = inverse(view);
+		sceneCb.cameraPosition = cameraTransform->position;
+
+		m_renderDevice.fillBuffer(m_sceneConstantBuffer, std::array{sceneCb});
+		m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
+		m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
 	}
-	m_renderDevice.fillBuffer(m_sceneConstantBuffer, std::array{sceneCb});
-	m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
-	m_renderDevice.bindBufferPS(0, m_sceneConstantBuffer);
 
 	////////////////////////////////////////////////////////////
 	// Collect RenderLayers

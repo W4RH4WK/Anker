@@ -3,6 +3,7 @@
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
+#include <anker/game/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 
 namespace Anker {
@@ -80,6 +81,14 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
 	            .InstanceDataStepRate = 1,
 	        },
+	        D3D11_INPUT_ELEMENT_DESC{
+	            .SemanticName = "INSTANCE_PARALLAX",
+	            .Format = DXGI_FORMAT_R32G32_FLOAT,
+	            .InputSlot = 1,
+	            .AlignedByteOffset = offsetof(InstanceData, parallax),
+	            .InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA,
+	            .InstanceDataStepRate = 1,
+	        },
 	    });
 	m_pixelShader = assetCache.loadPixelShader("shaders/basic_2d.ps");
 
@@ -123,6 +132,7 @@ void SpriteRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 	struct SpriteRef {
 		const Transform2D* transform = nullptr;
 		const Sprite* sprite = nullptr;
+		Vec2 parallax = Vec2(1);
 	};
 
 	// Collect all render-able sprites, on the target layer, and organize them
@@ -131,9 +141,16 @@ void SpriteRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 	{
 		auto sprites = scene.registry.view<Transform2D, Sprite>();
 
-		for (auto [_, transform, sprite] : sprites.each()) {
+		for (auto [entity, transform, sprite] : sprites.each()) {
 			if (sprite.layer == layerToRender && sprite.texture) {
-				spritesToRender.push_back({&transform, &sprite});
+				SpriteRef ref{
+				    .transform = &transform,
+				    .sprite = &sprite,
+				};
+				if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {
+					ref.parallax = parallax->factor;
+				}
+				spritesToRender.push_back(ref);
 			}
 		}
 
@@ -150,15 +167,17 @@ void SpriteRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 	for (auto& [texture, sprites] : spritesToRender | iter::groupby(getTexture)) {
 		m_instanceData.clear();
 
-		for (auto [transform, sprite] : sprites) {
+		for (auto [transform, sprite, parallax] : sprites) {
 			Mat3 spriteTransform = Mat3(*transform);
-			spriteTransform = scale(spriteTransform, glm::vec2(Vec2(texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter));
+			spriteTransform = scale(
+			    spriteTransform, glm::vec2(Vec2(texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter));
 			spriteTransform = translate(spriteTransform, glm::vec2(sprite->offset));
 
 			m_instanceData.push_back({
 			    .transform = spriteTransform,
 			    .textureRect = Vec4(sprite->textureRect),
 			    .color = sprite->color,
+			    .parallax = parallax,
 			});
 		}
 

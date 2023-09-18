@@ -12,6 +12,7 @@ class Scene;
 struct MapLayer {
 	std::string name;
 	RenderLayer layer = LayerDefault;
+	Vec4 color = Vec4(1);
 
 	uint32_t vertexCount = 0;
 	GpuBuffer vertexBuffer;
@@ -27,5 +28,6 @@ Status loadMap(Scene&, std::string_view identifier, AssetCache&);
 REFL_TYPE(Anker::MapLayer)
 REFL_FIELD(name)
 REFL_FIELD(layer)
+REFL_FIELD(color)
 REFL_FIELD(texture)
 REFL_END

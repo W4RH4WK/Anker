@@ -5,7 +5,6 @@
 #include <anker/core/anker_imgui_system.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/editor/anker_editor_framework.hpp>
-#include <anker/game/anker_parallax.hpp>
 #include <anker/graphics/anker_font_system.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
@@ -47,8 +46,6 @@ class Engine {
 	Renderer renderer;
 
 	PhysicsSystem physicsSystem;
-
-	ParallaxSystem parallaxSystem;
 
 	ScenePtr activeScene;
 

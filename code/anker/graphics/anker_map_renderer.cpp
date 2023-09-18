@@ -4,11 +4,15 @@
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/game/anker_map.hpp>
+#include <anker/game/anker_parallax.hpp>
 
 namespace Anker {
 
 struct MapRendererConstantBuffer {
 	Mat4 transform = Mat4Id; // Mat4 instead of Mat3 because of alignment
+	Vec4 color = Vec4(1);
+	Vec2 parallax = Vec2(1);
+	Vec2 _pad;
 };
 static_assert(sizeof(MapRendererConstantBuffer) % 16 == 0, "Constant Buffer size must be 16-byte aligned");
 
@@ -59,7 +63,7 @@ void MapRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	for (auto [_, transform, layer] : scene.registry.view<Transform2D, MapLayer>().each()) {
+	for (auto [entity, layer] : scene.registry.view<MapLayer>().each()) {
 		if (layer.layer != layerToRender) {
 			continue;
 		}
@@ -68,13 +72,20 @@ void MapRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 			continue;
 		}
 
-		m_renderDevice.fillBuffer( //
-		    m_constantBuffer,      //
-		    std::array{MapRendererConstantBuffer{
-		        .transform = Mat3(transform),
-		    }});
-		m_renderDevice.bindBufferVS(1, m_constantBuffer);
-		m_renderDevice.bindBufferPS(1, m_constantBuffer);
+		{
+			MapRendererConstantBuffer cb = {
+			    .color = layer.color,
+			};
+			if (auto* transform = scene.registry.try_get<Transform2D>(entity)) {
+				cb.transform = Mat3(*transform);
+			}
+			if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {
+				cb.parallax = parallax->factor;
+			}
+			m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
+			m_renderDevice.bindBufferVS(1, m_constantBuffer);
+			m_renderDevice.bindBufferPS(1, m_constantBuffer);
+		}
 
 		m_renderDevice.bindTexturePS(0, *layer.texture);
 		m_renderDevice.draw(layer.vertexBuffer, layer.vertexCount);
