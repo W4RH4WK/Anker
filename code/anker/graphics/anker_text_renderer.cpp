@@ -2,34 +2,19 @@
 
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/graphics/anker_font.hpp>
+#include <anker/graphics/anker_vertex.hpp>
 
 namespace Anker {
 
 TextRenderer::TextRenderer(RenderDevice& renderDevice, AssetCache& assetCache) : m_renderDevice(renderDevice)
 {
-	m_vertexShader = assetCache.loadVertexShader( //
-	    "shaders/text.vs",                        //
-	    std::array{
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "POSITION",
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, position),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TEXCOORD",
-	            .SemanticIndex = 0,
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, uv),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	        },
-	    });
+	m_vertexShader = assetCache.loadVertexShader("shaders/text.vs", Vertex2D::ShaderInputs);
 	m_pixelShader = assetCache.loadPixelShader("shaders/text.ps");
 
 	m_vertexBuffer.info = {
 	    .name = "TextRenderer Vertex Buffer",
-	    .size = 1024 * sizeof(Vertex),
-	    .stride = sizeof(Vertex),
+	    .size = 1024 * sizeof(Vertex2D),
+	    .stride = sizeof(Vertex2D),
 	    .bindFlags = GpuBindFlag::VertexBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
 	};
@@ -42,7 +27,7 @@ void TextRenderer::draw(const Font& font, std::string_view text)
 {
 	ANKER_PROFILE_ZONE();
 
-	std::vector<Vertex> vertices;
+	std::vector<Vertex2D> vertices;
 
 	Vec2 cursor = {0, 0};
 
@@ -56,27 +41,27 @@ void TextRenderer::draw(const Font& font, std::string_view text)
 		vertices.insert(    //
 		    vertices.end(), //
 		    {
-		        Vertex{
+		        Vertex2D{
 		            .position = cursor + charData.visRect.topLeftWorld(),
 		            .uv = charData.texRect.topLeft(),
 		        },
-		        Vertex{
+		        Vertex2D{
 		            .position = cursor + charData.visRect.bottomLeftWorld(),
 		            .uv = charData.texRect.bottomLeft(),
 		        },
-		        Vertex{
+		        Vertex2D{
 		            .position = cursor + charData.visRect.topRightWorld(),
 		            .uv = charData.texRect.topRight(),
 		        },
-		        Vertex{
+		        Vertex2D{
 		            .position = cursor + charData.visRect.topRightWorld(),
 		            .uv = charData.texRect.topRight(),
 		        },
-		        Vertex{
+		        Vertex2D{
 		            .position = cursor + charData.visRect.bottomLeftWorld(),
 		            .uv = charData.texRect.bottomLeft(),
 		        },
-		        Vertex{
+		        Vertex2D{
 		            .position = cursor + charData.visRect.bottomRightWorld(),
 		            .uv = charData.texRect.bottomRight(),
 		        },

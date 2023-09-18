@@ -19,11 +19,6 @@ class TextRenderer {
 	void draw(const Font&, std::string_view text);
 
   private:
-	struct Vertex {
-		Vec2 position;
-		Vec2 uv;
-	};
-
 	RenderDevice& m_renderDevice;
 
 	AssetPtr<VertexShader> m_vertexShader;

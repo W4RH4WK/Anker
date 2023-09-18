@@ -2,6 +2,7 @@
 
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_render_layers.hpp>
+#include <anker/graphics/anker_vertex.hpp>
 
 namespace Anker {
 
@@ -20,10 +21,7 @@ class MapRenderer {
 
 	void draw(const Scene&, RenderLayer);
 
-	struct Vertex {
-		Vec2 position;
-		Vec2 uv;
-	};
+	using Vertex = Vertex2D;
 
   private:
 	RenderDevice& m_renderDevice;

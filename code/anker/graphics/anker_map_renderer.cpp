@@ -29,23 +29,7 @@ MapRenderer::MapRenderer(RenderDevice& renderDevice, AssetCache& assetCache) : m
 		ANKER_FATAL("Failed to create MapRenderer Constant Buffer");
 	}
 
-	m_vertexShader = assetCache.loadVertexShader( //
-	    "shaders/map.vs",                         //
-	    std::array{
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "POSITION",
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, position),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	        },
-	        D3D11_INPUT_ELEMENT_DESC{
-	            .SemanticName = "TEXCOORD",
-	            .Format = DXGI_FORMAT_R32G32_FLOAT,
-	            .AlignedByteOffset = offsetof(Vertex, uv),
-	            .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-	        },
-	    });
-
+	m_vertexShader = assetCache.loadVertexShader("shaders/map.vs", Vertex2D::ShaderInputs);
 	m_pixelShader = assetCache.loadPixelShader("shaders/map.ps");
 }
 
