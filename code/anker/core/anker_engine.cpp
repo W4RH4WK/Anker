@@ -12,6 +12,7 @@ Engine::Engine()
       inputSystem(imguiSystem),
       assetCache(renderDevice, fontSystem),
       renderer(renderDevice, assetCache),
+      playerControllerSystem(inputSystem),
       physicsSystem(renderer.gizmoRenderer)
 {
 	ANKER_INFO("Anker Initialized!");
@@ -39,6 +40,8 @@ void Engine::tick()
 	}
 
 	// ImGui::ShowDemoWindow();
+
+	playerControllerSystem.tick(dt, *activeScene);
 
 	physicsSystem.tick(dt, *activeScene);
 

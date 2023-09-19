@@ -1,6 +1,7 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
+#include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/platform/anker_platform.hpp>
 
@@ -36,6 +37,7 @@ int main()
 	{
 		auto player = g_engine->activeScene->createEntity("Player");
 		player.emplace<Transform2D>();
+		player.emplace<PlayerController>();
 		player.emplace<Sprite>(Sprite{
 		    .layer = LayerPlayer,
 		    .offset = {-0.5f, -0.5f},
@@ -48,7 +50,8 @@ int main()
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
 		bodyDef.position = {10.5f, -8};
-		bodyDef.angle = 15.0f * Degrees;
+		bodyDef.fixedRotation = true;
+		bodyDef.allowSleep = false;
 
 		physicsBody.body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
 
@@ -58,7 +61,7 @@ int main()
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &dynamicBox;
 		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 0.3f;
+		fixtureDef.friction = 1.0f;
 
 		physicsBody.body->CreateFixture(&fixtureDef);
 	}

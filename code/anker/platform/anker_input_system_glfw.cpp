@@ -21,7 +21,7 @@ void InputSystem::tick(float)
 	}
 
 	auto* window = Platform::glfwWindow();
-	// auto pressed = [&](int key) { return glfwGetKey(m_window, key) == GLFW_PRESS; };
+	auto pressed = [&](int key) { return glfwGetKey(window, key) == GLFW_PRESS; };
 	auto mousePressed = [&](int button) { return glfwGetMouseButton(window, button) == GLFW_PRESS; };
 
 	m_actions = {
@@ -29,6 +29,8 @@ void InputSystem::tick(float)
 	    .editorCameraPan = {-cursorDelta.x, cursorDelta.y},
 	    .editorCameraZoom = m_scrollDelta,
 	};
+	m_actions.playerMove += Vec2::Left * pressed(GLFW_KEY_LEFT);
+	m_actions.playerMove += Vec2::Right * pressed(GLFW_KEY_RIGHT);
 
 	m_scrollDelta = 0;
 }

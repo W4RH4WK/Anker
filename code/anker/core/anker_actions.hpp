@@ -3,8 +3,10 @@
 namespace Anker {
 
 struct Actions {
+	Vec2 playerMove;
+
 	bool editorCameraActivate = false;
-	Vec2 editorCameraPan = Vec2(0);
+	Vec2 editorCameraPan;
 	float editorCameraZoom = 0;
 };
 
