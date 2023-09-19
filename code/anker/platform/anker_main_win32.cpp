@@ -31,24 +31,6 @@ int main()
 	g_engine->activeScene->activeCamera().get<Transform2D>().position = {10.5f, -14.0f};
 	g_engine->activeScene->activeCamera().get<Camera>().distance = 3;
 
-	{
-		auto ground = g_engine->activeScene->createEntity("Ground");
-		ground.emplace<Transform2D>();
-
-		auto& physicsBody = ground.emplace<PhysicsBody>();
-
-		b2BodyDef bodyDef;
-		bodyDef.type = b2_staticBody;
-		bodyDef.position = {9.5f, -16.0f};
-
-		physicsBody.body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
-
-		b2PolygonShape groundBox;
-		groundBox.SetAsBox(7.5f, 1.0f);
-
-		physicsBody.body->CreateFixture(&groundBox, 0);
-	}
-
 	// auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
 
 	{
@@ -71,7 +53,7 @@ int main()
 		physicsBody.body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
 
 		b2PolygonShape dynamicBox;
-		dynamicBox.SetAsBox(0.5f, 0.5f);
+		dynamicBox.SetAsBox(0.25f, 0.5f);
 
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &dynamicBox;

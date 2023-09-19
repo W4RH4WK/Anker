@@ -7,6 +7,7 @@
 #include <anker/graphics/anker_map_renderer.hpp>
 #include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
+#include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
 
@@ -63,6 +64,7 @@ class TmjLoader {
 	struct Visitor {
 		std::function<Status()> onTileLayer;
 		std::function<Status()> onObjectLayer;
+		std::function<Status()> onCollisionLayer;
 		std::function<void()> onLayerBegin;
 		std::function<void()> onLayerEnd;
 	};
@@ -83,6 +85,9 @@ class TmjLoader {
 				return;
 			}
 
+			std::string name;
+			m_tmjReader->field("name", name);
+
 			if (visitor.onLayerBegin) {
 				visitor.onLayerBegin();
 			}
@@ -92,8 +97,14 @@ class TmjLoader {
 					status = visitor.onTileLayer();
 				}
 			} else if (type == "objectgroup") {
-				if (visitor.onObjectLayer) {
-					status = visitor.onObjectLayer();
+				if (name.starts_with("Collision")) {
+					if (visitor.onCollisionLayer) {
+						status = visitor.onCollisionLayer();
+					}
+				} else {
+					if (visitor.onObjectLayer) {
+						status = visitor.onObjectLayer();
+					}
 				}
 			} else if (type == "group") {
 				status = visitLayers(visitor);
@@ -238,7 +249,11 @@ class TmjLoader {
 			return OK;
 		};
 
-		ANKER_TRY(visitLayers(Visitor{.onTileLayer = gatherIds, .onObjectLayer = gatherIds}));
+		ANKER_TRY(visitLayers({
+		    .onTileLayer = gatherIds,
+		    .onObjectLayer = gatherIds,
+		    .onCollisionLayer = gatherIds,
+		}));
 
 		if (!mainLayerIndex) {
 			ANKER_ERROR("{}: No layer named 'Main'", m_tmjIdentifier);
@@ -263,9 +278,10 @@ class TmjLoader {
 
 	Status loadLayers()
 	{
-		return visitLayers(Visitor{
+		return visitLayers({
 		    .onTileLayer = [&] { return loadTileLayer(); },
 		    .onObjectLayer = [&] { return loadObjectLayer(); },
+		    .onCollisionLayer = [&] { return loadCollisionLayer(); },
 		    .onLayerBegin =
 		        [&] {
 			        Vec2 parallax = Vec2(1);
@@ -474,6 +490,46 @@ class TmjLoader {
 			    .textureRect = tileset.textureCoordinates(gid),
 			});
 			entity.emplace<Parallax>(calcParallax());
+		});
+
+		return OK;
+	}
+
+	Status loadCollisionLayer()
+	{
+		m_tmjReader->forEach("objects", [&](uint32_t) {
+			auto entity = m_scene.createEntity("Collider");
+
+			auto& transform = entity.emplace<Transform2D>();
+			m_tmjReader->field("x", transform.position.x);
+			m_tmjReader->field("y", transform.position.y);
+			transform.position /= 256.0f;  // pixel -> meter
+			transform.position.y *= -1.0f; // flip Y axis
+
+			auto& physicsBody = entity.emplace<PhysicsBody>();
+
+			b2BodyDef bodyDef;
+			bodyDef.type = b2_staticBody;
+			bodyDef.position = transform.position;
+
+			physicsBody.body = m_scene.physicsWorld->CreateBody(&bodyDef);
+
+			{
+				std::vector<b2Vec2> points;
+				bool hasPolygon = m_tmjReader->forEach("polygon", [&](uint32_t) {
+					Vec2 point;
+					m_tmjReader->field("x", point.x);
+					m_tmjReader->field("y", point.y);
+					point /= 256.0f;  // pixel -> meter
+					point.y *= -1.0f; // flip Y axis
+					points.push_back(point);
+				});
+				if (hasPolygon) {
+					b2ChainShape chain;
+					chain.CreateLoop(points.data(), int32(points.size()));
+					physicsBody.body->CreateFixture(&chain, 0);
+				}
+			}
 		});
 
 		return OK;
