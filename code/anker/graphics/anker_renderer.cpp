@@ -107,7 +107,7 @@ void Renderer::draw(const Scene& scene)
 	m_renderDevice.setRasterizer({.depthClip = false});
 
 	Vec3 clearColor = {0.1f, 0.17f, 0.24f};
-	m_renderDevice.clearRenderTarget(m_sceneRenderTarget, nullptr, gammaReverse(clearColor));
+	m_renderDevice.clearRenderTarget(m_sceneRenderTarget, nullptr, clearColor);
 	m_renderDevice.setRenderTarget(m_sceneRenderTarget);
 
 	for (RenderLayer layer : layersToRender) {

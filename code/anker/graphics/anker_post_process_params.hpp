@@ -30,7 +30,7 @@ struct PostProcessParams {
 	float brightness = 0.0f;
 	Vec3 colorFilter = Vec3(1);
 	float saturation = 1.0f;
-	float gamma = 2.2f;
+	float gamma = 1.0f;
 	ToneMapping toneMapping = ToneMapping::None;
 	float pad0[1];
 };

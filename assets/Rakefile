@@ -72,7 +72,7 @@ task shaders: PIXEL_SHADERS.pathmap('%p.ps.fxo')
 
 TEXTURES.each do |texture|
   file texture.pathmap('%X.dds') => texture do |t|
-    sh "#{TEXCONV} -nologo -f BC7_UNORM -srgbi -y #{t.source}"
+    sh "#{TEXCONV} -nologo -f BC7_UNORM -y #{t.source}"
   end
 end
 task textures: TEXTURES.pathmap('%X.dds')

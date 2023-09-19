@@ -482,19 +482,6 @@ using Mat4 = glm::mat4;
 constexpr Mat4 Mat4Id = glm::identity<Mat4>();
 
 ////////////////////////////////////////////////////////////
-// Color Handling
-
-inline Vec3 gammaReverse(Vec3 color, float gamma = 2.2f)
-{
-	return pow(color, gamma);
-}
-
-inline Vec4 gammaReverse(const Vec4& color, float gamma = 2.2f)
-{
-	return pow(color, {gamma, gamma, gamma, 1});
-}
-
-////////////////////////////////////////////////////////////
 // Meta
 
 // clang-format off

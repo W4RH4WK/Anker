@@ -100,11 +100,9 @@ struct SamplerDesc {
 enum class TextureFormat {
 	R16G16B16A16_UNORM = 11,
 	R8G8B8A8_UNORM = 28,
-	R8G8B8A8_UNORM_SRGB = 29,
 	D32_FLOAT = 40,
 	R8_UNORM = 61,
 	BC7_UNORM = 98,
-	BC7_UNORM_SRGB = 99,
 };
 
 enum class TextureFlag {
