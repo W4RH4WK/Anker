@@ -97,6 +97,7 @@ class JsonReader {
 
 	bool isArray() const { return current().IsArray(); }
 	bool isObject() const { return current().IsObject(); }
+	bool hasKey(const char* key) const { return current().HasMember(key); }
 
 	// Navigate to the value of the given key in the current object. Returns
 	// true if the field is present, in which case you have to call popKey when

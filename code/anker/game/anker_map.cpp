@@ -456,13 +456,10 @@ class TmjLoader {
 			// However, our rotation pivot is the object's center.
 			transform.position = rotate(transform.scale / 2.0f, transform.rotation);
 
-			Vec2 objectPosition;
-			m_tmjReader->field("x", objectPosition.x);
-			m_tmjReader->field("y", objectPosition.y);
-			objectPosition /= 256.0f;  // pixel -> meter
-			objectPosition.y *= -1.0f; // flip Y axis
-
-			transform.position += objectPosition;
+			Vec2 offset;
+			m_tmjReader->field("x", offset.x);
+			m_tmjReader->field("y", offset.y);
+			transform.position += convertCoordinates(offset);
 
 			TileId tile = 0;
 			m_tmjReader->field("gid", tile);
@@ -498,13 +495,43 @@ class TmjLoader {
 	Status loadCollisionLayer()
 	{
 		m_tmjReader->forEach("objects", [&](uint32_t) {
+			if (m_tmjReader->hasKey("ellipse")) {
+				ANKER_WARN("{}: Ellipse collider not supported", m_tmjIdentifier);
+				return;
+			}
+			if (m_tmjReader->hasKey("point")) {
+				ANKER_WARN("{}: Point collider not supported", m_tmjIdentifier);
+				return;
+			}
+			if (float rotation; m_tmjReader->field("rotation", rotation) && rotation != 0) {
+				ANKER_WARN("{}: Collider rotation not supported", m_tmjIdentifier);
+				return;
+			}
+
+			std::vector<b2Vec2> vertices;
+			if (m_tmjReader->hasKey("polygon")) {
+				m_tmjReader->forEach("polygon", [&](uint32_t) {
+					Vec2 vertex;
+					m_tmjReader->field("x", vertex.x);
+					m_tmjReader->field("y", vertex.y);
+					vertices.push_back(convertCoordinates(vertex));
+				});
+			} else {
+				Vec2 boxSize;
+				m_tmjReader->field("width", boxSize.x);
+				m_tmjReader->field("height", boxSize.y);
+				vertices.push_back(convertCoordinates({0, 0}));
+				vertices.push_back(convertCoordinates({0, boxSize.y}));
+				vertices.push_back(convertCoordinates({boxSize.x, boxSize.y}));
+				vertices.push_back(convertCoordinates({boxSize.x, 0}));
+			}
+
 			auto entity = m_scene.createEntity("Collider");
 
 			auto& transform = entity.emplace<Transform2D>();
 			m_tmjReader->field("x", transform.position.x);
 			m_tmjReader->field("y", transform.position.y);
-			transform.position /= 256.0f;  // pixel -> meter
-			transform.position.y *= -1.0f; // flip Y axis
+			transform.position = convertCoordinates(transform.position);
 
 			auto& physicsBody = entity.emplace<PhysicsBody>();
 
@@ -514,22 +541,9 @@ class TmjLoader {
 
 			physicsBody.body = m_scene.physicsWorld->CreateBody(&bodyDef);
 
-			{
-				std::vector<b2Vec2> points;
-				bool hasPolygon = m_tmjReader->forEach("polygon", [&](uint32_t) {
-					Vec2 point;
-					m_tmjReader->field("x", point.x);
-					m_tmjReader->field("y", point.y);
-					point /= 256.0f;  // pixel -> meter
-					point.y *= -1.0f; // flip Y axis
-					points.push_back(point);
-				});
-				if (hasPolygon) {
-					b2ChainShape chain;
-					chain.CreateLoop(points.data(), int32(points.size()));
-					physicsBody.body->CreateFixture(&chain, 0);
-				}
-			}
+			b2ChainShape chain;
+			chain.CreateLoop(vertices.data(), int32(vertices.size()));
+			physicsBody.body->CreateFixture(&chain, 0);
 		});
 
 		return OK;
@@ -537,13 +551,20 @@ class TmjLoader {
 
 	// Given a global id (without flip bits), this function returns the index of
 	// the corresponding Tileset.
-	uint32_t findTilesetIndex(uint32_t gid)
+	uint32_t findTilesetIndex(uint32_t gid) const
 	{
 		auto iter = std::ranges::find_if(m_tilesets, [=](auto& tileset) { return gid >= tileset.firstTileId; });
 		return uint32_t(std::distance(m_tilesets.begin(), iter));
 	}
 
-	Vec2 calcParallax()
+	Vec2 convertCoordinates(Vec2 v) const
+	{
+		v /= 256.0f;  // pixel -> meter
+		v.y *= -1.0f; // flip Y axis
+		return v;
+	}
+
+	Vec2 calcParallax() const
 	{
 		return std::accumulate(m_parallaxStack.begin(), m_parallaxStack.end(), Vec2(1), std::multiplies());
 	}
