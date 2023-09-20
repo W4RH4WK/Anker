@@ -11,6 +11,8 @@ ImguiSystem::ImguiSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevi
 	ImGui::CreateContext();
 	Platform::imguiImplInit();
 	renderDevice.imguiImplInit();
+
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
 ImguiSystem::~ImguiSystem()
@@ -25,6 +27,8 @@ void ImguiSystem::newFrame()
 	Platform::imguiImplNewFrame();
 	m_renderDevice.imguiImplNewFrame();
 	ImGui::NewFrame();
+
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 }
 
 void ImguiSystem::draw()
