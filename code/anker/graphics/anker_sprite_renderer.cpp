@@ -2,7 +2,7 @@
 
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_scene.hpp>
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/graphics/anker_vertex.hpp>
@@ -59,14 +59,14 @@ void SpriteRenderer::draw(const Scene& scene, RenderLayer layerToRender)
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	for (auto [entity, transform, sprite] : scene.registry.view<Transform2D, Sprite>().each()) {
+	for (auto [entity, node, sprite] : scene.registry.view<SceneNode, Sprite>().each()) {
 		if (sprite.layer != layerToRender || !sprite.texture) {
 			continue;
 		}
 
 		{
 			SpriteRendererConstantBuffer cb = {
-			    .transform = Mat3(transform),
+			    .transform = Mat3(node.globalTransform()),
 			    .color = sprite.color,
 			};
 			if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {

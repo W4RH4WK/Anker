@@ -3,7 +3,7 @@
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_scene.hpp>
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_map_renderer.hpp>
 #include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
@@ -284,12 +284,25 @@ class TmjLoader {
 		    .onCollisionLayer = [&] { return loadCollisionLayer(); },
 		    .onLayerBegin =
 		        [&] {
+			        std::string layerName;
+			        m_tmjReader->field("name", layerName);
+			        if (layerName.empty()) {
+				        layerName = "Map Layer";
+			        }
+
+			        auto entity = m_scene.createEntity(layerName);
+			        m_layerSceneNode = &entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
+
 			        Vec2 parallax = Vec2(1);
 			        m_tmjReader->field("parallaxx", parallax.x);
 			        m_tmjReader->field("parallaxy", parallax.y);
 			        m_parallaxStack.push_back(parallax);
 		        },
-		    .onLayerEnd = [&] { m_parallaxStack.pop_back(); },
+		    .onLayerEnd =
+		        [&] {
+			        m_layerSceneNode = m_layerSceneNode->parent();
+			        m_parallaxStack.pop_back();
+		        },
 		});
 	}
 
@@ -422,8 +435,8 @@ class TmjLoader {
 			};
 			ANKER_TRY(m_assetCache.renderDevice().createBuffer(layer.vertexBuffer, vertices));
 
-			auto entity = m_scene.createEntity("Map: " + layer.name);
-			entity.emplace<Transform2D>();
+			auto entity = m_scene.createEntity(layer.name);
+			entity.emplace<SceneNode>();
 			entity.emplace<MapLayer>(std::move(layer));
 			entity.emplace<Parallax>(calcParallax());
 		}
@@ -436,10 +449,6 @@ class TmjLoader {
 		uint32_t layerId = 0;
 		m_tmjReader->field("id", layerId);
 		ANKER_ASSERT(m_idToRenderLayer.contains(layerId));
-
-		std::string layerName;
-		m_tmjReader->field("name", layerName);
-		ANKER_INFO("Layer: {}", layerName);
 
 		m_tmjReader->forEach("objects", [&](uint32_t) {
 			std::string objectName;
@@ -477,8 +486,8 @@ class TmjLoader {
 
 			const auto& tileset = m_tilesets[findTilesetIndex(gid)];
 
-			auto entity = m_scene.createEntity(fmt::format("Map: {} {}", layerName, objectName));
-			entity.emplace<Transform2D>(transform);
+			auto entity = m_scene.createEntity(objectName);
+			entity.emplace<SceneNode>(transform, m_layerSceneNode);
 			entity.emplace<Sprite>(Sprite{
 			    .layer = m_idToRenderLayer[layerId],
 			    .offset = {-0.5f, -0.5f},
@@ -528,7 +537,10 @@ class TmjLoader {
 
 			auto entity = m_scene.createEntity("Collider");
 
-			auto& transform = entity.emplace<Transform2D>();
+			// Transform is overwritten by physics body.
+			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
+
+			Transform2D transform;
 			m_tmjReader->field("x", transform.position.x);
 			m_tmjReader->field("y", transform.position.y);
 			transform.position = convertCoordinates(transform.position);
@@ -578,6 +590,9 @@ class TmjLoader {
 	std::vector<Tileset> m_tilesets;
 
 	std::unordered_map<uint32_t, RenderLayer> m_idToRenderLayer;
+
+	// While traversing the tree of layers we build a corresponding scene graph.
+	SceneNode* m_layerSceneNode = nullptr;
 
 	// While traversing the tree of layers, certain properties are passed on
 	// from parent to child. These are tracked here as explicit stacks.

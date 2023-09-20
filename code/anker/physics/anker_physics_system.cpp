@@ -1,7 +1,7 @@
 #include <anker/physics/anker_physics_system.hpp>
 
 #include <anker/core/anker_scene.hpp>
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
@@ -19,7 +19,8 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 
 	for (auto [entity, body] : scene.registry.view<PhysicsBody>().each()) {
 		if (body.body && body.body->IsAwake()) {
-			scene.registry.emplace_or_replace<Transform2D>(entity, body.transform());
+			auto& node = scene.registry.get_or_emplace<SceneNode>(entity);
+			node.setGlobalTransform(body.globalTransform());
 		}
 	}
 }

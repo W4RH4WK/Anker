@@ -1,11 +1,11 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/platform/anker_platform.hpp>
 
-#include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
@@ -29,14 +29,14 @@ int main()
 	g_engine->activeScene = g_engine->createScene();
 
 	g_engine->activeScene->activeCamera().emplace<EditorCamera>();
-	g_engine->activeScene->activeCamera().get<Transform2D>().position = {10.5f, -14.0f};
+	g_engine->activeScene->activeCamera().get<SceneNode>().setLocalTransform(Transform2D(Vec2{10.5f, -14.0f}));
 	g_engine->activeScene->activeCamera().get<Camera>().distance = 3;
 
 	// auto font = g_engine->assetCache.loadFont("fonts/FTAnchorYard-Regular");
 
 	{
 		auto player = g_engine->activeScene->createEntity("Player");
-		player.emplace<Transform2D>();
+		player.emplace<SceneNode>();
 		player.emplace<PlayerController>();
 		player.emplace<Sprite>(Sprite{
 		    .layer = LayerPlayer,
@@ -68,6 +68,10 @@ int main()
 
 	if (not loadMap(*g_engine->activeScene, "maps/sewers/sewers", g_engine->assetCache)) {
 		ANKER_ERROR("Failed to load map");
+	}
+
+	for (auto [_, node] : g_engine->activeScene->registry.view<SceneNode>().each()) {
+		ANKER_ASSERT(node.validateParentChildLink());
 	}
 
 	while (!Platform::shouldShutdown()) {

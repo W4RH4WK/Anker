@@ -5,7 +5,6 @@
 
 namespace Anker {
 
-struct Transform;
 class AssetCache;
 
 // Render system used to draw debug gizmos. Gizmos need to be re-added each

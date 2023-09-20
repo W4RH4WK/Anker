@@ -5,7 +5,7 @@
 namespace Anker {
 
 struct PhysicsBody {
-	Transform2D transform() const
+	Transform2D globalTransform() const
 	{
 		if (body) {
 			return body->GetTransform();
@@ -14,7 +14,7 @@ struct PhysicsBody {
 		}
 	}
 
-	void setTransform(const Transform2D& transform)
+	void setGlobalTransform(const Transform2D& transform)
 	{
 		if (body) {
 			body->SetTransform(transform.position, transform.rotation);
@@ -28,6 +28,6 @@ struct PhysicsBody {
 } // namespace Anker
 
 REFL_TYPE(Anker::PhysicsBody)
-REFL_FUNC(transform, property())
-REFL_FUNC(setTransform, property())
+REFL_FUNC(globalTransform, property())
+REFL_FUNC(setGlobalTransform, property())
 REFL_END

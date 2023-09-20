@@ -1,6 +1,6 @@
 #include <anker/core/anker_engine.hpp>
 
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_camera.hpp>
 
 namespace Anker {
@@ -54,10 +54,12 @@ ScenePtr Engine::createScene()
 {
 	auto scene = std::make_unique<Scene>();
 
+	registerSceneNodeCallbacks(scene->registry);
+
 	physicsSystem.addPhysicsWorld(*scene);
 
 	auto camera = scene->createEntity("Camera");
-	camera.emplace<Transform2D>();
+	camera.emplace<SceneNode>();
 	camera.emplace<Camera>();
 	scene->setActiveCamera(camera);
 

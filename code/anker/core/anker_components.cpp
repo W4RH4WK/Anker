@@ -1,7 +1,7 @@
 #include <anker/core/anker_components.hpp>
 
 #include <anker/core/anker_entity_name.hpp>
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
 #include <anker/game/anker_map.hpp>
@@ -37,7 +37,8 @@ constexpr ComponentInfo registerComponent(const char* name, ComponentFlags flags
 }
 
 constexpr std::array Components = {
-    registerComponent<EntityName>("Name", ComponentFlag::HideInInspector), //
+    registerComponent<EntityName>("Name", ComponentFlag::HideInInspector),
+	registerComponent<SceneNode>("SceneNode"),
     registerComponent<Transform2D>("Transform2D"),
     registerComponent<Camera>("Camera"),
     registerComponent<Sprite>("Sprite"),

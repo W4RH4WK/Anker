@@ -1,7 +1,6 @@
 #include <anker/graphics/anker_gizmo_renderer.hpp>
 
 #include <anker/core/anker_asset_cache.hpp>
-#include <anker/core/anker_transform.hpp>
 
 namespace Anker {
 

@@ -4,7 +4,7 @@
 #include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_gizmo_renderer.hpp>
 
@@ -27,8 +27,17 @@ void Inspector::tick(float, Scene& scene)
 
 		ImGui::Separator();
 
+		std::vector<SceneNode*> rootNodes;
 		scene.registry.each([&](EntityID entityID) {
 			EntityHandle entity{scene.registry, entityID};
+
+			// Collect SceneNodes (by roots) so we can draw them later.
+			if (auto* node = entity.try_get<SceneNode>()) {
+				if (!node->hasParent()) {
+					rootNodes.push_back(node);
+				}
+				return;
+			}
 
 			if (ImGui::Selectable(entityLabel(entity).c_str(), m_selectedEntity && m_selectedEntity == entity)) {
 				m_selectedEntity = entity;
@@ -40,6 +49,12 @@ void Inspector::tick(float, Scene& scene)
 				ImGui::EndPopup();
 			}
 		});
+
+		ImGui::Separator();
+
+		for (auto* node : rootNodes) {
+			drawSceneNodeRecursive(node);
+		}
 	}
 	ImGui::EndChild();
 
@@ -65,11 +80,67 @@ void Inspector::tick(float, Scene& scene)
 			drawSelectionGizmo(entity);
 		}
 	}
+
+	for (auto [source, node] : m_reparentList) {
+		source->setParent(node);
+	}
+	m_reparentList.clear();
 }
 
 void Inspector::drawMenuBarEntry()
 {
 	ImGui::ToggleButton("Entities", &m_enabled);
+}
+
+void Inspector::drawSceneNodeRecursive(SceneNode* node)
+{
+	ANKER_ASSERT(node);
+
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+	if (m_selectedEntity && *m_selectedEntity == node->entity()) {
+		flags |= ImGuiTreeNodeFlags_Selected;
+	}
+	if (node->children().empty()) {
+		flags |= ImGuiTreeNodeFlags_Leaf;
+	}
+
+	bool opened = ImGui::TreeNodeEx(entityLabel(node->entity()).c_str(), flags);
+
+	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+		m_selectedEntity = node->entity();
+	}
+
+	if (ImGui::BeginPopupContextItem()) {
+		if (ImGui::MenuItem("Clear Parent")) {
+			node->clearParent();
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Delete")) {
+			node->entity().destroy();
+		}
+		ImGui::EndPopup();
+	}
+
+	if (ImGui::BeginDragDropSource()) {
+		ImGui::SetDragDropPayload("ANKER_SCENENODE", &node, sizeof(node));
+		ImGui::Text("%s", entityDisplayName(node->entity()).c_str());
+		ImGui::EndDragDropSource();
+	}
+
+	if (ImGui::BeginDragDropTarget()) {
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ANKER_SCENENODE")) {
+			SceneNode* source = *static_cast<SceneNode**>(payload->Data);
+			m_reparentList.push_back({source, node});
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (opened) {
+		for (auto* child : node->children()) {
+			drawSceneNodeRecursive(child);
+		}
+		ImGui::TreePop();
+	}
 }
 
 void Inspector::drawNameWidget(EntityHandle entity)
@@ -140,10 +211,14 @@ void Inspector::drawComponentEditor(EntityHandle entity)
 
 void Inspector::drawSelectionGizmo(EntityCHandle entity)
 {
-	if (auto* transform = entity.try_get<Transform2D>()) {
-		g_engine->renderer.gizmoRenderer.addRect(
-		    Rect2(transform->scale, transform->position - transform->scale / 2.0f), //
-		    {0.95f, 0.60f, 0.22f, 1});
+	if (auto* node = entity.try_get<SceneNode>()) {
+		auto transform = node->globalTransform();
+
+		Rect2 rect;
+		rect.size = transform.scale;
+		rect.offset = transform.position - transform.scale / 2.0f;
+
+		g_engine->renderer.gizmoRenderer.addRect(rect, {0.95f, 0.60f, 0.22f, 1});
 	}
 }
 

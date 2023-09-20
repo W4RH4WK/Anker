@@ -1,7 +1,7 @@
 #include <anker/graphics/anker_renderer.hpp>
 
 #include <anker/core/anker_scene.hpp>
-#include <anker/core/anker_transform.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_render_layers.hpp>
 
@@ -60,8 +60,8 @@ void Renderer::draw(const Scene& scene)
 		return;
 	}
 
-	auto [cameraTransform, cameraParams] = camera.try_get<Transform2D, Camera>();
-	if (!cameraTransform || !cameraParams) {
+	auto [cameraNode, cameraParams] = camera.try_get<SceneNode, Camera>();
+	if (!cameraNode || !cameraParams) {
 		ANKER_WARN("Invalid active camera");
 		m_renderDevice.setRenderTarget(m_renderDevice.backBuffer());
 		m_renderDevice.clearRenderTarget(m_renderDevice.backBuffer());
@@ -71,7 +71,7 @@ void Renderer::draw(const Scene& scene)
 	{
 		SceneConstantBuffer sceneCb;
 
-		Mat3 view = Mat3(*cameraTransform);
+		Mat3 view = Mat3(cameraNode->globalTransform());
 		view = scale(view, glm::vec2(cameraParams->distance));
 
 		// Correct for varying aspect ratio. Generally we want to keep the
@@ -84,7 +84,7 @@ void Renderer::draw(const Scene& scene)
 		}
 
 		sceneCb.view = inverse(view);
-		sceneCb.cameraPosition = cameraTransform->position;
+		sceneCb.cameraPosition = cameraNode->globalTransform().position;
 
 		m_renderDevice.fillBuffer(m_sceneConstantBuffer, std::array{sceneCb});
 		m_renderDevice.bindBufferVS(0, m_sceneConstantBuffer);
@@ -115,7 +115,7 @@ void Renderer::draw(const Scene& scene)
 		m_spriteRenderer.draw(scene, layer);
 	}
 
-	//m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
+	// m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
 
 	////////////////////////////////////////////////////////////
 	// Post Processing

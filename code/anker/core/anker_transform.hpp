@@ -61,6 +61,15 @@ inline Vec2 operator*(Vec2 v, const Transform2D& transform)
 	return v;
 }
 
+inline Transform2D operator*(const Transform2D& a, const Transform2D& b)
+{
+	Transform2D result;
+	result.position = a * b.position;
+	result.rotation = a.rotation + b.rotation;
+	result.scale = a.scale * b.scale;
+	return result;
+}
+
 } // namespace Anker
 
 REFL_TYPE(Anker::Transform2D)
