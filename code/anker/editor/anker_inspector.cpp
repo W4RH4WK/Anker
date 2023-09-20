@@ -17,9 +17,6 @@ void Inspector::tick(float, Scene& scene)
 	}
 
 	ImGui::Begin("Inspector", &m_enabled);
-	auto windowSize = ImGui::GetContentRegionAvail();
-
-	ImGui::BeginChild("Entities", {windowSize.x * 0.3f, windowSize.y});
 	{
 		if (ImGui::Button("New Entity")) {
 			m_selectedEntity = scene.createEntity();
@@ -56,24 +53,18 @@ void Inspector::tick(float, Scene& scene)
 			drawSceneNodeRecursive(node);
 		}
 	}
-	ImGui::EndChild();
-
-	ImGui::SameLine();
-
-	ImGui::BeginChild("Entity", {windowSize.x * 0.7f, windowSize.y});
-	{
-		if (m_selectedEntity) {
-			if (auto entity = scene.entityHandle(*m_selectedEntity)) {
-				drawNameWidget(entity);
-				drawAddComponentButton(entity);
-				ImGui::Separator();
-				drawComponentEditor(entity);
-			}
-		}
-	}
-	ImGui::EndChild();
-
 	ImGui::End();
+
+	if (m_selectedEntity) {
+		ImGui::Begin("Entity", &m_enabled);
+		if (auto entity = scene.entityHandle(*m_selectedEntity)) {
+			drawNameWidget(entity);
+			drawAddComponentButton(entity);
+			ImGui::Separator();
+			drawComponentEditor(entity);
+		}
+		ImGui::End();
+	}
 
 	if (m_selectedEntity) {
 		if (auto entity = scene.entityHandle(*m_selectedEntity)) {

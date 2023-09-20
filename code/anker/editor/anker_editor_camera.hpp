@@ -3,7 +3,7 @@
 namespace Anker {
 
 struct EditorCamera {
-	float speed = 0.01f;
+	float speed = 2.5e-3f;
 };
 
 class Scene;
@@ -22,3 +22,7 @@ class EditorCameraSystem {
 };
 
 } // namespace Anker
+
+REFL_TYPE(Anker::EditorCamera)
+REFL_FIELD(speed)
+REFL_END
