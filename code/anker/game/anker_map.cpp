@@ -290,13 +290,21 @@ class TmjLoader {
 				        layerName = "Map Layer";
 			        }
 
+			        Vec2 layerOffset;
+			        m_tmjReader->field("x", layerOffset.x);
+			        m_tmjReader->field("y", layerOffset.y);
+			        layerOffset = convertCoordinates(layerOffset);
+
 			        auto entity = m_scene.createEntity(layerName);
-			        m_layerSceneNode = &entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
+			        m_layerSceneNode = &entity.emplace<SceneNode>(Transform2D(layerOffset), m_layerSceneNode);
 
 			        Vec2 parallax = Vec2(1);
 			        m_tmjReader->field("parallaxx", parallax.x);
 			        m_tmjReader->field("parallaxy", parallax.y);
 			        m_parallaxStack.push_back(parallax);
+					if (parallax != Vec2(1)) {
+						entity.emplace<Parallax>(parallax);
+					}
 		        },
 		    .onLayerEnd =
 		        [&] {
@@ -314,7 +322,6 @@ class TmjLoader {
 
 		std::string name;
 		m_tmjReader->field("name", name);
-		ANKER_INFO("Layer: {}", name);
 
 		std::string encoding, compression;
 		m_tmjReader->field("encoding", encoding);
@@ -438,7 +445,7 @@ class TmjLoader {
 			auto entity = m_scene.createEntity(layer.name);
 			entity.emplace<SceneNode>();
 			entity.emplace<MapLayer>(std::move(layer));
-			entity.emplace<Parallax>(calcParallax());
+			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		}
 
 		return OK;
@@ -495,7 +502,7 @@ class TmjLoader {
 			    .texture = tileset.texture,
 			    .textureRect = tileset.textureCoordinates(gid),
 			});
-			entity.emplace<Parallax>(calcParallax());
+			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		});
 
 		return OK;
