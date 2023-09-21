@@ -31,6 +31,15 @@ function(anker_compile_options target)
 	target_compile_definitions(${target} PUBLIC
 		$<$<BOOL:${WIN32}>:ANKER_PLATFORM_WINDOWS>
 		$<$<BOOL:${UNIX}>:ANKER_PLATFORM_LINUX>)
+
+	get_target_property(target_type ${target} TYPE)
+	if(target_type STREQUAL EXECUTABLE)
+		set_target_properties(${target} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+		target_link_options(${target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/ENTRY:mainCRTStartup>)
+	endif()
+
+	get_target_property(target_srcs ${target} SOURCES)
+	source_group(TREE . FILES ${target_srcs})
 endfunction()
 
 # Include all external dependencies
@@ -43,28 +52,17 @@ file(GLOB_RECURSE anker_srcs CONFIGURE_DEPENDS
 	code/anker/*.cpp
 	code/anker/*.hpp
 	code/anker/*.inc)
-source_group(TREE . FILES ${anker_srcs})
 
-add_executable(anker WIN32 ${anker_srcs})
+add_library(anker OBJECT ${anker_srcs})
 anker_compile_options(anker)
-set_target_properties(anker PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-target_include_directories(anker PRIVATE code)
-target_precompile_headers(anker PRIVATE code/anker/anker_pch.hpp)
-target_link_options(anker PRIVATE /ENTRY:mainCRTStartup)
-target_link_libraries(anker PRIVATE
-	mimalloc
-	fmt
-	cppbase64
-	cppitertools
-	reflcpp
-	stb
-	ddspp
-	glm
-	rapidjson
-	entt
-	imgui
-	glfw
-	box2d
-	tracy)
+target_include_directories(anker PUBLIC code)
+target_precompile_headers(anker PUBLIC code/anker/anker_pch.hpp)
+target_link_libraries(anker PUBLIC
+	mimalloc fmt cppbase64 cppitertools reflcpp stb ddspp glm rapidjson entt
+	imgui glfw box2d tracy)
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT anker)
+add_executable(anker_main WIN32 code/anker_main.cpp)
+anker_compile_options(anker_main)
+target_link_libraries(anker_main PRIVATE anker)
+
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT anker_main)
