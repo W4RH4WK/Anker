@@ -16,9 +16,13 @@ SceneNode::SceneNode(const Transform2D& localTransform, SceneNode* parent) : Sce
 
 SceneNode::~SceneNode()
 {
-	for (auto* child : m_children) {
-		child->entity().destroy();
+	// On component destruction, we forward our children to our parent. Here we
+	// need a copy of m_children as it will be mutated by setParent.
+	for (auto* child : std::vector<SceneNode*>(m_children)) {
+		child->setParent(m_parent);
 	}
+
+	clearParent();
 }
 
 void SceneNode::setParent(SceneNode* newParent)
@@ -27,16 +31,16 @@ void SceneNode::setParent(SceneNode* newParent)
 		return;
 	}
 
+	invalidateCachedParentTransform();
+
 	// Check if the new parent is one of our children. If so, we re-parent that
 	// node to our current parent.
 	for (SceneNode* node = newParent; node; node = node->m_parent) {
 		if (node == this) {
 			newParent->setParent(m_parent);
-			// break; ?
+			break;
 		}
 	}
-
-	invalidateCachedParentTransform();
 
 	// Remove from original parent's children.
 	if (m_parent) {

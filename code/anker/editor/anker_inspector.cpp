@@ -36,7 +36,7 @@ void Inspector::tick(float, Scene& scene)
 				return;
 			}
 
-			if (ImGui::Selectable(entityLabel(entity).c_str(), m_selectedEntity && m_selectedEntity == entity)) {
+			if (ImGui::Selectable(entityLabel(entity).c_str(), m_selectedEntity == entity)) {
 				m_selectedEntity = entity;
 			}
 			if (ImGui::BeginPopupContextItem()) {
@@ -52,30 +52,25 @@ void Inspector::tick(float, Scene& scene)
 		for (auto* node : rootNodes) {
 			drawSceneNodeRecursive(node);
 		}
+		if (m_sceneGraphModification) {
+			m_sceneGraphModification();
+			m_sceneGraphModification = nullptr;
+		}
 	}
 	ImGui::End();
 
-	if (m_selectedEntity) {
-		ImGui::Begin("Entity", &m_enabled);
-		if (auto entity = scene.entityHandle(*m_selectedEntity)) {
+	if (auto entity = scene.entityHandle(m_selectedEntity)) {
+		ImGui::Begin("Entity");
+		{
 			drawNameWidget(entity);
 			drawAddComponentButton(entity);
 			ImGui::Separator();
 			drawComponentEditor(entity);
 		}
 		ImGui::End();
-	}
 
-	if (m_selectedEntity) {
-		if (auto entity = scene.entityHandle(*m_selectedEntity)) {
-			drawSelectionGizmo(entity);
-		}
+		drawSelectionGizmo(entity);
 	}
-
-	for (auto [source, node] : m_reparentList) {
-		source->setParent(node);
-	}
-	m_reparentList.clear();
 }
 
 void Inspector::drawMenuBarEntry()
@@ -83,12 +78,12 @@ void Inspector::drawMenuBarEntry()
 	ImGui::ToggleButton("Entities", &m_enabled);
 }
 
-void Inspector::drawSceneNodeRecursive(SceneNode* node)
+void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 {
 	ANKER_ASSERT(node);
 
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-	if (m_selectedEntity && *m_selectedEntity == node->entity()) {
+	if (m_selectedEntity == node->entity()) {
 		flags |= ImGuiTreeNodeFlags_Selected;
 	}
 	if (node->children().empty()) {
@@ -103,25 +98,27 @@ void Inspector::drawSceneNodeRecursive(SceneNode* node)
 
 	if (ImGui::BeginPopupContextItem()) {
 		if (ImGui::MenuItem("Clear Parent")) {
-			node->clearParent();
+			m_sceneGraphModification = [node] { const_cast<SceneNode*>(node)->clearParent(); };
 		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Delete")) {
-			node->entity().destroy();
+			m_sceneGraphModification = [node] { node->entity().destroy(); };
 		}
 		ImGui::EndPopup();
 	}
 
 	if (ImGui::BeginDragDropSource()) {
-		ImGui::SetDragDropPayload("ANKER_SCENENODE", &node, sizeof(node));
+		ImGui::SetDragDropPayload("Anker_SceneNode", &node, sizeof(node));
 		ImGui::Text("%s", entityDisplayName(node->entity()).c_str());
 		ImGui::EndDragDropSource();
 	}
 
 	if (ImGui::BeginDragDropTarget()) {
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ANKER_SCENENODE")) {
-			SceneNode* source = *static_cast<SceneNode**>(payload->Data);
-			m_reparentList.push_back({source, node});
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Anker_SceneNode")) {
+			auto* source = *static_cast<const SceneNode**>(payload->Data);
+			m_sceneGraphModification = [source, node] {
+				const_cast<SceneNode*>(source)->setParent(const_cast<SceneNode*>(node));
+			};
 		}
 		ImGui::EndDragDropTarget();
 	}

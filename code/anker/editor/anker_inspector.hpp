@@ -18,7 +18,10 @@ class Inspector {
 	void drawMenuBarEntry();
 
   private:
-	void drawSceneNodeRecursive(SceneNode*);
+	// We enforce node pointers to be const as we must not modify the scene
+	// graph during traversal. See m_sceneGraphModification below.
+	void drawSceneNodeRecursive(const SceneNode*);
+
 	void drawNameWidget(EntityHandle entity);
 	void drawAddComponentButton(EntityHandle entity);
 	void drawComponentEditor(EntityHandle);
@@ -27,12 +30,13 @@ class Inspector {
 
 	bool m_enabled = false;
 
-	std::optional<EntityID> m_selectedEntity;
+	EntityID m_selectedEntity = entt::null;
 
-	// The Inspector can be used to re-parent SceneNodes. However, this must not
-	// be done during SceneNode traversal. We record a list of wanted
-	// re-parenting operations and execute them after traversing all SceneNodes.
-	std::vector<std::pair<SceneNode*, SceneNode*>> m_reparentList;
+	// User interaction is processed while traversing the scene graph; however,
+	// we must not modify the scene graph during traversal. We record the
+	// desired operation and execute it after graph traversal. const_cast may be
+	// used here if needed.
+	std::function<void()> m_sceneGraphModification;
 };
 
 } // namespace Anker
