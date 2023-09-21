@@ -342,7 +342,6 @@ class TmjLoader {
 		uint32_t width = 0, height = 0;
 		m_tmjReader->field("width", width);
 		m_tmjReader->field("height", height);
-		ANKER_ASSERT(width != 0 && height != 0);
 
 		// We create one MapLayer for every Tileset here, along with a vertex
 		// storage for each of them.
@@ -479,7 +478,7 @@ class TmjLoader {
 
 			TileId tile = 0;
 			m_tmjReader->field("gid", tile);
-			ANKER_ASSERT(tile != 0);
+			ANKER_ASSERT(tile != 0); // TODO
 
 			// The tile number consists of a global id and flip bits.
 			const TileId gid = tile & ~FlipMask;

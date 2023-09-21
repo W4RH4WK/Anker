@@ -4,6 +4,7 @@
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
+#include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_map.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_parallax.hpp>
@@ -38,11 +39,12 @@ constexpr ComponentInfo registerComponent(const char* name, ComponentFlags flags
 
 constexpr std::array Components = {
     registerComponent<EntityName>("Name", ComponentFlag::HideInInspector),
-	registerComponent<SceneNode>("SceneNode"),
+    registerComponent<SceneNode>("SceneNode"),
     registerComponent<Transform2D>("Transform2D"),
     registerComponent<Camera>("Camera"),
     registerComponent<Sprite>("Sprite"),
     registerComponent<PhysicsBody>("PhysicsBody"),
+    registerComponent<Follower>("Follower"),
     registerComponent<EditorCamera>("EditorCamera"),
     registerComponent<MapLayer>("MapLayer"),
     registerComponent<Parallax>("Parallax"),

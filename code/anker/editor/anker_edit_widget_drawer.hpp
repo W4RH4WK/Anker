@@ -124,6 +124,17 @@ class EditWidgetDrawer {
 		return changed;
 	}
 
+	bool field(const char* name, EntityID& entity)
+	{
+		uint32_t value = entt::to_integral(entity);
+		if (ImGui::InputScalar(name, ImGuiDataType_U32, &value)) {
+			entity = EntityID(value);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	template <typename EnumType>
 	bool field(const char* name, EnumType& value) requires std::is_enum_v<EnumType>
 	{

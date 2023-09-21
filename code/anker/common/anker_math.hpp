@@ -19,6 +19,41 @@ inline constexpr auto operator/(std::floating_point auto value, DegreesTag)
 	return value * static_cast<decltype(value)>(57.295779513082320876798154814105);
 }
 
+template <typename T>
+T clamp(T value, T min, T max)
+{
+	if (value < min) {
+		return min;
+	} else if (value > max) {
+		return max;
+	} else {
+		return value;
+	}
+}
+
+template <typename T>
+T clamp01(T value)
+{
+	return clamp(value, T(0), T(1));
+}
+
+////////////////////////////////////////////////////////////
+// Interpolation
+
+inline float interpolate(float current, float target, float deltaTime, float speed, float epsilon = 1e-4f)
+{
+	if (speed <= 0) {
+		return target;
+	}
+
+	auto error = target - current;
+	if (error <= epsilon) {
+		return target;
+	}
+
+	return current + error * clamp01(deltaTime * speed);
+}
+
 ////////////////////////////////////////////////////////////
 // Vector 2D
 

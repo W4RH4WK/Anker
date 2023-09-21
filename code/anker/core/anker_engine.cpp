@@ -42,6 +42,7 @@ void Engine::tick()
 	// ImGui::ShowDemoWindow();
 
 	playerControllerSystem.tick(dt, *activeScene);
+	followerSystem.tick(dt, *activeScene);
 
 	physicsSystem.tick(dt, *activeScene);
 
