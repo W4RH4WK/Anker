@@ -2,32 +2,14 @@ cmake_minimum_required(VERSION 3.25)
 cmake_policy(SET CMP0091 NEW) # MSVC_RUNTIME_LIBRARY
 
 project(anker LANGUAGES C CXX)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CONFIGURATION_TYPES Debug;Release)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # CMake usually adds a pragma system_header to the precompiled header. We don't
 # want that as we suppresses warnings from system headers.
 set(CMAKE_PCH_PROLOGUE "")
-
-add_subdirectory(external/mimalloc)
-add_subdirectory(external/fmt)
-add_subdirectory(external/cppbase64)
-add_subdirectory(external/cppitertools)
-add_subdirectory(external/reflcpp)
-add_subdirectory(external/stb)
-add_subdirectory(external/ddspp)
-add_subdirectory(external/glm)
-add_subdirectory(external/rapidjson)
-add_subdirectory(external/entt)
-# add_subdirectory(external/lua)
-# add_subdirectory(external/sol2)
-# add_subdirectory(external/lrdb)
-add_subdirectory(external/imgui)
-add_subdirectory(external/glfw)
-add_subdirectory(external/box2d)
-add_subdirectory(external/tracy)
 
 function(anker_compile_options target)
 	set_target_properties(${target} PROPERTIES
@@ -50,6 +32,12 @@ function(anker_compile_options target)
 		$<$<BOOL:${WIN32}>:ANKER_PLATFORM_WINDOWS>
 		$<$<BOOL:${UNIX}>:ANKER_PLATFORM_LINUX>)
 endfunction()
+
+# Include all external dependencies
+file(GLOB externals CONFIGURE_DEPENDS LIST_DIRECTORIES TRUE external/*)
+foreach(external ${externals})
+	add_subdirectory(${external})
+endforeach()
 
 file(GLOB_RECURSE anker_srcs CONFIGURE_DEPENDS
 	code/anker/*.cpp
@@ -74,9 +62,6 @@ target_link_libraries(anker PRIVATE
 	glm
 	rapidjson
 	entt
-	# lualib
-	# sol2
-	# lrdb
 	imgui
 	glfw
 	box2d
