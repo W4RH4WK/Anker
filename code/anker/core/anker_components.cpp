@@ -6,12 +6,19 @@
 #include <anker/editor/anker_editor_camera.hpp>
 #include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_map.hpp>
+#include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
+
+template <typename Component>
+concept HasTickFn = requires(Scene & s)
+{
+	{Component::tick(float(), s)};
+};
 
 template <typename Component>
 constexpr ComponentInfo registerComponent(const char* name, ComponentFlags flags = ComponentFlag::None)
@@ -23,10 +30,14 @@ constexpr ComponentInfo registerComponent(const char* name, ComponentFlags flags
 
 	    .addTo = [](EntityHandle entity) { entity.emplace<Component>(); },
 	    .removeFrom = [](EntityHandle entity) { entity.remove<Component>(); },
-	    .isPresentIn = [](EntityCHandle entity) -> bool { return entity.try_get<Component>(); },
+	    .isPresentIn = [](EntityCHandle entity) { return entity.all_of<Component>(); },
 	};
 
-	if constexpr (Serializable<EditWidgetDrawer, Component>) {
+	if constexpr (HasTickFn<Component>) {
+		info.tick = [](float dt, Scene& scene) { Component::tick(dt, scene); };
+	}
+
+	if constexpr (Serializable<EditWidgetDrawer, Component> && !std::is_empty_v<Component>) {
 		info.drawEditWidget = [](EditWidgetDrawer& draw, EntityHandle entity) {
 			if (auto* component = entity.try_get<Component>()) {
 				draw(*component);
@@ -44,6 +55,7 @@ constexpr std::array Components = {
     registerComponent<Camera>("Camera"),
     registerComponent<Sprite>("Sprite"),
     registerComponent<PhysicsBody>("PhysicsBody"),
+    registerComponent<PlayerController>("PlayerController"),
     registerComponent<Follower>("Follower"),
     registerComponent<EditorCamera>("EditorCamera"),
     registerComponent<MapLayer>("MapLayer"),

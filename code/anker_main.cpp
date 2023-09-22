@@ -2,13 +2,13 @@
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_scene_node.hpp>
+#include <anker/editor/anker_editor_camera.hpp>
+#include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
-#include <anker/platform/anker_platform.hpp>
-
-#include <anker/editor/anker_editor_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
+#include <anker/platform/anker_platform.hpp>
 
 using namespace Anker;
 
@@ -28,7 +28,7 @@ int main()
 
 	g_engine->activeScene = g_engine->createScene();
 
-	g_engine->activeScene->activeCamera().emplace<EditorCamera>();
+	// g_engine->activeScene->activeCamera().emplace<EditorCamera>();
 	g_engine->activeScene->activeCamera().get<SceneNode>().setLocalTransform(Transform2D(Vec2{10.5f, -14.0f}));
 	g_engine->activeScene->activeCamera().get<Camera>().distance = 3;
 
@@ -44,6 +44,8 @@ int main()
 		    .pixelToMeter = 512,
 		    .texture = g_engine->assetCache.loadTexture("textures/player"),
 		});
+
+		g_engine->activeScene->activeCamera().emplace<Follower>(player);
 
 		auto& physicsBody = player.emplace<PhysicsBody>();
 

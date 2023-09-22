@@ -1,5 +1,6 @@
 #include <anker/core/anker_engine.hpp>
 
+#include <anker/core/anker_components.hpp>
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_camera.hpp>
 
@@ -12,7 +13,6 @@ Engine::Engine()
       inputSystem(imguiSystem),
       assetCache(renderDevice, fontSystem),
       renderer(renderDevice, assetCache),
-      playerControllerSystem(inputSystem),
       physicsSystem(renderer.gizmoRenderer)
 {
 	ANKER_INFO("Anker Initialized!");
@@ -41,8 +41,11 @@ void Engine::tick()
 
 	// ImGui::ShowDemoWindow();
 
-	playerControllerSystem.tick(dt, *activeScene);
-	followerSystem.tick(dt, *activeScene);
+	for (auto& componentInfo : components()) {
+		if (componentInfo.tick) {
+			componentInfo.tick(dt, *activeScene);
+		}
+	}
 
 	physicsSystem.tick(dt, *activeScene);
 

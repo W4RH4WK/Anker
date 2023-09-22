@@ -5,8 +5,6 @@
 #include <anker/core/anker_imgui_system.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/editor/anker_editor_framework.hpp>
-#include <anker/game/anker_follower.hpp>
-#include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_font_system.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_renderer.hpp>
@@ -46,9 +44,6 @@ class Engine {
 
 	AssetCache assetCache;
 	Renderer renderer;
-
-	PlayerControllerSystem playerControllerSystem;
-	FollowerSystem followerSystem;
 
 	PhysicsSystem physicsSystem;
 

@@ -2,6 +2,7 @@
 
 namespace Anker {
 
+class Scene;
 class EditWidgetDrawer;
 
 enum class ComponentFlag {
@@ -14,6 +15,8 @@ struct ComponentInfo {
 	const char* name = nullptr;
 	entt::id_type id = 0;
 	ComponentFlags flags;
+
+	void (*tick)(float, Scene&);
 
 	void (*addTo)(EntityHandle);
 	void (*removeFrom)(EntityHandle);

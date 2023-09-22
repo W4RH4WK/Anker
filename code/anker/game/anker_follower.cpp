@@ -5,7 +5,7 @@
 
 namespace Anker {
 
-void FollowerSystem::tick(float dt, Scene& scene)
+void Follower::tick(float dt, Scene& scene)
 {
 	for (auto [_, node, follower] : scene.registry.view<SceneNode, Follower>().each()) {
 		auto* targetNode = scene.entityHandle(follower.target).try_get<SceneNode>();
