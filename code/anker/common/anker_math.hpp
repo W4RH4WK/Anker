@@ -4,23 +4,11 @@
 
 namespace Anker {
 
-// Degree converts floats and doubles between degrees and radians. Use * to
-// convert to radians (read as "value in degrees"). Use / to convert to degrees
-// (read as "value to degrees"). All angles are typically stored in radians.
-// Degrees are commonly used for UI and when hard-coding values.
-struct DegreesTag {};
-constexpr DegreesTag Degrees;
-inline constexpr auto operator*(std::floating_point auto value, DegreesTag)
-{
-	return value * static_cast<decltype(value)>(0.01745329251994329576923690768489);
-}
-inline constexpr auto operator/(std::floating_point auto value, DegreesTag)
-{
-	return value * static_cast<decltype(value)>(57.295779513082320876798154814105);
-}
+////////////////////////////////////////////////////////////
+// Common Operators
 
 template <typename T>
-T clamp(T value, T min, T max)
+constexpr T clamp(T value, T min, T max)
 {
 	if (value < min) {
 		return min;
@@ -32,26 +20,60 @@ T clamp(T value, T min, T max)
 }
 
 template <typename T>
-T clamp01(T value)
+constexpr T clamp01(T value)
 {
 	return clamp(value, T(0), T(1));
+}
+
+template <typename T>
+constexpr T lerp(T t, T start, T end)
+{
+	return start + (end - start) * t;
+}
+
+template <typename T>
+constexpr T lerp01(T t)
+{
+	return lerp(t, T(0), T(1));
+}
+
+template <typename T>
+constexpr T inverseLerp(T value, T start, T end)
+{
+	return (value - start) / (end - start);
 }
 
 ////////////////////////////////////////////////////////////
 // Interpolation
 
-inline float interpolate(float current, float target, float deltaTime, float speed, float epsilon = 1e-4f)
+// Interpolates from current to target non-linearly, ease-out.
+template <typename T>
+constexpr T interpolate(T current, T target, float deltaTime, T speed, T epsilon = T(1e-6))
 {
-	if (speed <= 0) {
+	if (speed <= T(0)) {
 		return target;
 	}
-
-	auto error = target - current;
-	if (error <= epsilon) {
+	auto distance = target - current;
+	if (distance * distance <= epsilon) {
 		return target;
 	}
+	return current + distance * clamp01(deltaTime * speed);
+}
 
-	return current + error * clamp01(deltaTime * speed);
+////////////////////////////////////////////////////////////
+// Angel Conversion
+
+struct Deg2RadTag {};
+constexpr Deg2RadTag Deg2Rad;
+inline constexpr auto operator*(std::floating_point auto value, Deg2RadTag)
+{
+	return value * static_cast<decltype(value)>(0.01745329251994329576923690768489);
+}
+struct Rad2DegTag {};
+constexpr Rad2DegTag Rad2Deg;
+inline constexpr auto operator*(std::floating_point auto value, Rad2DegTag)
+{
+	return value * static_cast<decltype(value)>(57.295779513082320876798154814105);
 }
 
 ////////////////////////////////////////////////////////////
@@ -85,6 +107,15 @@ struct Vec2T {
 
 	constexpr double ratio() const { return double(x) / double(y); }
 
+	constexpr Vec2T& rotate(T angle) { return *this = glm::rotate(glm::vec<2, T>(*this), angle); }
+
+	constexpr Vec2T& interpolate(Vec2T target, float deltaTime, Vec2T speed, T epsilon = T(1e-6))
+	{
+		x = Anker::interpolate(x, target.x, deltaTime, speed.x, epsilon);
+		y = Anker::interpolate(y, target.y, deltaTime, speed.y, epsilon);
+		return *this;
+	}
+
 	friend constexpr auto operator<=>(Vec2T, Vec2T) = default;
 
 	T x = 0;
@@ -113,12 +144,6 @@ template <typename T>
 const Vec2T<T> Vec2T<T>::WorldLeft{-1, 0};
 template <typename T>
 const Vec2T<T> Vec2T<T>::WorldRight{1, 0};
-
-template <typename T>
-constexpr Vec2T<T> rotate(Vec2T<T> v, T angle)
-{
-	return glm::rotate(glm::vec<2, T>(v), angle);
-}
 
 template <typename T>
 constexpr Vec2T<T>& operator+=(Vec2T<T>& a, Vec2T<T> b)
@@ -222,6 +247,14 @@ struct Vec3T {
 
 	constexpr double length() const { return glm::length(glm::vec<3, T>(*this)); }
 	constexpr double lengthSquared() const { return glm::length2(glm::vec<3, T>(*this)); }
+
+	constexpr Vec3T& interpolate(Vec3T target, float deltaTime, Vec3T speed, T epsilon = T(1e-6))
+	{
+		x = Anker::interpolate(x, target.x, deltaTime, speed.x, epsilon);
+		y = Anker::interpolate(y, target.y, deltaTime, speed.y, epsilon);
+		z = Anker::interpolate(z, target.z, deltaTime, speed.z, epsilon);
+		return *this;
+	}
 
 	friend constexpr auto operator<=>(Vec3T, Vec3T) = default;
 
@@ -350,6 +383,15 @@ struct Vec4T {
 
 	constexpr double length() const { return glm::length(glm::vec<4, T>(*this)); }
 	constexpr double lengthSquared() const { return glm::length2(glm::vec<4, T>(*this)); }
+
+	constexpr Vec4T& interpolate(Vec4T target, float deltaTime, Vec4T speed, T epsilon = T(1e-6))
+	{
+		x = Anker::interpolate(x, target.x, deltaTime, speed.x, epsilon);
+		y = Anker::interpolate(y, target.y, deltaTime, speed.y, epsilon);
+		z = Anker::interpolate(z, target.z, deltaTime, speed.z, epsilon);
+		w = Anker::interpolate(w, target.w, deltaTime, speed.w, epsilon);
+		return *this;
+	}
 
 	friend constexpr auto operator<=>(Vec4T, Vec4T) = default;
 
@@ -572,6 +614,29 @@ struct fmt::formatter<Anker::Vec3T<T>> : formatter<T> {
 		out = fmt::format_to(out, ", ");
 		ctx.advance_to(out);
 		out = formatter<T>::format(vec.z, ctx);
+		*out = ')';
+		return out;
+	}
+};
+
+template <typename T>
+struct fmt::formatter<Anker::Vec4T<T>> : formatter<T> {
+	template <typename FormatContext>
+	auto format(const Anker::Vec4T<T>& vec, FormatContext& ctx)
+	{
+		auto out = ctx.out();
+		*out = '(';
+		ctx.advance_to(out);
+		out = formatter<T>::format(vec.x, ctx);
+		out = fmt::format_to(out, ", ");
+		ctx.advance_to(out);
+		out = formatter<T>::format(vec.y, ctx);
+		out = fmt::format_to(out, ", ");
+		ctx.advance_to(out);
+		out = formatter<T>::format(vec.z, ctx);
+		out = fmt::format_to(out, ", ");
+		ctx.advance_to(out);
+		out = formatter<T>::format(vec.w, ctx);
 		*out = ')';
 		return out;
 	}

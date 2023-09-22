@@ -302,9 +302,9 @@ class TmjLoader {
 			        m_tmjReader->field("parallaxx", parallax.x);
 			        m_tmjReader->field("parallaxy", parallax.y);
 			        m_parallaxStack.push_back(parallax);
-					if (parallax != Vec2(1)) {
-						entity.emplace<Parallax>(parallax);
-					}
+			        if (parallax != Vec2(1)) {
+				        entity.emplace<Parallax>(parallax);
+			        }
 		        },
 		    .onLayerEnd =
 		        [&] {
@@ -462,14 +462,15 @@ class TmjLoader {
 
 			Transform2D transform;
 			m_tmjReader->field("rotation", transform.rotation);
-			transform.rotation = -transform.rotation * Degrees;
+			transform.rotation = -transform.rotation * Deg2Rad;
 			m_tmjReader->field("width", transform.scale.x);
 			m_tmjReader->field("height", transform.scale.y);
 			transform.scale /= 256.0f; // pixel -> meter
 
 			// Rotation pivot in Tiled is the bottom left corner of an object.
 			// However, our rotation pivot is the object's center.
-			transform.position = rotate(transform.scale / 2.0f, transform.rotation);
+			transform.position = transform.scale / 2.0f;
+			transform.position.rotate(transform.rotation);
 
 			Vec2 offset;
 			m_tmjReader->field("x", offset.x);

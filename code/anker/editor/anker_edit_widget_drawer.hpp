@@ -61,7 +61,7 @@ class EditWidgetDrawer {
 	{
 		float valueCopy = value;
 		if constexpr (has_attribute<attr::Radians>(member)) {
-			valueCopy = valueCopy / Degrees;
+			valueCopy = valueCopy * Rad2Deg;
 		}
 
 		bool changed = false;
@@ -74,7 +74,7 @@ class EditWidgetDrawer {
 
 		if (changed) {
 			if constexpr (has_attribute<attr::Radians>(member)) {
-				valueCopy = valueCopy * Degrees;
+				valueCopy = valueCopy * Deg2Rad;
 			}
 			value = valueCopy;
 		}
