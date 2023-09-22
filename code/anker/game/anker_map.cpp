@@ -29,7 +29,9 @@ constexpr TileId FlipMask = FlipHorizontal | FlipVertical | FlipDiagonal;
 // another map.
 class TmjLoader {
   public:
-	TmjLoader(Scene& scene, AssetCache& assetCache) : m_scene(scene), m_assetCache(assetCache) {}
+	TmjLoader(Scene& scene, AssetCache& assetCache)
+	    : m_scene(scene), m_assetCache(assetCache), m_layerSceneNode(&scene.createEntity("Map").emplace<SceneNode>())
+	{}
 
 	TmjLoader(const TmjLoader&) = delete;
 	TmjLoader& operator=(const TmjLoader&) = delete;
@@ -442,7 +444,7 @@ class TmjLoader {
 			ANKER_TRY(m_assetCache.renderDevice().createBuffer(layer.vertexBuffer, vertices));
 
 			auto entity = m_scene.createEntity(layer.name);
-			entity.emplace<SceneNode>();
+			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
 			entity.emplace<MapLayer>(std::move(layer));
 			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		}
