@@ -1,13 +1,13 @@
 #pragma once
 
 #include <anker/graphics/anker_render_device.hpp>
-#include <anker/graphics/anker_render_layers.hpp>
 #include <anker/graphics/anker_vertex.hpp>
 
 namespace Anker {
 
 class AssetCache;
 class Scene;
+class SceneNode;
 
 class MapRenderer {
   public:
@@ -17,9 +17,7 @@ class MapRenderer {
 	MapRenderer(MapRenderer&&) noexcept = delete;
 	MapRenderer& operator=(MapRenderer&&) noexcept = delete;
 
-	void collectRenderLayers(const Scene&, std::insert_iterator<std::set<RenderLayer>>);
-
-	void draw(const Scene&, RenderLayer);
+	void draw(const Scene&, const SceneNode*);
 
 	using Vertex = Vertex2D;
 

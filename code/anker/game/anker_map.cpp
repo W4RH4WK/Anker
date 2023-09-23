@@ -51,7 +51,6 @@ class TmjLoader {
 		ANKER_TRY(m_tmjReader.parse(tmjData, filepath));
 
 		ANKER_TRY(loadTilesets());
-		ANKER_TRY(buildIdToRenderLayerMapping());
 		ANKER_TRY(loadLayers());
 
 		return Ok;
@@ -215,69 +214,6 @@ class TmjLoader {
 	}
 
 	////////////////////////////////////////////////////////////
-	// ID to RenderLayer mapping
-	//
-	// While the layers inside the .tmj are organized from back to front, we
-	// still need more control over the depth (i.e. draw-order) for each layer.
-	// Here, we visit all layers to record each layer's id and also find the
-	// 'Main' layer.
-	//
-	// The 'Main' layer will map to the default RenderLayer. All layers before
-	// the 'Main' layer are considered background layers, while the ones after
-	// are considered foreground layers. Finally, we compose a mapping from the
-	// layer's id to the wanted RenderLayer.
-
-	Status buildIdToRenderLayerMapping()
-	{
-		std::vector<uint32_t> ids;
-
-		std::optional<uint32_t> mainLayerIndex;
-
-		auto gatherIds = [&] {
-			uint32_t id = 0;
-			std::string name;
-			bool formatOk = m_tmjReader.field("id", id) //
-			             && m_tmjReader.field("name", name);
-			if (!formatOk) {
-				ANKER_ERROR("{}: Missing layer id or name", m_tmjIdentifier);
-				return FormatError;
-			}
-
-			if (name == "Main") {
-				mainLayerIndex = uint32_t(ids.size());
-			}
-
-			ids.push_back(id);
-
-			return Ok;
-		};
-
-		ANKER_TRY(visitLayers({
-		    .onTileLayer = gatherIds,
-		    .onObjectLayer = gatherIds,
-		    .onCollisionLayer = gatherIds,
-		}));
-
-		if (!mainLayerIndex) {
-			ANKER_ERROR("{}: No layer named 'Main'", m_tmjIdentifier);
-			return FormatError;
-		}
-
-		for (auto [index, id] : iter::enumerate(ids)) {
-			int32_t offset = LayerDefault;
-			if (index < *mainLayerIndex) {
-				offset = LayerMapBackgroundEnd;
-			} else if (index > *mainLayerIndex) {
-				offset = LayerMapForegroundStart;
-			}
-
-			m_idToRenderLayer[id] = int32_t(index) - int32_t(*mainLayerIndex) + offset;
-		}
-
-		return Ok;
-	}
-
-	////////////////////////////////////////////////////////////
 
 	Status loadLayers()
 	{
@@ -319,10 +255,6 @@ class TmjLoader {
 
 	Status loadTileLayer()
 	{
-		uint32_t id = 0;
-		m_tmjReader.field("id", id);
-		ANKER_ASSERT(m_idToRenderLayer.contains(id));
-
 		std::string name;
 		m_tmjReader.field("name", name);
 
@@ -355,7 +287,6 @@ class TmjLoader {
 		for (auto [i, layer] : iter::enumerate(mapLayers)) {
 			layer = {
 			    .name = fmt::format("{} (Tileset {})", name, i),
-			    .layer = m_idToRenderLayer[id],
 			    .texture = m_tilesets[i].texture,
 			};
 		}
@@ -455,10 +386,6 @@ class TmjLoader {
 
 	Status loadObjectLayer()
 	{
-		uint32_t layerId = 0;
-		m_tmjReader.field("id", layerId);
-		ANKER_ASSERT(m_idToRenderLayer.contains(layerId));
-
 		m_tmjReader.forEach("objects", [&](uint32_t) {
 			std::string objectName;
 			m_tmjReader.field("name", objectName);
@@ -499,7 +426,6 @@ class TmjLoader {
 			auto entity = m_scene.createEntity(objectName);
 			entity.emplace<SceneNode>(transform, m_layerSceneNode);
 			entity.emplace<Sprite>(Sprite{
-			    .layer = m_idToRenderLayer[layerId],
 			    .offset = {-0.5f, -0.5f},
 			    .pixelToMeter = 256.0f, // TODO
 			    .texture = tileset.texture,
@@ -598,8 +524,6 @@ class TmjLoader {
 	JsonReader m_tmjReader;
 
 	std::vector<Tileset> m_tilesets;
-
-	std::unordered_map<uint32_t, RenderLayer> m_idToRenderLayer;
 
 	// While traversing the tree of layers we build a corresponding scene graph.
 	SceneNode* m_layerSceneNode = nullptr;

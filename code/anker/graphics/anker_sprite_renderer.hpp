@@ -2,12 +2,12 @@
 
 #include <anker/core/anker_asset.hpp>
 #include <anker/graphics/anker_render_device.hpp>
-#include <anker/graphics/anker_render_layers.hpp>
 
 namespace Anker {
 
 class AssetCache;
 class Scene;
+class SceneNode;
 
 class SpriteRenderer {
   public:
@@ -17,9 +17,7 @@ class SpriteRenderer {
 	SpriteRenderer(SpriteRenderer&&) noexcept = delete;
 	SpriteRenderer& operator=(SpriteRenderer&&) noexcept = delete;
 
-	void collectRenderLayers(const Scene&, std::insert_iterator<std::set<RenderLayer>>);
-
-	void draw(const Scene&, RenderLayer);
+	void draw(const Scene&, const SceneNode*);
 
   private:
 	RenderDevice& m_renderDevice;

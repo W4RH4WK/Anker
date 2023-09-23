@@ -39,7 +39,6 @@ int main()
 		player.emplace<SceneNode>();
 		player.emplace<PlayerController>();
 		player.emplace<Sprite>(Sprite{
-		    .layer = LayerPlayer,
 		    .offset = {-0.5f, -0.5f},
 		    .pixelToMeter = 512,
 		    .texture = g_engine->assetCache.loadTexture("textures/player"),

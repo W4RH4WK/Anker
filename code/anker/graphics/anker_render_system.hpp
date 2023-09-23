@@ -11,6 +11,7 @@ namespace Anker {
 
 class AssetCache;
 class Scene;
+class SceneNode;
 
 class RenderSystem {
   public:
@@ -27,6 +28,8 @@ class RenderSystem {
 	GizmoRenderer gizmoRenderer;
 
   private:
+	void drawSceneNodeRecursive(const Scene&, const SceneNode*);
+
 	RenderDevice& m_renderDevice;
 
 	MapRenderer m_mapRenderer;

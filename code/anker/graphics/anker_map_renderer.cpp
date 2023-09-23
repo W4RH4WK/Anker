@@ -1,7 +1,9 @@
 #include <anker/graphics/anker_map_renderer.hpp>
 
 #include <anker/core/anker_asset_cache.hpp>
+#include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
+#include <anker/core/anker_scene_node.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/game/anker_map.hpp>
 #include <anker/graphics/anker_parallax.hpp>
@@ -33,49 +35,35 @@ MapRenderer::MapRenderer(RenderDevice& renderDevice, AssetCache& assetCache) : m
 	m_pixelShader = assetCache.loadPixelShader("shaders/map.ps");
 }
 
-void MapRenderer::collectRenderLayers(const Scene& scene, std::insert_iterator<std::set<RenderLayer>> inserter)
-{
-	for (auto [_, layer] : scene.registry.view<MapLayer>().each()) {
-		inserter = layer.layer;
-	}
-}
-
-void MapRenderer::draw(const Scene& scene, RenderLayer layerToRender)
+void MapRenderer::draw(const Scene&, const SceneNode* node)
 {
 	ANKER_PROFILE_ZONE();
+
+	auto* layer = node->entity().try_get<MapLayer>();
+	if (!layer) {
+		ANKER_ERROR("{}: Missing MapLayer component!", entityDisplayName(node->entity()));
+		return;
+	}
 
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	for (auto [entity, layer] : scene.registry.view<MapLayer>().each()) {
-		if (layer.layer != layerToRender) {
-			continue;
+	{
+		MapRendererConstantBuffer cb = {
+		    .transform = Mat3(node->globalTransform()),
+		    .color = layer->color,
+		};
+		if (auto* parallax = node->entity().try_get<Parallax>()) {
+			cb.parallax = parallax->factor;
 		}
-
-		if (layer.vertexCount == 0 || !layer.texture) {
-			continue;
-		}
-
-		{
-			auto* cb = m_renderDevice.mapBuffer<MapRendererConstantBuffer>(m_constantBuffer);
-			*cb = {
-			    .color = layer.color,
-			};
-			if (auto* transform = scene.registry.try_get<Transform2D>(entity)) {
-				cb->transform = Mat3(*transform);
-			}
-			if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {
-				cb->parallax = parallax->factor;
-			}
-			m_renderDevice.unmapBuffer(m_constantBuffer);
-			m_renderDevice.bindBufferVS(1, m_constantBuffer);
-			m_renderDevice.bindBufferPS(1, m_constantBuffer);
-		}
-
-		m_renderDevice.bindTexturePS(0, *layer.texture);
-		m_renderDevice.draw(layer.vertexBuffer, layer.vertexCount);
-		m_renderDevice.unbindTexturePS(0);
+		m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
+		m_renderDevice.bindBufferVS(1, m_constantBuffer);
+		m_renderDevice.bindBufferPS(1, m_constantBuffer);
 	}
+
+	m_renderDevice.bindTexturePS(0, *layer->texture);
+	m_renderDevice.draw(layer->vertexBuffer, layer->vertexCount);
+	m_renderDevice.unbindTexturePS(0);
 }
 
 } // namespace Anker

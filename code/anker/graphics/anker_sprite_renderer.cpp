@@ -1,6 +1,7 @@
 #include <anker/graphics/anker_sprite_renderer.hpp>
 
 #include <anker/core/anker_asset_cache.hpp>
+#include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_parallax.hpp>
@@ -45,68 +46,61 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 	}
 }
 
-void SpriteRenderer::collectRenderLayers(const Scene& scene, std::insert_iterator<std::set<RenderLayer>> inserter)
-{
-	for (auto [_, sprite] : scene.registry.view<Sprite>().each()) {
-		inserter = sprite.layer;
-	}
-}
-
-void SpriteRenderer::draw(const Scene& scene, RenderLayer layerToRender)
+void SpriteRenderer::draw(const Scene&, const SceneNode* node)
 {
 	ANKER_PROFILE_ZONE();
+
+	auto* sprite = node->entity().try_get<Sprite>();
+	if (!sprite) {
+		ANKER_ERROR("{}: Missing Sprite component!", entityDisplayName(node->entity()));
+		return;
+	}
 
 	m_renderDevice.bindVertexShader(*m_vertexShader);
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
-	for (auto [entity, node, sprite] : scene.registry.view<SceneNode, Sprite>().each()) {
-		if (sprite.layer != layerToRender || !sprite.texture) {
-			continue;
+	{
+		SpriteRendererConstantBuffer cb = {
+		    .transform = Mat3(node->globalTransform()),
+		    .color = sprite->color,
+		};
+		if (auto* parallax = node->entity().try_get<Parallax>()) {
+			cb.parallax = parallax->factor;
 		}
-
-		{
-			SpriteRendererConstantBuffer cb = {
-			    .transform = Mat3(node.globalTransform()),
-			    .color = sprite.color,
-			};
-			if (auto* parallax = scene.registry.try_get<Parallax>(entity)) {
-				cb.parallax = parallax->factor;
-			}
-			m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
-			m_renderDevice.bindBufferVS(1, m_constantBuffer);
-			m_renderDevice.bindBufferPS(1, m_constantBuffer);
-		}
-
-		auto textureSize = Vec2(sprite.texture->info.size);
-		Rect2 spriteRect;
-		spriteRect.size = Vec2(sprite.texture->info.size) * sprite.textureRect.size / sprite.pixelToMeter;
-		spriteRect.offset = spriteRect.size * sprite.offset;
-
-		m_renderDevice.fillBuffer( //
-		    m_vertexBuffer,        //
-		    std::array{
-		        Vertex2D{
-		            .position = spriteRect.topLeftWorld(),
-		            .uv = sprite.textureRect.topLeft(),
-		        },
-		        Vertex2D{
-		            .position = spriteRect.bottomLeftWorld(),
-		            .uv = sprite.textureRect.bottomLeft(),
-		        },
-		        Vertex2D{
-		            .position = spriteRect.topRightWorld(),
-		            .uv = sprite.textureRect.topRight(),
-		        },
-		        Vertex2D{
-		            .position = spriteRect.bottomRightWorld(),
-		            .uv = sprite.textureRect.bottomRight(),
-		        },
-		    });
-
-		m_renderDevice.bindTexturePS(0, *sprite.texture);
-		m_renderDevice.draw(m_vertexBuffer, 4, Topology::TriangleStrip);
-		m_renderDevice.unbindTexturePS(0);
+		m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
+		m_renderDevice.bindBufferVS(1, m_constantBuffer);
+		m_renderDevice.bindBufferPS(1, m_constantBuffer);
 	}
+
+	auto textureSize = Vec2(sprite->texture->info.size);
+	Rect2 spriteRect;
+	spriteRect.size = Vec2(sprite->texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter;
+	spriteRect.offset = spriteRect.size * sprite->offset;
+
+	m_renderDevice.fillBuffer( //
+	    m_vertexBuffer,        //
+	    std::array{
+	        Vertex2D{
+	            .position = spriteRect.topLeftWorld(),
+	            .uv = sprite->textureRect.topLeft(),
+	        },
+	        Vertex2D{
+	            .position = spriteRect.bottomLeftWorld(),
+	            .uv = sprite->textureRect.bottomLeft(),
+	        },
+	        Vertex2D{
+	            .position = spriteRect.topRightWorld(),
+	            .uv = sprite->textureRect.topRight(),
+	        },
+	        Vertex2D{
+	            .position = spriteRect.bottomRightWorld(),
+	            .uv = sprite->textureRect.bottomRight(),
+	        },
+	    });
+
+	m_renderDevice.bindTexturePS(0, *sprite->texture);
+	m_renderDevice.draw(m_vertexBuffer, 4, Topology::TriangleStrip);
+	m_renderDevice.unbindTexturePS(0);
 }
 
 } // namespace Anker

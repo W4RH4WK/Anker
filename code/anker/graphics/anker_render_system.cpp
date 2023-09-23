@@ -1,9 +1,11 @@
 #include <anker/graphics/anker_render_system.hpp>
 
+#include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
+#include <anker/game/anker_map.hpp>
 #include <anker/graphics/anker_camera.hpp>
-#include <anker/graphics/anker_render_layers.hpp>
+#include <anker/graphics/anker_sprite.hpp>
 
 #include <anker/core/anker_engine.hpp>
 
@@ -92,16 +94,6 @@ void RenderSystem::draw(const Scene& scene)
 	}
 
 	////////////////////////////////////////////////////////////
-	// Collect RenderLayers
-
-	std::set<RenderLayer> layersToRender;
-	{
-		auto inserter = std::inserter(layersToRender, layersToRender.end());
-		m_mapRenderer.collectRenderLayers(scene, inserter);
-		m_spriteRenderer.collectRenderLayers(scene, inserter);
-	}
-
-	////////////////////////////////////////////////////////////
 	// Scene Rendering
 
 	m_renderDevice.setRasterizer({.depthClip = false});
@@ -110,9 +102,10 @@ void RenderSystem::draw(const Scene& scene)
 	m_renderDevice.clearRenderTarget(m_sceneRenderTarget, nullptr, clearColor);
 	m_renderDevice.setRenderTarget(m_sceneRenderTarget);
 
-	for (RenderLayer layer : layersToRender) {
-		m_mapRenderer.draw(scene, layer);
-		m_spriteRenderer.draw(scene, layer);
+	for (auto [_, node] : scene.registry.view<SceneNode>().each()) {
+		if (!node.hasParent()) {
+			drawSceneNodeRecursive(scene, &node);
+		}
 	}
 
 	// m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
@@ -135,6 +128,20 @@ void RenderSystem::onResize(Vec2i)
 	m_sceneRenderTarget.info.size = m_renderDevice.backBuffer().info.size;
 	if (not m_renderDevice.createTexture(m_sceneRenderTarget)) {
 		ANKER_FATAL("Failed to create Scene Render Target");
+	}
+}
+
+void RenderSystem::drawSceneNodeRecursive(const Scene& scene, const SceneNode* node)
+{
+	if (node->entity().all_of<Sprite>()) {
+		m_spriteRenderer.draw(scene, node);
+	}
+	if (node->entity().all_of<MapLayer>()) {
+		m_mapRenderer.draw(scene, node);
+	}
+
+	for (auto* child : node->children()) {
+		drawSceneNodeRecursive(scene, child);
 	}
 }
 
