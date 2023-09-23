@@ -124,7 +124,10 @@ void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 	}
 
 	if (opened) {
-		for (auto* child : node->children()) {
+		// The scene graph is organized from back to front (order of rendering).
+		// However, the tree visualization has foreground at the top and
+		// background at the bottom.
+		for (auto* child : node->children() | std::views::reverse) {
 			drawSceneNodeRecursive(child);
 		}
 		ImGui::TreePop();
