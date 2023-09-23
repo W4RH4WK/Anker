@@ -312,7 +312,7 @@ class TmjLoader {
 			// specific tile.
 			const uint32_t tilesetIndex = findTilesetIndex(gid);
 
-			const Rect2 pos = Rect2(Vec2(1), {float(tileIndex % width), -float(tileIndex / width)});
+			const Rect2 pos = Rect2(Vec2(1), {float(tileIndex % width), -float(tileIndex / width) - 1.0f});
 
 			const Rect2 texCoordinates = m_tilesets[tilesetIndex].textureCoordinates(gid);
 			Vec2 uvTopLeft = texCoordinates.topLeft();
@@ -332,32 +332,31 @@ class TmjLoader {
 				std::swap(uvTopRight, uvBottomLeft);
 			}
 
-			// TODO fix additional offset
 			verticesForMapLayers[tilesetIndex].insert(    //
 			    verticesForMapLayers[tilesetIndex].end(), //
 			    {
 			        MapRenderer::Vertex{
-			            .position = pos.topLeftWorld() - Vec2{0, 1},
+			            .position = pos.topLeftWorld(),
 			            .uv = uvTopLeft,
 			        },
 			        MapRenderer::Vertex{
-			            .position = pos.bottomLeftWorld() - Vec2{0, 1},
+			            .position = pos.bottomLeftWorld(),
 			            .uv = uvBottomLeft,
 			        },
 			        MapRenderer::Vertex{
-			            .position = pos.topRightWorld() - Vec2{0, 1},
+			            .position = pos.topRightWorld(),
 			            .uv = uvTopRight,
 			        },
 			        MapRenderer::Vertex{
-			            .position = pos.topRightWorld() - Vec2{0, 1},
+			            .position = pos.topRightWorld(),
 			            .uv = uvTopRight,
 			        },
 			        MapRenderer::Vertex{
-			            .position = pos.bottomLeftWorld() - Vec2{0, 1},
+			            .position = pos.bottomLeftWorld(),
 			            .uv = uvBottomLeft,
 			        },
 			        MapRenderer::Vertex{
-			            .position = pos.bottomRightWorld() - Vec2{0, 1},
+			            .position = pos.bottomRightWorld(),
 			            .uv = uvBottomRight,
 			        },
 			    });
