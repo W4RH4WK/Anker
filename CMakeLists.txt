@@ -53,7 +53,7 @@ file(GLOB_RECURSE anker_srcs CONFIGURE_DEPENDS
 	code/anker/*.hpp
 	code/anker/*.inc)
 
-add_library(anker OBJECT ${anker_srcs})
+add_library(anker STATIC ${anker_srcs})
 anker_compile_options(anker)
 target_include_directories(anker PUBLIC code)
 target_precompile_headers(anker PUBLIC code/anker/anker_pch.hpp)
