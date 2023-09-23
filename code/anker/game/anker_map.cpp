@@ -236,6 +236,10 @@ class TmjLoader {
 			        auto entity = m_scene.createEntity(layerName);
 			        m_layerSceneNode = &entity.emplace<SceneNode>(Transform2D(layerOffset), m_layerSceneNode);
 
+			        Vec4 color = Vec4(1);
+			        m_tmjReader.field("opacity", color.w);
+			        m_colorStack.push_back(color);
+
 			        Vec2 parallax = Vec2(1);
 			        m_tmjReader.field("parallaxx", parallax.x);
 			        m_tmjReader.field("parallaxy", parallax.y);
@@ -244,6 +248,7 @@ class TmjLoader {
 		    .onLayerEnd =
 		        [&] {
 			        m_layerSceneNode = m_layerSceneNode->parent();
+			        m_colorStack.pop_back();
 			        m_parallaxStack.pop_back();
 		        },
 		});
@@ -283,6 +288,7 @@ class TmjLoader {
 		for (auto [i, layer] : iter::enumerate(mapLayers)) {
 			layer = {
 			    .name = fmt::format("{} (Tileset {})", name, i),
+			    .color = calcColor(),
 			    .parallax = calcParallax(),
 			    .texture = m_tilesets[i].texture,
 			};
@@ -402,6 +408,7 @@ class TmjLoader {
 			auto entity = m_scene.createEntity(objectName);
 			entity.emplace<SceneNode>(transform, m_layerSceneNode);
 			entity.emplace<Sprite>(Sprite{
+			    .color = calcColor(),
 			    .parallax = calcParallax(),
 			    .offset = {-0.5f, -0.5f},
 			    .pixelToMeter = 256.0f, // TODO
@@ -488,6 +495,11 @@ class TmjLoader {
 		return v;
 	}
 
+	Vec4 calcColor() const
+	{
+		return std::accumulate(m_colorStack.begin(), m_colorStack.end(), Vec4(1), std::multiplies());
+	}
+
 	Vec2 calcParallax() const
 	{
 		return std::accumulate(m_parallaxStack.begin(), m_parallaxStack.end(), Vec2(1), std::multiplies());
@@ -507,6 +519,7 @@ class TmjLoader {
 	// While traversing the tree of layers, certain properties are passed on
 	// from parent to child. These are tracked here as explicit stacks.
 	std::vector<Vec2> m_parallaxStack;
+	std::vector<Vec4> m_colorStack;
 };
 
 Status loadMap(Scene& scene, std::string_view identifier, AssetCache& assetCache)
