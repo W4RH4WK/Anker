@@ -443,9 +443,15 @@ void RenderDevice::bindRenderTargetPS(uint32_t slot, const Texture& texture, con
 	m_context->PSSetShaderResources(slot, 1, texture.shaderView.GetAddressOf());
 }
 
-void RenderDevice::draw(uint32_t vertexCount)
+void RenderDevice::draw(uint32_t vertexCount, Topology topology)
 {
+	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY(topology));
 	m_context->Draw(vertexCount, 0);
+}
+
+void RenderDevice::draw(const GpuBuffer& vertexBuffer, Topology topology)
+{
+	draw(vertexBuffer, vertexBuffer.info.elementCount(), topology);
 }
 
 void RenderDevice::draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology topology)

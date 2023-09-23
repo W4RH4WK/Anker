@@ -60,6 +60,8 @@ struct GpuBufferInfo {
 	uint32_t stride = 1;
 	GpuBindFlags bindFlags;
 	GpuBufferFlags flags;
+
+	uint32_t elementCount() const { return size / stride; }
 };
 
 struct GpuBuffer {
@@ -252,7 +254,8 @@ class RenderDevice {
 
 	////////////////////////////////////////////////////////////
 
-	void draw(uint32_t vertexCount);
+	void draw(uint32_t vertexCount, Topology = Topology::TriangleList);
+	void draw(const GpuBuffer& vertexBuffer, Topology = Topology::TriangleList);
 	void draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology = Topology::TriangleList);
 	void draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, uint32_t indexCount,
 	          Topology = Topology::TriangleList);

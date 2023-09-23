@@ -4,7 +4,6 @@
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
-#include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/graphics/anker_vertex.hpp>
 
@@ -63,10 +62,8 @@ void SpriteRenderer::draw(const Scene&, const SceneNode* node)
 		SpriteRendererConstantBuffer cb = {
 		    .transform = Mat3(node->globalTransform()),
 		    .color = sprite->color,
+		    .parallax = sprite->parallax,
 		};
-		if (auto* parallax = node->entity().try_get<Parallax>()) {
-			cb.parallax = parallax->factor;
-		}
 		m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
 		m_renderDevice.bindBufferVS(1, m_constantBuffer);
 		m_renderDevice.bindBufferPS(1, m_constantBuffer);
@@ -77,29 +74,17 @@ void SpriteRenderer::draw(const Scene&, const SceneNode* node)
 	spriteRect.size = Vec2(sprite->texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter;
 	spriteRect.offset = spriteRect.size * sprite->offset;
 
-	m_renderDevice.fillBuffer( //
-	    m_vertexBuffer,        //
+	m_renderDevice.fillBuffer(
+	    m_vertexBuffer,
 	    std::array{
-	        Vertex2D{
-	            .position = spriteRect.topLeftWorld(),
-	            .uv = sprite->textureRect.topLeft(),
-	        },
-	        Vertex2D{
-	            .position = spriteRect.bottomLeftWorld(),
-	            .uv = sprite->textureRect.bottomLeft(),
-	        },
-	        Vertex2D{
-	            .position = spriteRect.topRightWorld(),
-	            .uv = sprite->textureRect.topRight(),
-	        },
-	        Vertex2D{
-	            .position = spriteRect.bottomRightWorld(),
-	            .uv = sprite->textureRect.bottomRight(),
-	        },
+	        Vertex2D{.position = spriteRect.topLeftWorld(), .uv = sprite->textureRect.topLeft()},
+	        Vertex2D{.position = spriteRect.bottomLeftWorld(), .uv = sprite->textureRect.bottomLeft()},
+	        Vertex2D{.position = spriteRect.topRightWorld(), .uv = sprite->textureRect.topRight()},
+	        Vertex2D{.position = spriteRect.bottomRightWorld(), .uv = sprite->textureRect.bottomRight()},
 	    });
 
 	m_renderDevice.bindTexturePS(0, *sprite->texture);
-	m_renderDevice.draw(m_vertexBuffer, 4, Topology::TriangleStrip);
+	m_renderDevice.draw(m_vertexBuffer, Topology::TriangleStrip);
 	m_renderDevice.unbindTexturePS(0);
 }
 

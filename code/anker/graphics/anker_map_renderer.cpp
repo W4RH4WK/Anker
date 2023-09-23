@@ -6,7 +6,6 @@
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/game/anker_map.hpp>
-#include <anker/graphics/anker_parallax.hpp>
 
 namespace Anker {
 
@@ -52,17 +51,15 @@ void MapRenderer::draw(const Scene&, const SceneNode* node)
 		MapRendererConstantBuffer cb = {
 		    .transform = Mat3(node->globalTransform()),
 		    .color = layer->color,
+		    .parallax = layer->parallax,
 		};
-		if (auto* parallax = node->entity().try_get<Parallax>()) {
-			cb.parallax = parallax->factor;
-		}
 		m_renderDevice.fillBuffer(m_constantBuffer, std::array{cb});
 		m_renderDevice.bindBufferVS(1, m_constantBuffer);
 		m_renderDevice.bindBufferPS(1, m_constantBuffer);
 	}
 
 	m_renderDevice.bindTexturePS(0, *layer->texture);
-	m_renderDevice.draw(layer->vertexBuffer, layer->vertexCount);
+	m_renderDevice.draw(layer->vertexBuffer);
 	m_renderDevice.unbindTexturePS(0);
 }
 

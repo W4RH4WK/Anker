@@ -5,7 +5,6 @@
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_map_renderer.hpp>
-#include <anker/graphics/anker_parallax.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
@@ -241,9 +240,6 @@ class TmjLoader {
 			        m_tmjReader.field("parallaxx", parallax.x);
 			        m_tmjReader.field("parallaxy", parallax.y);
 			        m_parallaxStack.push_back(parallax);
-			        if (parallax != Vec2(1)) {
-				        entity.emplace<Parallax>(parallax);
-			        }
 		        },
 		    .onLayerEnd =
 		        [&] {
@@ -287,6 +283,7 @@ class TmjLoader {
 		for (auto [i, layer] : iter::enumerate(mapLayers)) {
 			layer = {
 			    .name = fmt::format("{} (Tileset {})", name, i),
+			    .parallax = calcParallax(),
 			    .texture = m_tilesets[i].texture,
 			};
 		}
@@ -332,33 +329,15 @@ class TmjLoader {
 				std::swap(uvTopRight, uvBottomLeft);
 			}
 
-			verticesForMapLayers[tilesetIndex].insert(    //
-			    verticesForMapLayers[tilesetIndex].end(), //
+			verticesForMapLayers[tilesetIndex].insert(
+			    verticesForMapLayers[tilesetIndex].end(),
 			    {
-			        MapRenderer::Vertex{
-			            .position = pos.topLeftWorld(),
-			            .uv = uvTopLeft,
-			        },
-			        MapRenderer::Vertex{
-			            .position = pos.bottomLeftWorld(),
-			            .uv = uvBottomLeft,
-			        },
-			        MapRenderer::Vertex{
-			            .position = pos.topRightWorld(),
-			            .uv = uvTopRight,
-			        },
-			        MapRenderer::Vertex{
-			            .position = pos.topRightWorld(),
-			            .uv = uvTopRight,
-			        },
-			        MapRenderer::Vertex{
-			            .position = pos.bottomLeftWorld(),
-			            .uv = uvBottomLeft,
-			        },
-			        MapRenderer::Vertex{
-			            .position = pos.bottomRightWorld(),
-			            .uv = uvBottomRight,
-			        },
+			        MapRenderer::Vertex{.position = pos.topLeftWorld(), .uv = uvTopLeft},
+			        MapRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
+			        MapRenderer::Vertex{.position = pos.topRightWorld(), .uv = uvTopRight},
+			        MapRenderer::Vertex{.position = pos.topRightWorld(), .uv = uvTopRight},
+			        MapRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
+			        MapRenderer::Vertex{.position = pos.bottomRightWorld(), .uv = uvBottomRight},
 			    });
 		}
 
@@ -367,7 +346,6 @@ class TmjLoader {
 				continue;
 			}
 
-			layer.vertexCount = uint32_t(vertices.size());
 			layer.vertexBuffer.info = {
 			    .name = "MapLayer Vertex Buffer " + layer.name,
 			    .bindFlags = GpuBindFlag::VertexBuffer,
@@ -377,7 +355,6 @@ class TmjLoader {
 			auto entity = m_scene.createEntity(layer.name);
 			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
 			entity.emplace<MapLayer>(std::move(layer));
-			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		}
 
 		return Ok;
@@ -425,12 +402,12 @@ class TmjLoader {
 			auto entity = m_scene.createEntity(objectName);
 			entity.emplace<SceneNode>(transform, m_layerSceneNode);
 			entity.emplace<Sprite>(Sprite{
+			    .parallax = calcParallax(),
 			    .offset = {-0.5f, -0.5f},
 			    .pixelToMeter = 256.0f, // TODO
 			    .texture = tileset.texture,
 			    .textureRect = tileset.textureCoordinates(gid),
 			});
-			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		});
 
 		return Ok;

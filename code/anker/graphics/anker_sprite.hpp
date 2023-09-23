@@ -9,6 +9,7 @@ struct Texture;
 
 struct Sprite {
 	Vec4 color = Vec4(1);
+	Vec2 parallax = Vec2(1);
 	Vec2 offset;
 	float pixelToMeter = 32.0f;
 	AssetPtr<Texture> texture;
@@ -19,6 +20,7 @@ struct Sprite {
 
 REFL_TYPE(Anker::Sprite)
 REFL_FIELD(color, Anker::attr::Color())
+REFL_FIELD(parallax)
 REFL_FIELD(offset)
 REFL_FIELD(pixelToMeter)
 REFL_FIELD(texture, Anker::attr::Inline())
