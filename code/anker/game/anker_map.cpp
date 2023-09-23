@@ -37,8 +37,8 @@ class TmjLoader {
 	TmjLoader(TmjLoader&&) noexcept = delete;
 	TmjLoader& operator=(TmjLoader&&) noexcept = delete;
 
-	// Loader entry point. This will load the given map and populate the map
-	// parameter given on initialization.
+	// Loader entry point. This will load the given map and populate the scene
+	// given on initialization.
 	Status load(std::string_view identifier)
 	{
 		m_tmjIdentifier = identifier;
@@ -56,71 +56,6 @@ class TmjLoader {
 	}
 
   private:
-	////////////////////////////////////////////////////////////
-	// Visitor
-	//
-	// Since layers are nested, we provide a visitor mechanism.
-
-	struct Visitor {
-		std::function<Status()> onTileLayer;
-		std::function<Status()> onObjectLayer;
-		std::function<Status()> onCollisionLayer;
-		std::function<void()> onLayerBegin;
-		std::function<void()> onLayerEnd;
-	};
-
-	Status visitLayers(const Visitor& visitor)
-	{
-		Status status;
-
-		m_tmjReader.forEach("layers", [&](uint32_t) {
-			if (not status) {
-				return;
-			}
-
-			std::string type;
-			if (!m_tmjReader.field("type", type)) {
-				ANKER_ERROR("{}: Missing type field", m_tmjIdentifier);
-				status = FormatError;
-				return;
-			}
-
-			std::string name;
-			m_tmjReader.field("name", name);
-
-			if (visitor.onLayerBegin) {
-				visitor.onLayerBegin();
-			}
-
-			if (type == "tilelayer") {
-				if (visitor.onTileLayer) {
-					status = visitor.onTileLayer();
-				}
-			} else if (type == "objectgroup") {
-				if (name.starts_with("Collision")) {
-					if (visitor.onCollisionLayer) {
-						status = visitor.onCollisionLayer();
-					}
-				} else {
-					if (visitor.onObjectLayer) {
-						status = visitor.onObjectLayer();
-					}
-				}
-			} else if (type == "group") {
-				status = visitLayers(visitor);
-			} else {
-				ANKER_ERROR("{}: Unknown layer type: {}", m_tmjIdentifier, type);
-				status = FormatError;
-			}
-
-			if (visitor.onLayerEnd) {
-				visitor.onLayerEnd();
-			}
-		});
-
-		return status;
-	}
-
 	////////////////////////////////////////////////////////////
 	// Tileset
 	//
@@ -216,42 +151,68 @@ class TmjLoader {
 
 	Status loadLayers()
 	{
-		return visitLayers({
-		    .onTileLayer = [&] { return loadTileLayer(); },
-		    .onObjectLayer = [&] { return loadObjectLayer(); },
-		    .onCollisionLayer = [&] { return loadCollisionLayer(); },
-		    .onLayerBegin =
-		        [&] {
-			        std::string layerName;
-			        m_tmjReader.field("name", layerName);
-			        if (layerName.empty()) {
-				        layerName = "Map Layer";
-			        }
+		Status status;
 
-			        Vec2 layerOffset;
-			        m_tmjReader.field("x", layerOffset.x);
-			        m_tmjReader.field("y", layerOffset.y);
-			        layerOffset = convertCoordinates(layerOffset);
+		m_tmjReader.forEach("layers", [&](uint32_t) {
+			if (not status) {
+				return;
+			}
 
-			        auto entity = m_scene.createEntity(layerName);
-			        m_layerSceneNode = &entity.emplace<SceneNode>(Transform2D(layerOffset), m_layerSceneNode);
+			// Load common layer parameters
 
-			        Vec4 color = Vec4(1);
-			        m_tmjReader.field("opacity", color.w);
-			        m_colorStack.push_back(color);
+			std::string type;
+			if (!m_tmjReader.field("type", type)) {
+				ANKER_ERROR("{}: Missing type field", m_tmjIdentifier);
+				status = FormatError;
+				return;
+			}
 
-			        Vec2 parallax = Vec2(1);
-			        m_tmjReader.field("parallaxx", parallax.x);
-			        m_tmjReader.field("parallaxy", parallax.y);
-			        m_parallaxStack.push_back(parallax);
-		        },
-		    .onLayerEnd =
-		        [&] {
-			        m_layerSceneNode = m_layerSceneNode->parent();
-			        m_colorStack.pop_back();
-			        m_parallaxStack.pop_back();
-		        },
+			std::string layerName;
+			m_tmjReader.field("name", layerName);
+			if (layerName.empty()) {
+				layerName = "Map Layer";
+			}
+
+			Vec2 layerOffset;
+			m_tmjReader.field("x", layerOffset.x);
+			m_tmjReader.field("y", layerOffset.y);
+			layerOffset = convertCoordinates(layerOffset);
+
+			m_layerSceneNode = &m_scene //
+			                        .createEntity(layerName)
+			                        .emplace<SceneNode>(Transform2D(layerOffset), m_layerSceneNode);
+			ANKER_DEFER([&] { m_layerSceneNode = m_layerSceneNode->parent(); });
+
+			Vec4 color = Vec4(1);
+			m_tmjReader.field("opacity", color.w);
+			m_colorStack.push_back(color);
+			ANKER_DEFER([&] { m_colorStack.pop_back(); });
+
+			Vec2 parallax = Vec2(1);
+			m_tmjReader.field("parallaxx", parallax.x);
+			m_tmjReader.field("parallaxy", parallax.y);
+			m_parallaxStack.push_back(parallax);
+			ANKER_DEFER([&] { m_parallaxStack.pop_back(); });
+
+			// Dispatch
+
+			if (type == "tilelayer") {
+				status = loadTileLayer();
+			} else if (type == "objectgroup") {
+				if (layerName.starts_with("Collision")) {
+					status = loadCollisionLayer();
+				} else {
+					status = loadObjectLayer();
+				}
+			} else if (type == "group") {
+				status = loadLayers();
+			} else {
+				ANKER_ERROR("{}: Unknown layer type: {}", m_tmjIdentifier, type);
+				status = FormatError;
+			}
 		});
+
+		return status;
 	}
 
 	Status loadTileLayer()
