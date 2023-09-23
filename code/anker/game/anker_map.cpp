@@ -54,7 +54,7 @@ class TmjLoader {
 		ANKER_TRY(buildIdToRenderLayerMapping());
 		ANKER_TRY(loadLayers());
 
-		return OK;
+		return Ok;
 	}
 
   private:
@@ -183,7 +183,7 @@ class TmjLoader {
 		// later on when using global ids.
 		std::ranges::sort(m_tilesets, [](auto& a, auto& b) { return a.firstTileId >= b.firstTileId; });
 
-		return OK;
+		return Ok;
 	}
 
 	Status loadTileset(Tileset& tileset, const fs::path& filepath)
@@ -211,7 +211,7 @@ class TmjLoader {
 		auto imageIdentifier = toIdentifier(fs::path(filepath).replace_filename(image));
 		tileset.texture = m_assetCache.loadTexture(imageIdentifier);
 
-		return OK;
+		return Ok;
 	}
 
 	////////////////////////////////////////////////////////////
@@ -249,7 +249,7 @@ class TmjLoader {
 
 			ids.push_back(id);
 
-			return OK;
+			return Ok;
 		};
 
 		ANKER_TRY(visitLayers({
@@ -274,7 +274,7 @@ class TmjLoader {
 			m_idToRenderLayer[id] = int32_t(index) - int32_t(*mainLayerIndex) + offset;
 		}
 
-		return OK;
+		return Ok;
 	}
 
 	////////////////////////////////////////////////////////////
@@ -450,7 +450,7 @@ class TmjLoader {
 			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		}
 
-		return OK;
+		return Ok;
 	}
 
 	Status loadObjectLayer()
@@ -508,7 +508,7 @@ class TmjLoader {
 			entity.emplace<Parallax>(calcParallax()); // TODO remove
 		});
 
-		return OK;
+		return Ok;
 	}
 
 	Status loadCollisionLayer()
@@ -568,7 +568,7 @@ class TmjLoader {
 			physicsBody.body->CreateFixture(&chain, 0);
 		});
 
-		return OK;
+		return Ok;
 	}
 
 	// Given a global id (without flip bits), this function returns the index of

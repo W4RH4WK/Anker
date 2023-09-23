@@ -78,7 +78,7 @@ Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData
 		}
 	}
 
-	return OK;
+	return Ok;
 }
 
 Status FontSystem::loadFont(Font& font, std::string_view identifier)
@@ -91,7 +91,7 @@ Status FontSystem::loadFont(Font& font, std::string_view identifier)
 	ByteBuffer fontData;
 	if (g_assetDataLoader.load(fontData, std::string{identifier} + ".ttf")) {
 		if (loadFontFromTTF(font, fontData)) {
-			return OK;
+			return Ok;
 		}
 	}
 

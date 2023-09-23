@@ -12,10 +12,10 @@
 
 namespace Anker {
 
-// StatusCode defines the types of errors that can occur, including the OK to
+// StatusCode defines the types of errors that can occur, including the Ok to
 // indicate the absence of an error.
 enum StatusCode : uint8_t {
-	OK = 0,
+	Ok = 0,
 	UnknownError,
 	NotImplementedError,
 	ReadError,
@@ -26,7 +26,7 @@ enum StatusCode : uint8_t {
 	FontError,
 };
 constexpr std::array StatusCodeEntries{
-    std::pair{OK, "OK"},
+    std::pair{Ok, "Ok"},
     std::pair{UnknownError, "UnknownError"},
     std::pair{NotImplementedError, "NotImplementedError"},
     std::pair{ReadError, "ReadError"},
@@ -69,12 +69,12 @@ struct [[nodiscard]] Status {
 	constexpr Status() = default;
 	constexpr Status(StatusCode code) : code(code) {}
 
-	constexpr explicit operator bool() const { return code == OK; }
+	constexpr explicit operator bool() const { return code == Ok; }
 
 	const char* toString() const { return to_string(code); }
 	static std::optional<Status> fromString(std::string_view view) { return Anker::fromString<StatusCode>(view); }
 
-	StatusCode code = OK;
+	StatusCode code = Ok;
 
 	friend constexpr bool operator==(const Status&, const Status&) = default;
 };

@@ -27,7 +27,7 @@ static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 		return ReadError;
 	}
 
-	return OK;
+	return Ok;
 }
 
 Status readFile(const fs::path& filepath, ByteBuffer& outData)
@@ -63,7 +63,7 @@ Status writeFile(const fs::path& filepath, std::string_view data)
 		return WriteError;
 	}
 
-	return OK;
+	return Ok;
 }
 
 fs::path stripFileExtensions(const fs::path& filepath)

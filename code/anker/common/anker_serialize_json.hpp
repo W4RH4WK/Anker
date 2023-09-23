@@ -31,7 +31,7 @@ class JsonReader {
 		if (!read(outValue)) {
 			return FormatError;
 		}
-		return OK;
+		return Ok;
 	}
 
 	Status parse(std::string_view input, std::string_view identifier = {})
@@ -48,7 +48,7 @@ class JsonReader {
 		}
 
 		m_values.push_back(&m_doc);
-		return OK;
+		return Ok;
 	}
 
 	Status parse(std::span<const uint8_t> input, std::string_view identifier = {})

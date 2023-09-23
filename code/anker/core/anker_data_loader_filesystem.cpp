@@ -21,7 +21,7 @@ Status DataLoaderFilesystem::load(ByteBuffer& outBuffer, const fs::path& filepat
 		m_lastWriteTimestamps[filepath] = lastWrite;
 	}
 
-	return OK;
+	return Ok;
 }
 
 bool DataLoaderFilesystem::exists(const fs::path& filepath) const

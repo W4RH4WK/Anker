@@ -178,7 +178,7 @@ Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const uint8_t> in
 	}
 
 	buffer.buffer->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(buffer.info.name.size()), buffer.info.name.data());
-	return OK;
+	return Ok;
 }
 
 void RenderDevice::bindBufferVS(uint32_t slot, const GpuBuffer& buffer)
@@ -224,7 +224,7 @@ Status RenderDevice::loadVertexShader(VertexShader& vertexShader, std::string_vi
 
 	vertexShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
 
-	return OK;
+	return Ok;
 }
 
 Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view identifier)
@@ -245,7 +245,7 @@ Status RenderDevice::loadPixelShader(PixelShader& pixelShader, std::string_view 
 
 	pixelShader.shader->SetPrivateData(WKPDID_D3DDebugObjectName, UINT(identifier.size()), identifier.data());
 
-	return OK;
+	return Ok;
 }
 
 void RenderDevice::bindVertexShader(const VertexShader& vertexShader)
@@ -375,7 +375,7 @@ Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit
 
 	texture.texture->SetPrivateData(WKPDID_D3DDebugObjectName, //
 	                                UINT(texture.info.name.size()), texture.info.name.data());
-	return OK;
+	return Ok;
 }
 
 void RenderDevice::bindTexturePS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
