@@ -28,6 +28,11 @@ auto asBytesWritable(std::span<T, N> s) noexcept requires(!std::is_const_v<T>)
 	return ReturnType{reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
 }
 
+inline auto asStringView(std::span<const uint8_t> s) noexcept
+{
+	return std::string_view(reinterpret_cast<const char*>(s.data()), s.size());
+}
+
 std::string encodeBase64(std::string_view);
 std::string decodeBase64(std::string_view);
 

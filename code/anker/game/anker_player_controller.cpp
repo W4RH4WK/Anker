@@ -11,7 +11,9 @@ void PlayerController::tick(float dt, Scene& scene)
 	const auto& actions = g_engine->inputSystem.actions();
 
 	for (auto [_, physicsBody] : scene.registry.view<PhysicsBody, PlayerController>().each()) {
-		physicsBody.body->ApplyForceToCenter(1000.0f * actions.playerMove * dt, true);
+		if (physicsBody.body) {
+			physicsBody.body->SetLinearVelocity(100.0f * actions.playerMove * dt);
+		}
 	}
 }
 

@@ -76,6 +76,7 @@ using Microsoft::WRL::ComPtr;
 #include <glm/vec4.hpp>
 
 #include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
 #include <rapidjson/prettywriter.h>
 
 #include <entt/entt.hpp>

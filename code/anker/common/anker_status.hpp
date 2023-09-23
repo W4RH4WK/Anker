@@ -20,6 +20,7 @@ enum StatusCode : uint8_t {
 	NotImplementedError,
 	ReadError,
 	WriteError,
+	EnumError,
 	FormatError,
 	GraphicsError,
 	FontError,
@@ -30,6 +31,7 @@ constexpr std::array StatusCodeEntries{
     std::pair{NotImplementedError, "NotImplementedError"},
     std::pair{ReadError, "ReadError"},
     std::pair{WriteError, "WriteError"},
+    std::pair{EnumError, "EnumError"},
     std::pair{FormatError, "FormatError"},
     std::pair{GraphicsError, "GraphicsError"},
     std::pair{FontError, "FontError"},
@@ -81,9 +83,13 @@ struct [[nodiscard]] Status {
 // be used as a shorthand. Remember, log messages should be emitted immediately
 // upon emitting an error, thus we don't have to emit log messages when passing
 // errors on.
+//
+// Note that, while its main purpose is to be used with Status, it can also be
+// used for other types like bool and std::optional, given the return type
+// matches.
 #define ANKER_TRY(expr) \
 	do { \
-		if (::Anker::Status status = (expr); !status) { \
+		if (auto status = (expr); !status) { \
 			return status; \
 		} \
 	} while (0)

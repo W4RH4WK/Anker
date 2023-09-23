@@ -44,13 +44,13 @@ class TmjLoader {
 	{
 		m_tmjIdentifier = identifier;
 
-		ByteBuffer tmjData;
-		ANKER_TRY(g_assetDataLoader.load(tmjData, std::string{identifier} + ".tmj"));
+		auto filepath = std::string{identifier} + ".tmj";
 
-		m_tmjReader.emplace(tmjData);
+		ByteBuffer tmjData;
+		ANKER_TRY(g_assetDataLoader.load(tmjData, filepath));
+		ANKER_TRY(m_tmjReader.parse(tmjData, filepath));
 
 		ANKER_TRY(loadTilesets());
-
 		ANKER_TRY(buildIdToRenderLayerMapping());
 		ANKER_TRY(loadLayers());
 
@@ -75,20 +75,20 @@ class TmjLoader {
 	{
 		Status status;
 
-		m_tmjReader->forEach("layers", [&](uint32_t) {
+		m_tmjReader.forEach("layers", [&](uint32_t) {
 			if (not status) {
 				return;
 			}
 
 			std::string type;
-			if (!m_tmjReader->field("type", type)) {
+			if (!m_tmjReader.field("type", type)) {
 				ANKER_ERROR("{}: Missing type field", m_tmjIdentifier);
 				status = FormatError;
 				return;
 			}
 
 			std::string name;
-			m_tmjReader->field("name", name);
+			m_tmjReader.field("name", name);
 
 			if (visitor.onLayerBegin) {
 				visitor.onLayerBegin();
@@ -155,7 +155,7 @@ class TmjLoader {
 	{
 		Status status;
 
-		m_tmjReader->forEach("tilesets", [&](uint32_t tilesetIndex) {
+		m_tmjReader.forEach("tilesets", [&](uint32_t tilesetIndex) {
 			if (not status) {
 				return;
 			}
@@ -163,8 +163,8 @@ class TmjLoader {
 			Tileset tileset;
 
 			std::string source;
-			bool formatOk = m_tmjReader->field("source", source) //
-			             && m_tmjReader->field("firstgid", tileset.firstTileId);
+			bool formatOk = m_tmjReader.field("source", source) //
+			             && m_tmjReader.field("firstgid", tileset.firstTileId);
 			if (!formatOk) {
 				ANKER_ERROR("{}: Tileset {}: Invalid format", m_tmjIdentifier, tilesetIndex);
 				status = FormatError;
@@ -191,7 +191,8 @@ class TmjLoader {
 		ByteBuffer tsjData;
 		ANKER_TRY(g_assetDataLoader.load(tsjData, filepath));
 
-		JsonReader tsjReader(tsjData);
+		JsonReader tsjReader;
+		ANKER_TRY(tsjReader.parse(tsjData, filepath.string()));
 
 		std::string image;
 		uint32_t tileCountTotal = 0;
@@ -235,8 +236,8 @@ class TmjLoader {
 		auto gatherIds = [&] {
 			uint32_t id = 0;
 			std::string name;
-			bool formatOk = m_tmjReader->field("id", id) //
-			             && m_tmjReader->field("name", name);
+			bool formatOk = m_tmjReader.field("id", id) //
+			             && m_tmjReader.field("name", name);
 			if (!formatOk) {
 				ANKER_ERROR("{}: Missing layer id or name", m_tmjIdentifier);
 				return FormatError;
@@ -287,22 +288,22 @@ class TmjLoader {
 		    .onLayerBegin =
 		        [&] {
 			        std::string layerName;
-			        m_tmjReader->field("name", layerName);
+			        m_tmjReader.field("name", layerName);
 			        if (layerName.empty()) {
 				        layerName = "Map Layer";
 			        }
 
 			        Vec2 layerOffset;
-			        m_tmjReader->field("x", layerOffset.x);
-			        m_tmjReader->field("y", layerOffset.y);
+			        m_tmjReader.field("x", layerOffset.x);
+			        m_tmjReader.field("y", layerOffset.y);
 			        layerOffset = convertCoordinates(layerOffset);
 
 			        auto entity = m_scene.createEntity(layerName);
 			        m_layerSceneNode = &entity.emplace<SceneNode>(Transform2D(layerOffset), m_layerSceneNode);
 
 			        Vec2 parallax = Vec2(1);
-			        m_tmjReader->field("parallaxx", parallax.x);
-			        m_tmjReader->field("parallaxy", parallax.y);
+			        m_tmjReader.field("parallaxx", parallax.x);
+			        m_tmjReader.field("parallaxy", parallax.y);
 			        m_parallaxStack.push_back(parallax);
 			        if (parallax != Vec2(1)) {
 				        entity.emplace<Parallax>(parallax);
@@ -319,15 +320,15 @@ class TmjLoader {
 	Status loadTileLayer()
 	{
 		uint32_t id = 0;
-		m_tmjReader->field("id", id);
+		m_tmjReader.field("id", id);
 		ANKER_ASSERT(m_idToRenderLayer.contains(id));
 
 		std::string name;
-		m_tmjReader->field("name", name);
+		m_tmjReader.field("name", name);
 
 		std::string encoding, compression;
-		m_tmjReader->field("encoding", encoding);
-		m_tmjReader->field("compression", compression);
+		m_tmjReader.field("encoding", encoding);
+		m_tmjReader.field("compression", compression);
 
 		if (encoding != "base64" || !compression.empty()) {
 			ANKER_ERROR("{}: Not using base64 (uncompressed)", m_tmjIdentifier);
@@ -335,15 +336,15 @@ class TmjLoader {
 		}
 
 		std::string data;
-		if (!m_tmjReader->field("data", data)) {
+		if (!m_tmjReader.field("data", data)) {
 			ANKER_ERROR("{}: Missing data field (chunked maps are not supported yet)", m_tmjIdentifier);
 			return FormatError;
 		}
 		data = decodeBase64(data);
 
 		uint32_t width = 0, height = 0;
-		m_tmjReader->field("width", width);
-		m_tmjReader->field("height", height);
+		m_tmjReader.field("width", width);
+		m_tmjReader.field("height", height);
 
 		// We create one MapLayer for every Tileset here, along with a vertex
 		// storage for each of them.
@@ -455,18 +456,18 @@ class TmjLoader {
 	Status loadObjectLayer()
 	{
 		uint32_t layerId = 0;
-		m_tmjReader->field("id", layerId);
+		m_tmjReader.field("id", layerId);
 		ANKER_ASSERT(m_idToRenderLayer.contains(layerId));
 
-		m_tmjReader->forEach("objects", [&](uint32_t) {
+		m_tmjReader.forEach("objects", [&](uint32_t) {
 			std::string objectName;
-			m_tmjReader->field("name", objectName);
+			m_tmjReader.field("name", objectName);
 
 			Transform2D transform;
-			m_tmjReader->field("rotation", transform.rotation);
+			m_tmjReader.field("rotation", transform.rotation);
 			transform.rotation = -transform.rotation * Deg2Rad;
-			m_tmjReader->field("width", transform.scale.x);
-			m_tmjReader->field("height", transform.scale.y);
+			m_tmjReader.field("width", transform.scale.x);
+			m_tmjReader.field("height", transform.scale.y);
 			transform.scale /= 256.0f; // pixel -> meter
 
 			// Rotation pivot in Tiled is the bottom left corner of an object.
@@ -475,12 +476,12 @@ class TmjLoader {
 			transform.position.rotate(transform.rotation);
 
 			Vec2 offset;
-			m_tmjReader->field("x", offset.x);
-			m_tmjReader->field("y", offset.y);
+			m_tmjReader.field("x", offset.x);
+			m_tmjReader.field("y", offset.y);
 			transform.position += convertCoordinates(offset);
 
 			TileId tile = 0;
-			m_tmjReader->field("gid", tile);
+			m_tmjReader.field("gid", tile);
 			ANKER_ASSERT(tile != 0); // TODO
 
 			// The tile number consists of a global id and flip bits.
@@ -512,32 +513,32 @@ class TmjLoader {
 
 	Status loadCollisionLayer()
 	{
-		m_tmjReader->forEach("objects", [&](uint32_t) {
-			if (m_tmjReader->hasKey("ellipse")) {
+		m_tmjReader.forEach("objects", [&](uint32_t) {
+			if (m_tmjReader.hasKey("ellipse")) {
 				ANKER_WARN("{}: Ellipse collider not supported", m_tmjIdentifier);
 				return;
 			}
-			if (m_tmjReader->hasKey("point")) {
+			if (m_tmjReader.hasKey("point")) {
 				ANKER_WARN("{}: Point collider not supported", m_tmjIdentifier);
 				return;
 			}
-			if (float rotation; m_tmjReader->field("rotation", rotation) && rotation != 0) {
+			if (float rotation; m_tmjReader.field("rotation", rotation) && rotation != 0) {
 				ANKER_WARN("{}: Collider rotation not supported", m_tmjIdentifier);
 				return;
 			}
 
 			std::vector<b2Vec2> vertices;
-			if (m_tmjReader->hasKey("polygon")) {
-				m_tmjReader->forEach("polygon", [&](uint32_t) {
+			if (m_tmjReader.hasKey("polygon")) {
+				m_tmjReader.forEach("polygon", [&](uint32_t) {
 					Vec2 vertex;
-					m_tmjReader->field("x", vertex.x);
-					m_tmjReader->field("y", vertex.y);
+					m_tmjReader.field("x", vertex.x);
+					m_tmjReader.field("y", vertex.y);
 					vertices.push_back(convertCoordinates(vertex));
 				});
 			} else {
 				Vec2 boxSize;
-				m_tmjReader->field("width", boxSize.x);
-				m_tmjReader->field("height", boxSize.y);
+				m_tmjReader.field("width", boxSize.x);
+				m_tmjReader.field("height", boxSize.y);
 				vertices.push_back(convertCoordinates({0, 0}));
 				vertices.push_back(convertCoordinates({0, boxSize.y}));
 				vertices.push_back(convertCoordinates({boxSize.x, boxSize.y}));
@@ -550,8 +551,8 @@ class TmjLoader {
 			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
 
 			Transform2D transform;
-			m_tmjReader->field("x", transform.position.x);
-			m_tmjReader->field("y", transform.position.y);
+			m_tmjReader.field("x", transform.position.x);
+			m_tmjReader.field("y", transform.position.y);
 			transform.position = convertCoordinates(transform.position);
 
 			auto& physicsBody = entity.emplace<PhysicsBody>();
@@ -594,7 +595,7 @@ class TmjLoader {
 	AssetCache& m_assetCache;
 	std::string_view m_tmjIdentifier;
 
-	std::optional<JsonReader> m_tmjReader;
+	JsonReader m_tmjReader;
 
 	std::vector<Tileset> m_tilesets;
 

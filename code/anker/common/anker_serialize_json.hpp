@@ -16,8 +16,7 @@ namespace Anker {
 // internal and current() refers to the JSON value at the top of the stack.
 //
 // When traversing manually, e.g. by customizing the serialization function for
-// a specific type, use the pushKey and popKey functions to navigate between
-// fields.
+// a specific type, use the push and pop functions to navigate between fields.
 //
 // Arrays elements are accessed via arrayElement.
 class JsonReader {
@@ -29,138 +28,167 @@ class JsonReader {
 		ANKER_TRY(readFile(filepath, buffer));
 
 		JsonReader read(buffer);
-		read(outValue);
+		if (!read(outValue)) {
+			return FormatError;
+		}
 		return OK;
 	}
 
-	explicit JsonReader(std::string_view input)
+	Status parse(std::string_view input, std::string_view identifier = {})
 	{
-		const auto flags = rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag;
+		m_values.clear();
 
-		m_doc.Parse<flags>(input.data(), input.size());
-		m_values.push(&m_doc);
+		const auto parseFlags = rapidjson::kParseCommentsFlag //
+		                      | rapidjson::kParseTrailingCommasFlag;
+
+		rapidjson::ParseResult ok = m_doc.Parse<parseFlags>(input.data(), input.size());
+		if (!ok) {
+			ANKER_ERROR("{}: {} offset={}", identifier, rapidjson::GetParseError_En(ok.Code()), ok.Offset());
+			return FormatError;
+		}
+
+		m_values.push_back(&m_doc);
+		return OK;
 	}
 
-	explicit JsonReader(std::span<const uint8_t> input)
-	    : JsonReader(std::string_view(reinterpret_cast<const char*>(input.data()), input.size()))
-	{}
+	Status parse(std::span<const uint8_t> input, std::string_view identifier = {})
+	{
+		return parse(asStringView(input), identifier);
+	}
 
-	void operator()(bool& outValue) { outValue = current().GetBool(); }
-	void operator()(int& outValue) { outValue = current().GetInt(); }
-	void operator()(uint32_t& outValue) { outValue = current().GetUint(); }
-	void operator()(float& outValue) { outValue = current().GetFloat(); }
-	void operator()(double& outValue) { outValue = current().GetDouble(); }
-	void operator()(std::string_view& outValue) { outValue = {current().GetString(), current().GetStringLength()}; }
-	void operator()(std::string& outValue) { outValue = current().GetString(); }
+	bool operator()(bool& outValue) { return readPrimitive(outValue); }
+	bool operator()(int& outValue) { return readPrimitive(outValue); }
+	bool operator()(uint32_t& outValue) { return readPrimitive(outValue); }
+	bool operator()(float& outValue) { return readPrimitive(outValue); }
+	bool operator()(double& outValue) { return readPrimitive(outValue); }
+	bool operator()(std::string& outValue) { return readPrimitive(outValue); }
 
-	void operator()(EntityID& outValue) { (*this)(reinterpret_cast<entt::id_type&>(outValue)); }
+	bool operator()(EntityID& outValue)
+	{
+		entt::id_type id = 0;
+		ANKER_TRY(readPrimitive(id));
+		outValue = EntityID(id);
+		return true;
+	}
 
 	template <typename EnumType>
-	void operator()(EnumType& outValue) requires std::is_enum_v<EnumType>
+	bool operator()(EnumType& outValue) requires std::is_enum_v<EnumType>
 	{
 		if constexpr (FromStringable<EnumType>) {
-			std::string_view view;
-			(*this)(view);
-			if (auto e = fromString<EnumType>(view)) {
+			std::string_view s;
+			ANKER_TRY(readPrimitive(s));
+			if (auto e = fromString<EnumType>(s)) {
 				outValue = *e;
+			} else {
+				return false;
 			}
 		} else {
-			outValue = EnumType(current().GetInt());
+			int i;
+			ANKER_TRY(readPrimitive(i));
+			outValue = EnumType(i);
 		}
+		return true;
 	}
 
 	template <typename T>
-	void operator()(T& outObject) requires internal::SerializableClass<JsonReader, T>
+	bool operator()(T& outObject) requires internal::SerializableClass<JsonReader, T>
 	{
+		bool ok = true;
+
 		if constexpr (internal::CustomSerialization<JsonReader, T>) {
-			serialize(*this, outObject);
+			ok = serialize(*this, outObject);
 		}
 
 		else if constexpr (refl::is_reflectable<T>()) {
-			// For fields accessible via getter/setter (i.e. properties), TODO
+			// For fields accessible via getter/setter (i.e. properties)
 			auto properties = filter(refl::reflect<T>().members, [](auto member) { //
 				return is_property(member) && is_writable(member) && has_reader(member);
 			});
 			for_each(properties, [&](auto member) {
 				auto valueCopy = std::invoke(get_reader(member).pointer, outObject);
-				fieldByReflection(get_display_name(member), valueCopy);
+				ok = fieldByReflection(get_display_name(member), valueCopy) && ok;
 				std::invoke(get_writer(member), outObject, valueCopy);
 			});
 
 			// Fields can be accessed directly via reference.
 			auto fields = filter(refl::reflect<T>().members, [](auto member) { return is_field(member); });
 			for_each(fields, [&](auto member) { //
-				fieldByReflection(member.name.c_str(), member(outObject));
+				ok = fieldByReflection(member.name.c_str(), member(outObject)) && ok;
 			});
 		}
+
+		return ok;
 	}
 
 	bool isArray() const { return current().IsArray(); }
 	bool isObject() const { return current().IsObject(); }
 	bool hasKey(const char* key) const { return current().HasMember(key); }
 
-	// Navigate to the value of the given key in the current object. Returns
-	// true if the field is present, in which case you have to call popKey when
-	// you are done with this field.
-	bool pushKey(const char* key)
+	uint32_t arrayLength() const
 	{
-		if (auto it = current().FindMember(key); it != current().MemberEnd()) {
-			m_values.push(&it->value);
-			return true;
+		if (current().IsArray()) {
+			return current().GetArray().Size();
 		} else {
-			return false;
+			return 0;
 		}
 	}
-	void popKey() { m_values.pop(); }
 
-	// Similar to pushKey, but for accessing an element of the current array.
-	bool pushIndex(uint32_t index)
+	// Navigate to the value of the given key in the current object. Returns
+	// true if the field is present, in which case you have to call pop when you
+	// are done with this field.
+	bool push(const char* key)
 	{
-		if (index < current().GetArray().Size()) {
-			m_values.push(&current().GetArray()[index]);
-			return true;
-		} else {
-			return false;
+		if (current().IsObject()) {
+			if (auto it = current().FindMember(key); it != current().MemberEnd()) {
+				m_values.push_back(&it->value);
+				return true;
+			}
 		}
+		return false;
 	}
-	void popIndex() { m_values.pop(); }
+
+	// Same as above, but for accessing an element of the current array.
+	bool push(uint32_t index)
+	{
+		if (current().IsArray()) {
+			if (index < current().GetArray().Size()) {
+				m_values.push_back(&current().GetArray()[index]);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void pop() { m_values.pop_back(); }
 
 	// Convenience function to directly read a field from the current object.
 	template <typename T>
 	bool field(const char* key, T& outValue) requires Serializable<JsonReader, T>
 	{
-		if (pushKey(key)) {
-			(*this)(outValue);
-			popKey();
-			return true;
-		} else {
-			return false;
-		}
+		ANKER_TRY(push(key));
+		ANKER_DEFER([&] { pop(); });
+		return (*this)(outValue);
 	}
 
 	// Reads the element at the given index from the current array.
 	template <typename T>
 	bool arrayElement(uint32_t index, T& outValue) requires Serializable<JsonReader, T>
 	{
-		if (pushIndex(index)) {
-			(*this)(outValue);
-			popIndex();
-			return true;
-		} else {
-			return false;
-		}
+		ANKER_TRY(push(index));
+		ANKER_DEFER([&] { pop(); });
+		return (*this)(outValue);
 	}
-
-	uint32_t arrayLength() const { return current().GetArray().Size(); }
 
 	// Invokes function for each field in the current object.
 	template <typename F>
 	void forEach(F function) requires std::invocable<F, const char*>
 	{
-		for (auto& [k, v] : current().GetObject()) {
-			m_values.push(&v);
-			function(k.GetString());
-			m_values.pop();
+		if (current().IsObject()) {
+			for (auto& [k, v] : current().GetObject()) {
+				m_values.push_back(&v);
+				function(k.GetString());
+				m_values.pop_back();
+			}
 		}
 	}
 
@@ -168,10 +196,12 @@ class JsonReader {
 	template <typename F>
 	void forEach(F function) requires std::invocable<F, uint32_t>
 	{
-		for (uint32_t i = 0; i < current().GetArray().Size(); ++i) {
-			m_values.push(&current().GetArray()[i]);
-			function(i);
-			m_values.pop();
+		if (current().IsArray()) {
+			for (uint32_t i = 0; i < current().GetArray().Size(); ++i) {
+				m_values.push_back(&current().GetArray()[i]);
+				function(i);
+				m_values.pop_back();
+			}
 		}
 	}
 
@@ -180,13 +210,10 @@ class JsonReader {
 	template <typename F>
 	bool forEach(const char* key, F function)
 	{
-		if (pushKey(key)) {
-			forEach(function);
-			popKey();
-			return true;
-		} else {
-			return false;
-		}
+		ANKER_TRY(push(key));
+		forEach(function);
+		pop();
+		return true;
 	}
 
 	// Invokes function for each field in the object or element in the array
@@ -194,30 +221,45 @@ class JsonReader {
 	template <typename F>
 	bool forEach(uint32_t index, F function)
 	{
-		if (pushIndex(index)) {
-			forEach(function);
-			popIndex();
-			return true;
-		} else {
-			return false;
-		}
+		ANKER_TRY(push(index));
+		forEach(function);
+		pop();
+		return true;
 	}
 
   private:
 	template <typename T>
-	void fieldByReflection(const char* key, T& outValue)
+	bool readPrimitive(T& outValue)
+	{
+		if constexpr (std::is_same_v<T, bool>) {
+			ANKER_TRY(current().IsBool());
+		} else if constexpr (std::is_arithmetic_v<T>) {
+			ANKER_TRY(current().IsNumber());
+		} else if constexpr (std::is_same_v<T, std::string>) {
+			ANKER_TRY(current().IsString());
+		} else {
+			static_assert(AlwaysFalse<T>, "Not a primitive");
+		}
+
+		outValue = current().Get<T>();
+		return true;
+	}
+
+	template <typename T>
+	bool fieldByReflection(const char* key, T& outValue)
 	{
 		if constexpr (Serializable<JsonReader, T>) {
-			field(key, outValue);
+			return field(key, outValue);
 		} else {
 			ANKER_WARN("JsonReader: field not serialized {}", key);
+			return true;
 		}
 	}
 
-	rapidjson::Document::GenericValue& current() const { return *m_values.top(); }
+	rapidjson::Document::GenericValue& current() const { return *m_values.back(); }
 
 	rapidjson::Document m_doc;
-	std::stack<rapidjson::Document::GenericValue*> m_values;
+	std::vector<rapidjson::Document::GenericValue*> m_values;
 };
 
 ////////////////////////////////////////////////////////////
