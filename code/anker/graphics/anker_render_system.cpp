@@ -1,4 +1,4 @@
-#include <anker/graphics/anker_renderer.hpp>
+#include <anker/graphics/anker_render_system.hpp>
 
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
@@ -16,7 +16,7 @@ struct SceneConstantBuffer {
 };
 static_assert(sizeof(SceneConstantBuffer) % 16 == 0, "Constant Buffer size must be 16-byte aligned");
 
-Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
+RenderSystem::RenderSystem(RenderDevice& renderDevice, AssetCache& assetCache)
     : gizmoRenderer(renderDevice, assetCache),
       m_renderDevice(renderDevice),
       m_mapRenderer(renderDevice, assetCache),
@@ -48,7 +48,7 @@ Renderer::Renderer(RenderDevice& renderDevice, AssetCache& assetCache)
 	m_renderDevice.enableAlphaBlending();
 }
 
-void Renderer::draw(const Scene& scene)
+void RenderSystem::draw(const Scene& scene)
 {
 	ANKER_PROFILE_ZONE();
 
@@ -130,7 +130,7 @@ void Renderer::draw(const Scene& scene)
 	gizmoRenderer.draw();
 }
 
-void Renderer::onResize(Vec2i)
+void RenderSystem::onResize(Vec2i)
 {
 	m_sceneRenderTarget.info.size = m_renderDevice.backBuffer().info.size;
 	if (not m_renderDevice.createTexture(m_sceneRenderTarget)) {

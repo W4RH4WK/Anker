@@ -209,7 +209,7 @@ void Inspector::drawSelectionGizmo(EntityCHandle entity)
 		rect.size = transform.scale;
 		rect.offset = transform.position - transform.scale / 2.0f;
 
-		g_engine->renderer.gizmoRenderer.addRect(rect, {0.95f, 0.60f, 0.22f, 1});
+		g_engine->renderSystem.gizmoRenderer.addRect(rect, {0.95f, 0.60f, 0.22f, 1});
 	}
 }
 

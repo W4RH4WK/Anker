@@ -12,8 +12,8 @@ Engine::Engine()
       imguiSystem(renderDevice),
       inputSystem(imguiSystem),
       assetCache(renderDevice, fontSystem),
-      renderer(renderDevice, assetCache),
-      physicsSystem(renderer.gizmoRenderer)
+      renderSystem(renderDevice, assetCache),
+      physicsSystem(renderSystem.gizmoRenderer)
 {
 	ANKER_INFO("Anker Initialized!");
 }
@@ -49,7 +49,7 @@ void Engine::tick()
 
 	physicsSystem.tick(dt, *activeScene);
 
-	renderer.draw(*activeScene);
+	renderSystem.draw(*activeScene);
 	imguiSystem.draw();
 	renderDevice.present();
 }
@@ -74,7 +74,7 @@ void Engine::onResize(Vec2i size)
 {
 	ANKER_INFO("onResize size={}", size);
 	renderDevice.onResize(size);
-	renderer.onResize(size);
+	renderSystem.onResize(size);
 }
 
 float Engine::calculateDeltaTime()

@@ -150,8 +150,8 @@ struct RasterizerDesc {
 
 // RenderDevice builds a thin abstraction over the graphics API. It takes care
 // of initialization (and finalization), holds the GPU device / context resource
-// handles, and enables other engine parts (e.g. Renderer) to acquire and use
-// GPU resources.
+// handles, and enables other engine parts (e.g. RenderSystem) to acquire and
+// use GPU resources.
 //
 // We also manage the swap-chain and related buffers / views.
 class RenderDevice {
