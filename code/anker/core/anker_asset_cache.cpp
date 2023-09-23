@@ -59,7 +59,7 @@ AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 	auto texture = makeAssetPtr<Texture>();
 
 	if (not m_renderDevice.loadTexture(*texture, identifier)) {
-		ANKER_WARN("{}: Missing, using fallback!", identifier);
+		ANKER_ERROR("{}: Missing, using fallback!", identifier);
 		texture = m_renderDevice.fallbackTexture();
 	}
 

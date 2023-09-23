@@ -5,11 +5,11 @@ namespace Anker {
 Status DataLoader::load(ByteBuffer& outBuffer, const fs::path& filepath) const
 {
 	for (auto& source : m_sources) {
-		if (source->load(outBuffer, filepath)) {
-			return OK;
+		if (source->exists(filepath)) {
+			return source->load(outBuffer, filepath);
 		}
 	}
-	ANKER_WARN("{}: Missing!", filepath);
+	ANKER_ERROR("{}: Missing!", filepath);
 	return ReadError;
 }
 

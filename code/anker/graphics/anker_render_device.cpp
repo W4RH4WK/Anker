@@ -134,7 +134,7 @@ RenderDevice::RenderDevice()
 
 	m_fallbackTexture = makeAssetPtr<Texture>();
 	if (not loadTexture(*m_fallbackTexture, "fallback/fallback_texture")) {
-		ANKER_WARN("Fallback texture could not be loaded!");
+		ANKER_ERROR("Fallback texture could not be loaded!");
 	}
 }
 
@@ -271,25 +271,21 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 	texture.renderTargetView.Reset();
 	texture.depthView.Reset();
 
-	auto filepath = std::string(identifier);
-
-	ByteBuffer textureData;
-	if (g_assetDataLoader.load(textureData, filepath + ".dds")) {
-		if (createTextureFromDDS(texture, textureData, *this)) {
-			return OK;
-		}
-	}
-	if (g_assetDataLoader.load(textureData, filepath + ".png")) {
-		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
-			return OK;
-		}
-	}
-	if (g_assetDataLoader.load(textureData, filepath + ".jpg")) {
-		if (createTextureFromPNGorJPG(texture, textureData, *this)) {
-			return OK;
+	const auto loaders = {
+	    std::pair(".dds", createTextureFromDDS),
+	    std::pair(".png", createTextureFromPNGorJPG),
+	    std::pair(".jpg", createTextureFromPNGorJPG),
+	};
+	for (auto [ext, loader] : loaders) {
+		auto filepath = std::string(identifier) + ext;
+		if (g_assetDataLoader.exists(filepath)) {
+			ByteBuffer textureData;
+			ANKER_TRY(g_assetDataLoader.load(textureData, filepath));
+			return loader(texture, textureData, *this);
 		}
 	}
 
+	ANKER_ERROR("{}: Missing!", identifier);
 	return ReadError;
 }
 
