@@ -35,7 +35,7 @@ SpriteRenderer::SpriteRenderer(RenderDevice& renderDevice, AssetCache& assetCach
 
 	m_vertexBuffer.info = {
 	    .name = "SpriteRenderer Vertex Buffer",
-	    .size = 4 * sizeof(Vertex2D),
+	    .size = 6 * sizeof(Vertex2D),
 	    .stride = sizeof(Vertex2D),
 	    .bindFlags = GpuBindFlag::VertexBuffer,
 	    .flags = GpuBufferFlag::CpuWriteable,
@@ -69,22 +69,14 @@ void SpriteRenderer::draw(const Scene&, const SceneNode* node)
 		m_renderDevice.bindBufferPS(1, m_constantBuffer);
 	}
 
-	auto textureSize = Vec2(sprite->texture->info.size);
 	Rect2 spriteRect;
 	spriteRect.size = Vec2(sprite->texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter;
 	spriteRect.offset = spriteRect.size * sprite->offset;
 
-	m_renderDevice.fillBuffer(
-	    m_vertexBuffer,
-	    std::array{
-	        Vertex2D{.position = spriteRect.topLeftWorld(), .uv = sprite->textureRect.topLeft()},
-	        Vertex2D{.position = spriteRect.bottomLeftWorld(), .uv = sprite->textureRect.bottomLeft()},
-	        Vertex2D{.position = spriteRect.topRightWorld(), .uv = sprite->textureRect.topRight()},
-	        Vertex2D{.position = spriteRect.bottomRightWorld(), .uv = sprite->textureRect.bottomRight()},
-	    });
+	m_renderDevice.fillBuffer(m_vertexBuffer, Vertex2D::makeQuad(spriteRect, sprite->textureRect));
 
 	m_renderDevice.bindTexturePS(0, *sprite->texture);
-	m_renderDevice.draw(m_vertexBuffer, Topology::TriangleStrip);
+	m_renderDevice.draw(m_vertexBuffer);
 	m_renderDevice.unbindTexturePS(0);
 }
 

@@ -9,22 +9,8 @@ struct Vertex2D {
 	Vec2 uv;
 
 	static const std::array<D3D11_INPUT_ELEMENT_DESC, 2> ShaderInputs;
-};
 
-inline const std::array<D3D11_INPUT_ELEMENT_DESC, 2> Vertex2D::ShaderInputs = {
-    D3D11_INPUT_ELEMENT_DESC{
-        .SemanticName = "POSITION",
-        .Format = DXGI_FORMAT_R32G32_FLOAT,
-        .AlignedByteOffset = offsetof(Vertex2D, position),
-        .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-    },
-    D3D11_INPUT_ELEMENT_DESC{
-        .SemanticName = "TEXCOORD",
-        .SemanticIndex = 0,
-        .Format = DXGI_FORMAT_R32G32_FLOAT,
-        .AlignedByteOffset = offsetof(Vertex2D, uv),
-        .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-    },
+	static std::array<Vertex2D, 6> makeQuad(const Rect2& position, const Rect2& uv);
 };
 
 } // namespace Anker
