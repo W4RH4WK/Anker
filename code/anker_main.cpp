@@ -44,7 +44,7 @@ int main()
 		    .texture = g_engine->assetCache.loadTexture("textures/player"),
 		});
 
-		g_engine->activeScene->activeCamera().emplace<Follower>(player);
+		g_engine->activeScene->activeCamera().emplace<Follower>(player).speed = 8.0f;
 
 		auto& physicsBody = player.emplace<PhysicsBody>();
 
@@ -53,6 +53,7 @@ int main()
 		bodyDef.position = {10.5f, -8};
 		bodyDef.fixedRotation = true;
 		bodyDef.allowSleep = false;
+		bodyDef.gravityScale = 0;
 
 		physicsBody.body = g_engine->activeScene->physicsWorld->CreateBody(&bodyDef);
 
@@ -62,7 +63,7 @@ int main()
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &dynamicBox;
 		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 1.0f;
+		fixtureDef.friction = 0.0f;
 
 		physicsBody.body->CreateFixture(&fixtureDef);
 	}

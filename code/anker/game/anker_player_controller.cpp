@@ -6,13 +6,14 @@
 
 namespace Anker {
 
-void PlayerController::tick(float dt, Scene& scene)
+void PlayerController::tick(float, Scene& scene)
 {
 	const auto& actions = g_engine->inputSystem.actions();
 
 	for (auto [_, physicsBody] : scene.registry.view<PhysicsBody, PlayerController>().each()) {
 		if (physicsBody.body) {
-			physicsBody.body->SetLinearVelocity(100.0f * actions.playerMove * dt);
+			Vec2 velocity = 6.0f * actions.playerMove + 10.0f * Vec2::WorldDown;
+			physicsBody.body->SetLinearVelocity(velocity);
 		}
 	}
 }
