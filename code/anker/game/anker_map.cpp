@@ -184,6 +184,9 @@ class TmjLoader {
 			ANKER_DEFER([&] { m_layerSceneNode = m_layerSceneNode->parent(); });
 
 			Vec4 color = Vec4(1);
+			if (std::string colorHtml; m_tmjReader.field("tintcolor", colorHtml)) {
+				colorFromHtml(color, colorHtml);
+			}
 			m_tmjReader.field("opacity", color.w);
 			m_colorStack.push_back(color);
 			ANKER_DEFER([&] { m_colorStack.pop_back(); });

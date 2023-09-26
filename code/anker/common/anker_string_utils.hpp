@@ -66,4 +66,43 @@ concept FromStringable = requires(T)
 	{fromString<T>(std::string_view{})};
 };
 
+////////////////////////////////////////////////////////////
+// ASCII string utilities
+
+namespace Ascii {
+
+inline bool isAscii(std::string_view s)
+{
+	return std::all_of(s.begin(), s.end(), [](unsigned char c) { return c <= 127; });
+}
+
+inline char toLowerChar(char c)
+{
+	if ('A' <= c && c <= 'Z') {
+		return c + ('a' - 'A');
+	} else {
+		return c;
+	}
+}
+
+inline char toUpperChar(char c)
+{
+	if ('a' <= c && c <= 'z') {
+		return c - ('a' - 'A');
+	} else {
+		return c;
+	}
+}
+
+inline void toLower(std::string& s)
+{
+	std::transform(s.begin(), s.end(), s.begin(), toLowerChar);
+}
+
+inline void toUpper(std::string& s)
+{
+	std::transform(s.begin(), s.end(), s.begin(), toUpperChar);
+}
+
+} // namespace Ascii
 } // namespace Anker

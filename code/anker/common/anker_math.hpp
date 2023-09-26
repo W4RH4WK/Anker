@@ -401,6 +401,8 @@ struct Vec4T {
 	T w = 0;
 };
 
+bool colorFromHtml(Vec4T<float>&, std::string_view);
+
 template <typename T>
 constexpr Vec4T<T> pow(const Vec4T<T>& v, T exp)
 {
