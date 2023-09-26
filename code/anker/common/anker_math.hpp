@@ -25,6 +25,9 @@ constexpr T clamp01(T value)
 	return clamp(value, T(0), T(1));
 }
 
+////////////////////////////////////////////////////////////
+// Interpolation
+
 template <typename T>
 constexpr T lerp(T t, T start, T end)
 {
@@ -43,12 +46,9 @@ constexpr T inverseLerp(T value, T start, T end)
 	return (value - start) / (end - start);
 }
 
-////////////////////////////////////////////////////////////
-// Interpolation
-
 // Interpolates from current to target non-linearly, ease-out.
 template <typename T>
-constexpr T interpolate(T current, T target, float deltaTime, T speed, T epsilon = T(1e-6))
+constexpr T moveTowards(T current, T target, T speed, float dt, T epsilon = T(1e-6))
 {
 	if (speed <= T(0)) {
 		return target;
@@ -57,7 +57,7 @@ constexpr T interpolate(T current, T target, float deltaTime, T speed, T epsilon
 	if (distance * distance <= epsilon) {
 		return target;
 	}
-	return current + distance * clamp01(deltaTime * speed);
+	return current + distance * clamp01(speed * dt);
 }
 
 ////////////////////////////////////////////////////////////
@@ -109,10 +109,10 @@ struct Vec2T {
 
 	constexpr Vec2T& rotate(T angle) { return *this = glm::rotate(glm::vec<2, T>(*this), angle); }
 
-	constexpr Vec2T& interpolate(Vec2T target, float deltaTime, Vec2T speed, T epsilon = T(1e-6))
+	constexpr Vec2T& moveTowards(Vec2T target, Vec2T speed, float dt, T epsilon = T(1e-6))
 	{
-		x = Anker::interpolate(x, target.x, deltaTime, speed.x, epsilon);
-		y = Anker::interpolate(y, target.y, deltaTime, speed.y, epsilon);
+		x = Anker::moveTowards(x, target.x, speed.x, dt, epsilon);
+		y = Anker::moveTowards(y, target.y, speed.y, dt, epsilon);
 		return *this;
 	}
 
@@ -248,11 +248,11 @@ struct Vec3T {
 	constexpr double length() const { return glm::length(glm::vec<3, T>(*this)); }
 	constexpr double lengthSquared() const { return glm::length2(glm::vec<3, T>(*this)); }
 
-	constexpr Vec3T& interpolate(Vec3T target, float deltaTime, Vec3T speed, T epsilon = T(1e-6))
+	constexpr Vec3T& moveTowards(Vec3T target, Vec3T speed, float dt, T epsilon = T(1e-6))
 	{
-		x = Anker::interpolate(x, target.x, deltaTime, speed.x, epsilon);
-		y = Anker::interpolate(y, target.y, deltaTime, speed.y, epsilon);
-		z = Anker::interpolate(z, target.z, deltaTime, speed.z, epsilon);
+		x = Anker::moveTowards(x, target.x, speed.x, dt, epsilon);
+		y = Anker::moveTowards(y, target.y, speed.y, dt, epsilon);
+		z = Anker::moveTowards(z, target.z, speed.z, dt, epsilon);
 		return *this;
 	}
 
@@ -384,12 +384,12 @@ struct Vec4T {
 	constexpr double length() const { return glm::length(glm::vec<4, T>(*this)); }
 	constexpr double lengthSquared() const { return glm::length2(glm::vec<4, T>(*this)); }
 
-	constexpr Vec4T& interpolate(Vec4T target, float deltaTime, Vec4T speed, T epsilon = T(1e-6))
+	constexpr Vec4T& moveTowards(Vec4T target, Vec4T speed, float dt, T epsilon = T(1e-6))
 	{
-		x = Anker::interpolate(x, target.x, deltaTime, speed.x, epsilon);
-		y = Anker::interpolate(y, target.y, deltaTime, speed.y, epsilon);
-		z = Anker::interpolate(z, target.z, deltaTime, speed.z, epsilon);
-		w = Anker::interpolate(w, target.w, deltaTime, speed.w, epsilon);
+		x = Anker::moveTowards(x, target.x, speed.x, dt, epsilon);
+		y = Anker::moveTowards(y, target.y, speed.y, dt, epsilon);
+		z = Anker::moveTowards(z, target.z, speed.z, dt, epsilon);
+		w = Anker::moveTowards(w, target.w, speed.w, dt, epsilon);
 		return *this;
 	}
 

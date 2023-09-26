@@ -16,7 +16,7 @@ void Follower::tick(float dt, Scene& scene)
 		Vec2 targetPosition = targetNode->globalTransform().position;
 
 		Transform2D transform = node.globalTransform();
-		transform.position.interpolate(targetPosition, dt, follower.speed);
+		transform.position.moveTowards(targetPosition, follower.speed, dt);
 		node.setGlobalTransform(transform);
 	}
 }
