@@ -120,12 +120,13 @@ constexpr Flags<Enum> operator&(Enum flag, const Flags<Enum>& flags)
 		} \
 		return lookup; \
 	}(); \
-	inline void from_string_impl(std::string_view input, std::optional<Enum>& result) \
+	inline bool from_string(Enum& result, std::string_view input) \
 	{ \
 		if (auto it = Enum##FromStringLookup.find(input); it != Enum##FromStringLookup.end()) { \
 			result = it->second; \
+			return true; \
 		} else { \
-			result.reset(); \
+			return false; \
 		} \
 	}
 

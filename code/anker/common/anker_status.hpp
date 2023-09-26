@@ -72,7 +72,7 @@ struct [[nodiscard]] Status {
 	constexpr explicit operator bool() const { return code == Ok; }
 
 	const char* toString() const { return to_string(code); }
-	static std::optional<Status> fromString(std::string_view view) { return Anker::fromString<StatusCode>(view); }
+	static bool fromString(Status& status, std::string_view view) { return Anker::fromString(status.code, view); }
 
 	StatusCode code = Ok;
 

@@ -75,19 +75,14 @@ class JsonReader {
 	bool operator()(EnumType& outValue) requires std::is_enum_v<EnumType>
 	{
 		if constexpr (FromStringable<EnumType>) {
-			std::string_view s;
-			ANKER_TRY(readPrimitive(s));
-			if (auto e = fromString<EnumType>(s)) {
-				outValue = *e;
-			} else {
-				return false;
-			}
+			ANKER_TRY(current().IsString());
+			return fromString(outValue, current().GetString());
 		} else {
 			int i;
 			ANKER_TRY(readPrimitive(i));
 			outValue = EnumType(i);
+			return true;
 		}
-		return true;
 	}
 
 	template <typename T>

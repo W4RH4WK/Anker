@@ -42,29 +42,29 @@ struct ToStringFmtFormatter : fmt::formatter<fmt::string_view> {
 ////////////////////////////////////////////////////////////
 // fromString
 
+// clang-format off
 template <typename T>
-concept HasFromStringMemFn = requires(T)
+concept HasFromStringMemFn = requires(T& result)
 {
-	{T::fromString(std::string_view{})};
+	{ T::fromString(result, std::string_view{}) } -> std::convertible_to<bool>;
 };
 
 template <typename T>
-std::optional<T> fromString(std::string_view input)
+bool fromString(T& result, std::string_view input)
 {
 	if constexpr (HasFromStringMemFn<T>) {
-		return T::fromString(input);
+		return T::fromString(result, input);
 	} else {
-		std::optional<T> result;
-		from_string_impl(input, result);
-		return result;
+		return from_string(result, input);
 	}
 }
 
 template <typename T>
-concept FromStringable = requires(T)
+concept FromStringable = requires(T& result)
 {
-	{fromString<T>(std::string_view{})};
+	{ fromString(result, std::string_view{}) } -> std::convertible_to<bool>;
 };
+// clang-format on
 
 ////////////////////////////////////////////////////////////
 // ASCII string utilities
