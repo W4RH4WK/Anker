@@ -25,6 +25,20 @@ void PhysicsSystem::tick(float dt, Scene& scene)
 	}
 }
 
+static void createPhysicsBody(entt::registry& reg, EntityID entity)
+{
+	auto& physicsWorld = reg.ctx().get<PhysicsWorld>();
+
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.userData.entityID = entt::to_integral(entity);
+	if (auto* node = reg.try_get<SceneNode>(entity)) {
+		bodyDef.position = node->globalTransform().position;
+		bodyDef.angle = node->globalTransform().rotation;
+	}
+	reg.get<PhysicsBody>(entity).body = physicsWorld.CreateBody(&bodyDef);
+}
+
 static void destroyPhysicsBody(entt::registry& reg, EntityID entity)
 {
 	auto& physicsWorld = reg.ctx().get<PhysicsWorld>();
@@ -48,6 +62,7 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 	// Adding an alias for when we don't have access to the Scene object.
 	scene.registry.ctx().emplace<PhysicsWorld&>(scene.physicsWorld);
 
+	scene.registry.on_construct<PhysicsBody>().connect<createPhysicsBody>();
 	scene.registry.on_destroy<PhysicsBody>().connect<destroyPhysicsBody>();
 }
 
