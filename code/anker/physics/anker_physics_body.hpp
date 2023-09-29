@@ -23,6 +23,8 @@ struct PhysicsBody {
 	}
 
 	b2Body* body = nullptr;
+
+	std::vector<b2Contact*> touchingContacts;
 };
 
 } // namespace Anker

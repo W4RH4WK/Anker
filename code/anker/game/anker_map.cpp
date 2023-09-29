@@ -420,25 +420,19 @@ class TmjLoader {
 
 			auto entity = m_scene.createEntity("Collider");
 
-			// Transform is overwritten by physics body.
-			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
-
 			Transform2D transform;
 			m_tmjReader.field("x", transform.position.x);
 			m_tmjReader.field("y", transform.position.y);
 			transform.position = convertCoordinates(transform.position);
 
-			auto& physicsBody = entity.emplace<PhysicsBody>();
+			entity.emplace<SceneNode>(transform, m_layerSceneNode);
 
-			b2BodyDef bodyDef;
-			bodyDef.type = b2_staticBody;
-			bodyDef.position = transform.position;
-
-			physicsBody.body = m_scene.physicsWorld->CreateBody(&bodyDef);
+			auto* physicsBody = entity.emplace<PhysicsBody>().body;
+			physicsBody->SetType(b2_staticBody);
 
 			b2ChainShape chain;
 			chain.CreateLoop(vertices.data(), int32(vertices.size()));
-			physicsBody.body->CreateFixture(&chain, 0);
+			physicsBody->CreateFixture(&chain, 0);
 		});
 
 		return Ok;

@@ -3,6 +3,7 @@
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/physics/anker_physics_body.hpp>
+#include <anker/physics/anker_physics_contact_listener.hpp>
 
 namespace Anker {
 
@@ -58,6 +59,9 @@ void PhysicsSystem::addPhysicsWorld(Scene& scene)
 
 	scene.physicsWorld.emplace(gravity);
 	scene.physicsWorld->SetDebugDraw(&m_debugDraw);
+
+	b2ContactListener* contactListener = &scene.registry.ctx().emplace<PhysicsContactListener>(scene);
+	scene.physicsWorld->SetContactListener(contactListener);
 
 	// Adding an alias for when we don't have access to the Scene object.
 	scene.registry.ctx().emplace<PhysicsWorld&>(scene.physicsWorld);
