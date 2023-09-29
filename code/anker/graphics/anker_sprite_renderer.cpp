@@ -73,7 +73,8 @@ void SpriteRenderer::draw(const Scene&, const SceneNode* node)
 	spriteRect.size = Vec2(sprite->texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter;
 	spriteRect.offset = spriteRect.size * sprite->offset;
 
-	m_renderDevice.fillBuffer(m_vertexBuffer, Vertex2D::makeQuad(spriteRect, sprite->textureRect));
+	m_renderDevice.fillBuffer(m_vertexBuffer, Vertex2D::makeQuad(spriteRect, sprite->textureRect, //
+	                                                             sprite->flipX, sprite->flipY));
 
 	m_renderDevice.bindTexturePS(0, *sprite->texture);
 	m_renderDevice.draw(m_vertexBuffer);

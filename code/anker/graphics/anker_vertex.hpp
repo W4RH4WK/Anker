@@ -10,7 +10,8 @@ struct Vertex2D {
 
 	static const std::array<D3D11_INPUT_ELEMENT_DESC, 2> ShaderInputs;
 
-	static std::array<Vertex2D, 6> makeQuad(const Rect2& position, const Rect2& uv);
+	static std::array<Vertex2D, 6> makeQuad(const Rect2& position, const Rect2& uv, //
+	                                        bool uvFlipX = false, bool uvFlipY = false);
 };
 
 } // namespace Anker
