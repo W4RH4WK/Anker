@@ -4,6 +4,7 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
+#include <anker/game/anker_player.hpp>
 #include <anker/graphics/anker_map_renderer.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
@@ -205,7 +206,7 @@ class TmjLoader {
 				if (layerName.starts_with("Collision")) {
 					status = loadCollisionLayer();
 				} else {
-					status = loadObjectLayer();
+					loadObjectLayer();
 				}
 			} else if (type == "group") {
 				status = loadLayers();
@@ -330,58 +331,80 @@ class TmjLoader {
 		return Ok;
 	}
 
-	Status loadObjectLayer()
+	void loadObjectLayer()
 	{
 		m_tmjReader.forEach("objects", [&](uint32_t) {
-			std::string objectName;
-			m_tmjReader.field("name", objectName);
-
-			Transform2D transform;
-			m_tmjReader.field("rotation", transform.rotation);
-			transform.rotation = -transform.rotation * Deg2Rad;
-			m_tmjReader.field("width", transform.scale.x);
-			m_tmjReader.field("height", transform.scale.y);
-			transform.scale /= 256.0f; // pixel -> meter
-
-			// Rotation pivot in Tiled is the bottom left corner of an object.
-			// However, our rotation pivot is the object's center.
-			transform.position = transform.scale / 2.0f;
-			transform.position.rotate(transform.rotation);
-
-			Vec2 offset;
-			m_tmjReader.field("x", offset.x);
-			m_tmjReader.field("y", offset.y);
-			transform.position += convertCoordinates(offset);
-
-			TileId tile = 0;
-			m_tmjReader.field("gid", tile);
-			ANKER_ASSERT(tile != 0); // TODO
-
-			// The tile number consists of a global id and flip bits.
-			const TileId gid = tile & ~FlipMask;
-
-			if (tile & FlipHorizontal) {
-				transform.scale.x *= -1.0f;
+			if (std::string tpl; m_tmjReader.field("template", tpl)) {
+				loadPlaceholder(tpl);
+			} else {
+				loadObject();
 			}
-			if (tile & FlipVertical) {
-				transform.scale.y *= -1.0f;
-			}
-
-			const auto& tileset = m_tilesets[findTilesetIndex(gid)];
-
-			auto entity = m_scene.createEntity(objectName);
-			entity.emplace<SceneNode>(transform, m_layerSceneNode);
-			entity.emplace<Sprite>(Sprite{
-			    .color = calcColor(),
-			    .parallax = calcParallax(),
-			    .offset = {-0.5f, -0.5f},
-			    .pixelToMeter = 256.0f, // TODO
-			    .texture = tileset.texture,
-			    .textureRect = tileset.textureCoordinates(gid),
-			});
 		});
+	}
 
-		return Ok;
+	void loadPlaceholder(std::string_view tpl)
+	{
+		Vec2 position;
+		m_tmjReader.field("x", position.x);
+		m_tmjReader.field("y", position.y);
+		position.x += 256.0f / 2.0f;
+		position = convertCoordinates(position);
+
+		if (tpl.ends_with("/player.tj")) {
+			spawnPlayer(m_scene, position, m_layerSceneNode);
+		} else {
+			ANKER_ERROR("{}: Unknown placeholder: {}", m_tmjIdentifier, tpl);
+		}
+	}
+
+	void loadObject()
+	{
+		std::string objectName;
+		m_tmjReader.field("name", objectName);
+
+		Transform2D transform;
+		m_tmjReader.field("rotation", transform.rotation);
+		transform.rotation = -transform.rotation * Deg2Rad;
+		m_tmjReader.field("width", transform.scale.x);
+		m_tmjReader.field("height", transform.scale.y);
+		transform.scale /= 256.0f; // pixel -> meter
+
+		// Rotation pivot in Tiled is the bottom left corner of an object.
+		// However, our rotation pivot is the object's center.
+		transform.position = transform.scale / 2.0f;
+		transform.position.rotate(transform.rotation);
+
+		Vec2 offset;
+		m_tmjReader.field("x", offset.x);
+		m_tmjReader.field("y", offset.y);
+		transform.position += convertCoordinates(offset);
+
+		TileId tile = 0;
+		m_tmjReader.field("gid", tile);
+		ANKER_ASSERT(tile != 0); // TODO
+
+		// The tile number consists of a global id and flip bits.
+		const TileId gid = tile & ~FlipMask;
+
+		if (tile & FlipHorizontal) {
+			transform.scale.x *= -1.0f;
+		}
+		if (tile & FlipVertical) {
+			transform.scale.y *= -1.0f;
+		}
+
+		const auto& tileset = m_tilesets[findTilesetIndex(gid)];
+
+		auto entity = m_scene.createEntity(objectName);
+		entity.emplace<SceneNode>(transform, m_layerSceneNode);
+		entity.emplace<Sprite>(Sprite{
+		    .color = calcColor(),
+		    .parallax = calcParallax(),
+		    .offset = {-0.5f, -0.5f},
+		    .pixelToMeter = 256.0f, // TODO
+		    .texture = tileset.texture,
+		    .textureRect = tileset.textureCoordinates(gid),
+		});
 	}
 
 	Status loadCollisionLayer()

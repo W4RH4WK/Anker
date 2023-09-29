@@ -30,7 +30,7 @@ PIXEL_SHADERS = FileList[
 
 TEXTURES = FileList[
   'fallback/fallback_texture.png',
-  'maps/sewers/*.png',
+  'tilesets/*.png',
 ]
 
 ############################################################

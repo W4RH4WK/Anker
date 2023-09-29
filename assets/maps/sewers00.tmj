@@ -394,6 +394,12 @@
                          "width":256,
                          "x":3030,
                          "y":3881
+                        }, 
+                        {
+                         "id":91,
+                         "template":"placeholders\/player.tj",
+                         "x":2560,
+                         "y":2112
                         }],
                  "opacity":1,
                  "type":"objectgroup",
@@ -621,7 +627,7 @@
          "y":0
         }],
  "nextlayerid":20,
- "nextobjectid":87,
+ "nextobjectid":92,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
@@ -629,15 +635,15 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"sewers_tiles.tsj"
+         "source":"..\/tilesets\/sewers_tiles.tsj"
         }, 
         {
          "firstgid":37,
-         "source":"sewers_deco.tsj"
+         "source":"..\/tilesets\/sewers_deco.tsj"
         }, 
         {
          "firstgid":73,
-         "source":"sewers_background.tsj"
+         "source":"..\/tilesets\/sewers_background.tsj"
         }],
  "tilewidth":256,
  "type":"map",

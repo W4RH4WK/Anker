@@ -11,7 +11,7 @@ struct Sprite {
 	Vec4 color = Vec4(1);
 	Vec2 parallax = Vec2(1);
 	Vec2 offset;
-	float pixelToMeter = 32.0f;
+	float pixelToMeter = 256.0f;
 	AssetPtr<Texture> texture;
 	Rect2 textureRect = Rect2::fromPoints({0, 0}, {1, 1});
 };

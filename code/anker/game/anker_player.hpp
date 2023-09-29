@@ -9,13 +9,15 @@
 
 namespace Anker {
 
+using PlayerTag = entt::tag<"Player"_hs>;
+
 inline EntityHandle spawnPlayer(Scene& scene, Vec2 position, SceneNode* parent = nullptr)
 {
 	EntityHandle player = scene.createEntity("Player");
+	player.emplace<PlayerTag>();
 	player.emplace<SceneNode>(Transform2D(position), parent);
 	player.emplace<Sprite>(Sprite{
 	    .offset = {-0.5f, -0.5f},
-	    .pixelToMeter = 512,
 	    .texture = g_engine->assetCache.loadTexture("textures/player"),
 	});
 
@@ -26,7 +28,7 @@ inline EntityHandle spawnPlayer(Scene& scene, Vec2 position, SceneNode* parent =
 		body->SetGravityScale(0);
 
 		b2PolygonShape dynamicBox;
-		dynamicBox.SetAsBox(0.25f, 0.5f);
+		dynamicBox.SetAsBox(0.25f, 0.4f);
 
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &dynamicBox;

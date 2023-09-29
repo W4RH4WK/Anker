@@ -1,0 +1,33 @@
+{
+    "activeFile": "sewers00.tmj",
+    "expandedProjectPaths": [
+        "sewers",
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "C:/Users/w4rh4wk/git/ank/assets/tilesets/sewers_background.tsj": {
+            "scaleInDock": 1
+        },
+        "C:/Users/w4rh4wk/git/ank/assets/tilesets/sewers_deco.tsj": {
+            "scaleInDock": 1
+        },
+        "C:/Users/w4rh4wk/git/ank/assets/tilesets/sewers_tiles.tsj": {
+            "scaleInDock": 1
+        },
+        "sewers00.tmj": {
+            "scale": 0.1301543445121951,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 5255.299026425592,
+                "y": 3461.275162872411
+            }
+        }
+    },
+    "openFiles": [
+        "sewers00.tmj"
+    ],
+    "recentFiles": [
+        "sewers00.tmj"
+    ]
+}

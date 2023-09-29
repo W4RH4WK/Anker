@@ -1,0 +1,18 @@
+{ "object":
+    {
+     "gid":1,
+     "height":256,
+     "id":87,
+     "name":"Player",
+     "rotation":0,
+     "type":"",
+     "visible":true,
+     "width":256
+    },
+ "tileset":
+    {
+     "firstgid":1,
+     "source":"placeholders.tsj"
+    },
+ "type":"template"
+}
