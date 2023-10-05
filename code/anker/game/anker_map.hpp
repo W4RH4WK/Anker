@@ -1,13 +1,11 @@
 #pragma once
 
 #include <anker/core/anker_asset.hpp>
+#include <anker/core/anker_scene.hpp>
 #include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 
 namespace Anker {
-
-class AssetCache;
-class Scene;
 
 struct MapLayer {
 	std::string name;
@@ -20,7 +18,10 @@ struct MapLayer {
 
 // Load the map with the given identifier and add layers + objects to the given
 // scene.
-Status loadMap(Scene&, std::string_view identifier, AssetCache&);
+Status addMapToScene(Scene&, std::string_view identifier);
+
+// Creates a new scene with map data added.
+ScenePtr loadMap(std::string_view mapIdentifier);
 
 } // namespace Anker
 

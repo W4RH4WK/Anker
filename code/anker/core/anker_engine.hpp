@@ -48,6 +48,7 @@ class Engine {
 	PhysicsSystem physicsSystem;
 
 	ScenePtr activeScene;
+	ScenePtr nextScene;
 
 	std::optional<EditorFramework> editor;
 

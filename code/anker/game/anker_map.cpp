@@ -2,9 +2,11 @@
 
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_data_loader.hpp>
-#include <anker/core/anker_scene.hpp>
+#include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_scene_node.hpp>
+#include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_player.hpp>
+#include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_map_renderer.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
@@ -22,7 +24,7 @@ enum TileFlipFlag : TileId {
 constexpr TileId FlipMask = FlipHorizontal | FlipVertical | FlipDiagonal;
 
 // The loader for .tmj files. This loader should not be exposed, instead a
-// loadMap function is the primary interface for map loading. This is only
+// addMapToScene function is the primary interface for map loading. This is only
 // implemented as a class to make the implementation more readable.
 //
 // An instance may be used only once; create a new instance if you need to load
@@ -348,6 +350,7 @@ class TmjLoader {
 		m_tmjReader.field("x", position.x);
 		m_tmjReader.field("y", position.y);
 		position.x += 256.0f / 2.0f;
+		position.y -= 256.0f / 2.0f;
 		position = convertCoordinates(position);
 
 		if (tpl.ends_with("/player.tj")) {
@@ -503,12 +506,35 @@ class TmjLoader {
 	std::vector<Vec4> m_colorStack;
 };
 
-Status loadMap(Scene& scene, std::string_view identifier, AssetCache& assetCache)
+Status addMapToScene(Scene& scene, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
-	TmjLoader loader(scene, assetCache);
+	TmjLoader loader(scene, g_engine->assetCache);
 	return loader.load(identifier);
+}
+
+ScenePtr loadMap(std::string_view mapIdentifier)
+{
+	ScenePtr scene = g_engine->createScene();
+
+	if (not addMapToScene(*scene, mapIdentifier)) {
+		ANKER_ERROR("Failed to load map: {}", mapIdentifier);
+	}
+
+	for (auto [_, node] : scene->registry.view<SceneNode>().each()) {
+		ANKER_ASSERT(node.validateParentChildLink());
+	}
+
+	auto player = scene->entityHandle(scene->registry.view<PlayerTag>().front());
+	if (player) {
+		auto camera = scene->activeCamera();
+		camera.get<SceneNode>().setGlobalTransform(player.get<SceneNode>().globalTransform());
+		camera.get<Camera>().distance = 3;
+		camera.emplace<Follower>(player).speed = 8.0f;
+	}
+
+	return scene;
 }
 
 } // namespace Anker

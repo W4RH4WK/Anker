@@ -22,6 +22,11 @@ void Engine::tick()
 {
 	ANKER_PROFILE_FRAME_MARK();
 
+	if (nextScene) {
+		activeScene = nextScene;
+		nextScene.reset();
+	}
+
 	if (!activeScene) {
 		ANKER_ERROR("No active scene");
 		return;
