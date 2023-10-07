@@ -13,7 +13,7 @@ void PlayerController::tick(float, Scene& scene)
 
 	for (auto [entity, physicsBody] : scene.registry.view<PhysicsBody, PlayerController>().each()) {
 		if (physicsBody.body) {
-			Vec2 velocity = 6.0f * actions.playerMove + 10.0f * Vec2::WorldDown;
+			Vec2 velocity = 6.0f * actions.playerMove() + 10.0f * Vec2::WorldDown;
 			physicsBody.body->SetLinearVelocity(velocity);
 
 			if (auto* sprite = scene.registry.try_get<Sprite>(entity)) {

@@ -17,6 +17,12 @@ static bool g_hideCursor = false;
 
 void initialize()
 {
+	{
+		AllocConsole();
+		std::FILE* f;
+		freopen_s(&f, "CONOUT$", "w", stdout);
+	}
+
 	glfwSetErrorCallback([](int error_code, const char* description) { //
 		ANKER_ERROR("GLFW: {} {}", error_code, description);
 	});

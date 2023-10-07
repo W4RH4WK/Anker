@@ -7,6 +7,13 @@
 
 namespace Anker {
 
+// When loading a map, we insert the map identifier into the Scene's context.
+// This allows us to query which map was loaded later on.
+struct MapIdentifier {
+	std::string identifier;
+};
+
+// TODO: Rename TileLayer
 struct MapLayer {
 	std::string name;
 	Vec4 color = Vec4(1);
@@ -17,7 +24,7 @@ struct MapLayer {
 };
 
 // Load the map with the given identifier and add layers + objects to the given
-// scene.
+// scene. Also sets MapIdentifier.
 Status addMapToScene(Scene&, std::string_view identifier);
 
 // Creates a new scene with map data added.

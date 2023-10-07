@@ -510,6 +510,8 @@ Status addMapToScene(Scene& scene, std::string_view identifier)
 {
 	ANKER_PROFILE_ZONE_T(identifier);
 
+	scene.registry.ctx().emplace<MapIdentifier>(std::string{identifier});
+
 	TmjLoader loader(scene, g_engine->assetCache);
 	return loader.load(identifier);
 }

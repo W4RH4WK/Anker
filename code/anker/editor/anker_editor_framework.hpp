@@ -20,6 +20,13 @@ class EditorFramework {
 	void tick(float, Scene&);
 
   private:
+	void drawMapsMenuBarEntry();
+
+	// Tries to find the current map's identifier. Returns an empty view on failure.
+	std::string_view currentMapIdentifier() const;
+
+	bool m_enabled = false;
+
 	Inspector m_inspector;
 	EditorCameraSystem m_cameraSystem;
 };

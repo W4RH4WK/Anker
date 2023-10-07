@@ -107,6 +107,16 @@ struct Vec2T {
 
 	constexpr double ratio() const { return double(x) / double(y); }
 
+	constexpr Vec2T& clampLength(double maximum)
+	{
+		if (lengthSquared() > maximum * maximum) {
+			auto l = length();
+			x = T(maximum * x / l);
+			y = T(maximum * y / l);
+		}
+		return *this;
+	}
+
 	constexpr Vec2T& rotate(T angle) { return *this = glm::rotate(glm::vec<2, T>(*this), angle); }
 
 	constexpr Vec2T& moveTowards(Vec2T target, Vec2T speed, float dt, T epsilon = T(1e-6))

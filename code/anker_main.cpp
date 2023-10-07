@@ -6,12 +6,6 @@ using namespace Anker;
 
 int main(int argc, char* argv[])
 {
-	{
-		AllocConsole();
-		std::FILE* f;
-		freopen_s(&f, "CONOUT$", "w", stdout);
-	}
-
 	Platform::initialize();
 	Platform::createMainWindow();
 
@@ -19,11 +13,8 @@ int main(int argc, char* argv[])
 	g_engine->editor.emplace();
 
 	{
-		std::string mapName = "maps/gym";
-		if (argc > 1) {
-			mapName = std::string("maps/") + argv[1];
-		}
-		g_engine->nextScene = loadMap(mapName);
+		std::string mapName = argc > 1 ? argv[1] : "gym";
+		g_engine->nextScene = loadMap("maps/" + mapName);
 	}
 
 	while (!Platform::shouldShutdown()) {

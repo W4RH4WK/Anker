@@ -7,7 +7,7 @@ namespace Anker {
 
 InputSystem::InputSystem(ImguiSystem& imgui) : m_imgui(imgui) {}
 
-void InputSystem::tick(float)
+void InputSystem::tick(float dt)
 {
 	// Track relative cursor movement
 	Vec2 cursor = Platform::cursorPosition();
@@ -24,13 +24,14 @@ void InputSystem::tick(float)
 	auto pressed = [&](int key) { return glfwGetKey(window, key) == GLFW_PRESS; };
 	auto mousePressed = [&](int button) { return glfwGetMouseButton(window, button) == GLFW_PRESS; };
 
-	m_actions = {
-	    .editorCameraActivate = mousePressed(GLFW_MOUSE_BUTTON_2),
-	    .editorCameraPan = {-cursorDelta.x, cursorDelta.y},
-	    .editorCameraZoom = m_scrollDelta,
-	};
-	m_actions.playerMove += Vec2::Left * pressed(GLFW_KEY_LEFT);
-	m_actions.playerMove += Vec2::Right * pressed(GLFW_KEY_RIGHT);
+	m_actions.playerMoveLeft.tick(dt, pressed(GLFW_KEY_LEFT));
+	m_actions.playerMoveRight.tick(dt, pressed(GLFW_KEY_RIGHT));
+
+	m_actions.editorToggle.tick(dt, pressed(GLFW_KEY_F1));
+	m_actions.editorMapReload.tick(dt, pressed(GLFW_KEY_F5));
+	m_actions.editorCameraActivate = mousePressed(GLFW_MOUSE_BUTTON_2);
+	m_actions.editorCameraPan = {-cursorDelta.x, cursorDelta.y};
+	m_actions.editorCameraZoom = m_scrollDelta;
 
 	m_scrollDelta = 0;
 }

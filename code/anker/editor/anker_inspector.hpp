@@ -28,7 +28,7 @@ class Inspector {
 
 	void drawSelectionGizmo(EntityCHandle);
 
-	bool m_enabled = false;
+	bool m_enabled = true;
 
 	EntityID m_selectedEntity = entt::null;
 
