@@ -31,9 +31,10 @@ void EditorFramework::tick(float dt, Scene& scene)
 		m_inspector.drawMenuBarEntry();
 		m_cameraSystem.drawMenuBarEntry(scene);
 
-		drawMapsMenuBarEntry();
-
 		ImGui::ToggleButton("PhysDbg", &g_engine->physicsSystem.debugDraw);
+
+		drawMapsMenuBarEntry();
+		ImGui::TextColored({0.6f, 0.6f, 0.6f, 1.0f}, "%s", std::string(currentMapIdentifier()).c_str());
 
 		ImGui::EndMainMenuBar();
 	}
@@ -49,10 +50,7 @@ void EditorFramework::drawMapsMenuBarEntry()
 		for (auto& entry : fs::directory_iterator("assets/maps")) {
 			if (entry.path().extension() == ".tmj") {
 				auto mapIdentifier = toIdentifier(fs::relative(entry.path(), "assets"));
-
-				bool isCurrent = mapIdentifier == currentMapIdentifier();
-
-				if (ImGui::MenuItem(entry.path().filename().string().c_str(), nullptr, &isCurrent)) {
+				if (ImGui::MenuItem(mapIdentifier.c_str())) {
 					g_engine->nextScene = loadMap(mapIdentifier);
 				}
 			}
