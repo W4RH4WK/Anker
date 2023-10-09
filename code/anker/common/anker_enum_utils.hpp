@@ -103,26 +103,25 @@ constexpr Flags<Enum> operator&(Enum flag, const Flags<Enum>& flags)
 //
 // See invocations of this macro across the code-base for examples.
 #define ANKER_ENUM_TO_FROM_STRING(Enum) \
-	inline const std::unordered_map<Enum, const char*> Enum##ToStringLookup{Enum##Entries.begin(), \
-	                                                                        Enum##Entries.end()}; \
 	inline const char* to_string(Enum e) \
 	{ \
-		if (auto it = Enum##ToStringLookup.find(e); it != Enum##ToStringLookup.end()) { \
+		static const std::unordered_map<Enum, const char*> lookup{Enum##Entries.begin(), Enum##Entries.end()}; \
+		if (auto it = lookup.find(e); it != lookup.end()) { \
 			return it->second; \
 		} else { \
 			return "invalid"; \
 		} \
 	} \
-	inline const auto Enum##FromStringLookup = [] { \
-		std::unordered_map<std::string_view, Enum> lookup; \
-		for (const auto& entry : Enum##Entries) { \
-			lookup[entry.second] = entry.first; \
-		} \
-		return lookup; \
-	}(); \
 	inline bool from_string(Enum& result, std::string_view input) \
 	{ \
-		if (auto it = Enum##FromStringLookup.find(input); it != Enum##FromStringLookup.end()) { \
+		static const auto lookup = [] { \
+			std::unordered_map<std::string_view, Enum> lookup_; \
+			for (const auto& entry : Enum##Entries) { \
+				lookup_[entry.second] = entry.first; \
+			} \
+			return lookup_; \
+		}(); \
+		if (auto it = lookup.find(input); it != lookup.end()) { \
 			result = it->second; \
 			return true; \
 		} else { \

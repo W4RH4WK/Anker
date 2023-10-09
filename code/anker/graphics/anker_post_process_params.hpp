@@ -4,19 +4,11 @@
 
 namespace Anker {
 
-enum class ToneMapping {
-#define ANKER_ENUM_ToneMapping \
-	ANKER_ENUM_E(None) \
-	ANKER_ENUM_E(Uncharted2) \
-	ANKER_ENUM_E(ACES)
-#define ANKER_ENUM_E(_entry) _entry,
-	ANKER_ENUM_ToneMapping
-#undef ANKER_ENUM_E
-};
+enum class ToneMapping { None, Uncharted2, ACES };
 constexpr std::array ToneMappingEntries{
-#define ANKER_ENUM_E(_entry) std::pair{ToneMapping::_entry, #_entry},
-    ANKER_ENUM_ToneMapping
-#undef ANKER_ENUM_E
+    std::pair(ToneMapping::None, "None"),
+    std::pair(ToneMapping::Uncharted2, "Uncharted2"),
+    std::pair(ToneMapping::ACES, "ACES"),
 };
 ANKER_ENUM_TO_FROM_STRING(ToneMapping)
 
