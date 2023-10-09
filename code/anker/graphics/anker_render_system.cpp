@@ -3,11 +3,9 @@
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/core/anker_scene_node.hpp>
-#include <anker/game/anker_map.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
-
-#include <anker/core/anker_engine.hpp>
+#include <anker/graphics/anker_tile_layer.hpp>
 
 namespace Anker {
 
@@ -21,7 +19,7 @@ static_assert(sizeof(SceneConstantBuffer) % 16 == 0, "Constant Buffer size must 
 RenderSystem::RenderSystem(RenderDevice& renderDevice, AssetCache& assetCache)
     : gizmoRenderer(renderDevice, assetCache),
       m_renderDevice(renderDevice),
-      m_mapRenderer(renderDevice, assetCache),
+      m_tileLayerRenderer(renderDevice, assetCache),
       m_spriteRenderer(renderDevice, assetCache),
       m_postProcessRenderer(renderDevice, assetCache),
       m_textRenderer(renderDevice, assetCache)
@@ -108,8 +106,6 @@ void RenderSystem::draw(const Scene& scene)
 		}
 	}
 
-	// m_textRenderer.draw(*g_engine->fontSystem.systemFont(), "The quick brown fox jumps over the lazy dog.");
-
 	////////////////////////////////////////////////////////////
 	// Post Processing
 
@@ -136,8 +132,8 @@ void RenderSystem::drawSceneNodeRecursive(const Scene& scene, const SceneNode* n
 	if (node->entity().all_of<Sprite>()) {
 		m_spriteRenderer.draw(scene, node);
 	}
-	if (node->entity().all_of<MapLayer>()) {
-		m_mapRenderer.draw(scene, node);
+	if (node->entity().all_of<TileLayer>()) {
+		m_tileLayerRenderer.draw(scene, node);
 	}
 
 	for (auto* child : node->children()) {

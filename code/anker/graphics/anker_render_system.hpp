@@ -1,11 +1,11 @@
 #pragma once
 
 #include <anker/graphics/anker_gizmo_renderer.hpp>
-#include <anker/graphics/anker_map_renderer.hpp>
 #include <anker/graphics/anker_post_process_renderer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_sprite_renderer.hpp>
 #include <anker/graphics/anker_text_renderer.hpp>
+#include <anker/graphics/anker_tile_layer_renderer.hpp>
 
 namespace Anker {
 
@@ -32,7 +32,7 @@ class RenderSystem {
 
 	RenderDevice& m_renderDevice;
 
-	MapRenderer m_mapRenderer;
+	TileLayerRenderer m_tileLayerRenderer;
 	SpriteRenderer m_spriteRenderer;
 	PostProcessRenderer m_postProcessRenderer;
 

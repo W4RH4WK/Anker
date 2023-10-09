@@ -9,13 +9,13 @@ class AssetCache;
 class Scene;
 class SceneNode;
 
-class MapRenderer {
+class TileLayerRenderer {
   public:
-	MapRenderer(RenderDevice&, AssetCache&);
-	MapRenderer(const MapRenderer&) = delete;
-	MapRenderer& operator=(const MapRenderer&) = delete;
-	MapRenderer(MapRenderer&&) noexcept = delete;
-	MapRenderer& operator=(MapRenderer&&) noexcept = delete;
+	TileLayerRenderer(RenderDevice&, AssetCache&);
+	TileLayerRenderer(const TileLayerRenderer&) = delete;
+	TileLayerRenderer& operator=(const TileLayerRenderer&) = delete;
+	TileLayerRenderer(TileLayerRenderer&&) noexcept = delete;
+	TileLayerRenderer& operator=(TileLayerRenderer&&) noexcept = delete;
 
 	void draw(const Scene&, const SceneNode*);
 

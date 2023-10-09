@@ -7,8 +7,9 @@
 #include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_player.hpp>
 #include <anker/graphics/anker_camera.hpp>
-#include <anker/graphics/anker_map_renderer.hpp>
 #include <anker/graphics/anker_sprite.hpp>
+#include <anker/graphics/anker_tile_layer.hpp>
+#include <anker/graphics/anker_tile_layer_renderer.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
@@ -246,13 +247,13 @@ class TmjLoader {
 		m_tmjReader.field("width", width);
 		m_tmjReader.field("height", height);
 
-		// We create one MapLayer for every Tileset here, along with a vertex
+		// We create one TileLayer for every Tileset here, along with a vertex
 		// storage for each of them.
-		using Vertices = std::vector<MapRenderer::Vertex>;
-		std::vector<MapLayer> mapLayers(m_tilesets.size());
-		std::vector<Vertices> verticesForMapLayers(m_tilesets.size());
+		using Vertices = std::vector<TileLayerRenderer::Vertex>;
+		std::vector<TileLayer> tileLayers(m_tilesets.size());
+		std::vector<Vertices> verticesForTileLayers(m_tilesets.size());
 
-		for (auto [i, layer] : iter::enumerate(mapLayers)) {
+		for (auto [i, layer] : iter::enumerate(tileLayers)) {
 			layer = {
 			    .name = fmt::format("{} (Tileset {})", name, i),
 			    .color = calcColor(),
@@ -302,19 +303,19 @@ class TmjLoader {
 				std::swap(uvTopRight, uvBottomLeft);
 			}
 
-			verticesForMapLayers[tilesetIndex].insert(
-			    verticesForMapLayers[tilesetIndex].end(),
+			verticesForTileLayers[tilesetIndex].insert(
+			    verticesForTileLayers[tilesetIndex].end(),
 			    {
-			        MapRenderer::Vertex{.position = pos.topLeftWorld(), .uv = uvTopLeft},
-			        MapRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
-			        MapRenderer::Vertex{.position = pos.topRightWorld(), .uv = uvTopRight},
-			        MapRenderer::Vertex{.position = pos.topRightWorld(), .uv = uvTopRight},
-			        MapRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
-			        MapRenderer::Vertex{.position = pos.bottomRightWorld(), .uv = uvBottomRight},
+			        TileLayerRenderer::Vertex{.position = pos.topLeftWorld(), .uv = uvTopLeft},
+			        TileLayerRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
+			        TileLayerRenderer::Vertex{.position = pos.topRightWorld(), .uv = uvTopRight},
+			        TileLayerRenderer::Vertex{.position = pos.topRightWorld(), .uv = uvTopRight},
+			        TileLayerRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
+			        TileLayerRenderer::Vertex{.position = pos.bottomRightWorld(), .uv = uvBottomRight},
 			    });
 		}
 
-		for (auto [layer, vertices] : iter::zip(mapLayers, verticesForMapLayers)) {
+		for (auto [layer, vertices] : iter::zip(tileLayers, verticesForTileLayers)) {
 			if (vertices.empty()) {
 				continue;
 			}
@@ -327,7 +328,7 @@ class TmjLoader {
 
 			auto entity = m_scene.createEntity(layer.name);
 			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
-			entity.emplace<MapLayer>(std::move(layer));
+			entity.emplace<TileLayer>(std::move(layer));
 		}
 
 		return Ok;

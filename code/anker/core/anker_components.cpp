@@ -5,10 +5,10 @@
 #include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
 #include <anker/game/anker_follower.hpp>
-#include <anker/game/anker_map.hpp>
 #include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
+#include <anker/graphics/anker_tile_layer.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
@@ -57,7 +57,7 @@ constexpr std::array Components = {
     registerComponent<PlayerController>("PlayerController"),
     registerComponent<Follower>("Follower"),
     registerComponent<EditorCamera>("EditorCamera"),
-    registerComponent<MapLayer>("MapLayer"),
+    registerComponent<TileLayer>("TileLayer"),
 };
 
 const std::unordered_map<entt::id_type, const ComponentInfo*> ComponentsById = []() {
