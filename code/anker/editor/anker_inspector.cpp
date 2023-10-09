@@ -40,6 +40,9 @@ void Inspector::tick(float, Scene& scene)
 				m_selectedEntity = entity;
 			}
 			if (ImGui::BeginPopupContextItem()) {
+				if (ImGui::MenuItem("Copy Entity ID")) {
+					ImGui::SetClipboardText(std::to_string(entt::to_integral(entity.entity())).c_str());
+				}
 				if (ImGui::MenuItem("Delete")) {
 					entity.destroy();
 				}
@@ -97,6 +100,9 @@ void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 	}
 
 	if (ImGui::BeginPopupContextItem()) {
+		if (ImGui::MenuItem("Copy Entity ID")) {
+			ImGui::SetClipboardText(std::to_string(entt::to_integral(node->entity().entity())).c_str());
+		}
 		if (ImGui::MenuItem("Clear Parent")) {
 			m_sceneGraphModification = [node] { const_cast<SceneNode*>(node)->clearParent(); };
 		}
