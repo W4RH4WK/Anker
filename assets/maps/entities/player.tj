@@ -12,7 +12,7 @@
  "tileset":
     {
      "firstgid":1,
-     "source":"placeholders.tsj"
+     "source":"entities.tsj"
     },
  "type":"template"
 }

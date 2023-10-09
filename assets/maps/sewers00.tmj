@@ -1,11 +1,6 @@
 { "compressionlevel":-1,
  "editorsettings":
     {
-     "chunksize":
-        {
-         "height":256,
-         "width":256
-        },
      "export":
         {
          "format":"json",
@@ -397,7 +392,7 @@
                         }, 
                         {
                          "id":91,
-                         "template":"placeholders\/player.tj",
+                         "template":"entities\/player.tj",
                          "x":2560,
                          "y":2112
                         }],

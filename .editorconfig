@@ -13,3 +13,8 @@ indent_size = 4
 [{CMakeLists.txt,*.cmake}]
 indent_style = tab
 indent_size = 4
+
+[*.{tmj,tsj,tj}]
+end_of_line = crlf
+insert_final_newline = false
+trim_trailing_whitespace = false
