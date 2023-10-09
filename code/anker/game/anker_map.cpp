@@ -63,7 +63,7 @@ class TmjLoader {
 	////////////////////////////////////////////////////////////
 	// Tileset
 	//
-	// A Tileset is used to populate a MapLayer's vertex buffer. Specifically,
+	// A Tileset is used to populate a TileLayer's vertex buffers. Specifically,
 	// we need to get the texture coordinates for each tile.
 
 	struct Tileset {
@@ -222,6 +222,8 @@ class TmjLoader {
 		return status;
 	}
 
+	using TileLayerVertices = std::vector<TileLayerRenderer::Vertex>;
+
 	Status loadTileLayer()
 	{
 		std::string name;
@@ -247,21 +249,6 @@ class TmjLoader {
 		m_tmjReader.field("width", width);
 		m_tmjReader.field("height", height);
 
-		// We create one TileLayer for every Tileset here, along with a vertex
-		// storage for each of them.
-		using Vertices = std::vector<TileLayerRenderer::Vertex>;
-		std::vector<TileLayer> tileLayers(m_tilesets.size());
-		std::vector<Vertices> verticesForTileLayers(m_tilesets.size());
-
-		for (auto [i, layer] : iter::enumerate(tileLayers)) {
-			layer = {
-			    .name = fmt::format("{} (Tileset {})", name, i),
-			    .color = calcColor(),
-			    .parallax = calcParallax(),
-			    .texture = m_tilesets[i].texture,
-			};
-		}
-
 		// We re-interpret the data buffer as buffer of TileIds.
 		std::span<const TileId> tiles = std::span(reinterpret_cast<TileId*>(data.data()), //
 		                                          data.size() / sizeof(TileId));
@@ -271,6 +258,38 @@ class TmjLoader {
 			return FormatError;
 		}
 
+		std::vector<TileLayerVertices> verticesPerPart(m_tilesets.size());
+		loadTileLayerVertices(verticesPerPart, tiles, width);
+
+		auto entity = m_scene.createEntity(name);
+		entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
+
+		auto& tileLayer = entity.emplace<TileLayer>();
+		tileLayer.color = calcColor();
+		tileLayer.parallax = calcParallax();
+
+		// Create vertex buffers and pair them with their corresponding texture.
+		for (auto [vertices, tileset] : iter::zip(verticesPerPart, m_tilesets)) {
+			if (vertices.empty()) {
+				continue;
+			}
+
+			GpuBuffer vertexBuffer;
+			vertexBuffer.info = {
+			    .name = "TileLayer Vertex Buffer " + name,
+			    .bindFlags = GpuBindFlag::VertexBuffer,
+			};
+			ANKER_TRY(m_assetCache.renderDevice().createBuffer(vertexBuffer, vertices));
+
+			tileLayer.parts.push_back({vertexBuffer, tileset.texture});
+		}
+
+		return Ok;
+	}
+
+	void loadTileLayerVertices(std::vector<TileLayerVertices>& verticesPerPart, //
+	                           std::span<const TileId> tiles, uint32_t width)
+	{
 		for (auto [tileIndex, tile] : iter::enumerate(tiles)) {
 			if (tile == EmptyTile) {
 				continue;
@@ -303,8 +322,8 @@ class TmjLoader {
 				std::swap(uvTopRight, uvBottomLeft);
 			}
 
-			verticesForTileLayers[tilesetIndex].insert(
-			    verticesForTileLayers[tilesetIndex].end(),
+			verticesPerPart[tilesetIndex].insert(
+			    verticesPerPart[tilesetIndex].end(),
 			    {
 			        TileLayerRenderer::Vertex{.position = pos.topLeftWorld(), .uv = uvTopLeft},
 			        TileLayerRenderer::Vertex{.position = pos.bottomLeftWorld(), .uv = uvBottomLeft},
@@ -314,24 +333,6 @@ class TmjLoader {
 			        TileLayerRenderer::Vertex{.position = pos.bottomRightWorld(), .uv = uvBottomRight},
 			    });
 		}
-
-		for (auto [layer, vertices] : iter::zip(tileLayers, verticesForTileLayers)) {
-			if (vertices.empty()) {
-				continue;
-			}
-
-			layer.vertexBuffer.info = {
-			    .name = "MapLayer Vertex Buffer " + layer.name,
-			    .bindFlags = GpuBindFlag::VertexBuffer,
-			};
-			ANKER_TRY(m_assetCache.renderDevice().createBuffer(layer.vertexBuffer, vertices));
-
-			auto entity = m_scene.createEntity(layer.name);
-			entity.emplace<SceneNode>(Transform2D{}, m_layerSceneNode);
-			entity.emplace<TileLayer>(std::move(layer));
-		}
-
-		return Ok;
 	}
 
 	void loadObjectLayer()

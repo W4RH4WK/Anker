@@ -85,23 +85,27 @@ class EditWidgetDrawer {
 
 	bool field(const char* name, Vec3& value) { return ImGui::InputFloat3(name, &value.x); }
 
-	bool field(const char* name, Vec4& value) { return ImGui::InputFloat4(name, &value.x); }
+	bool fieldColor(const char* name, Vec3& value) { return ImGui::ColorEdit3(name, &value.x); }
 
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec3& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
-			return ImGui::ColorEdit3(name, &value.x);
+			return fieldColor(name, value);
 		} else {
 			return field(name, value);
 		}
 	}
 
+	bool field(const char* name, Vec4& value) { return ImGui::InputFloat4(name, &value.x); }
+
+	bool fieldColor(const char* name, Vec4& value) { return ImGui::ColorEdit4(name, &value.x); }
+
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec4& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
-			return ImGui::ColorEdit4(name, &value.x);
+			return fieldColor(name, value);
 		} else {
 			return field(name, value);
 		}

@@ -41,7 +41,7 @@ void TileLayerRenderer::draw(const Scene&, const SceneNode* node)
 
 	auto* layer = node->entity().try_get<TileLayer>();
 	if (!layer) {
-		ANKER_ERROR("{}: Missing MapLayer component!", entityDisplayName(node->entity()));
+		ANKER_ERROR("{}: Missing TileLayer component!", entityDisplayName(node->entity()));
 		return;
 	}
 
@@ -59,9 +59,11 @@ void TileLayerRenderer::draw(const Scene&, const SceneNode* node)
 		m_renderDevice.bindBufferPS(1, m_constantBuffer);
 	}
 
-	m_renderDevice.bindTexturePS(0, *layer->texture);
-	m_renderDevice.draw(layer->vertexBuffer);
-	m_renderDevice.unbindTexturePS(0);
+	for (auto& [vertexBuffer, texture] : layer->parts) {
+		m_renderDevice.bindTexturePS(0, *texture);
+		m_renderDevice.draw(vertexBuffer);
+		m_renderDevice.unbindTexturePS(0);
+	}
 }
 
 } // namespace Anker

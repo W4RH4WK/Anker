@@ -1,12 +1,4 @@
 { "compressionlevel":-1,
- "editorsettings":
-    {
-     "chunksize":
-        {
-         "height":256,
-         "width":256
-        }
-    },
  "height":32,
  "infinite":false,
  "layers":[
@@ -84,19 +76,19 @@
                          "y":256
                         }, 
                         {
-                         "x":-8512,
+                         "x":-8704,
                          "y":256
                         }, 
                         {
-                         "x":-8512,
-                         "y":7424
+                         "x":-8704,
+                         "y":7680
                         }, 
                         {
-                         "x":448,
-                         "y":7424
+                         "x":512,
+                         "y":7680
                         }, 
                         {
-                         "x":448,
+                         "x":512,
                          "y":0
                         }],
                  "rotation":0,
