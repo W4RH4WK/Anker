@@ -11,6 +11,8 @@
 
 namespace Anker {
 
+using PinnedWindowTag = entt::tag<"Inspector::PinnedWindowTag"_hs>;
+
 void Inspector::tick(float, Scene& scene)
 {
 	if (!m_enabled) {
@@ -20,7 +22,8 @@ void Inspector::tick(float, Scene& scene)
 	ImGui::Begin("Inspector", &m_enabled);
 	{
 		if (ImGui::Button("New Entity")) {
-			m_selectedEntity = scene.createEntity();
+			auto entity = scene.createEntity();
+			selectEntity(entity);
 		}
 
 		ImGui::Separator();
@@ -37,8 +40,8 @@ void Inspector::tick(float, Scene& scene)
 				return;
 			}
 
-			if (ImGui::Selectable(entityImGuiLabel(entity).c_str(), m_selectedEntity == entity)) {
-				m_selectedEntity = entity;
+			if (ImGui::Selectable(entityImGuiLabel(entity).c_str(), selectedEntity(scene) == entity)) {
+				selectEntity(entity);
 			}
 			if (ImGui::BeginPopupContextItem()) {
 				if (ImGui::MenuItem("Copy Entity ID")) {
@@ -54,7 +57,7 @@ void Inspector::tick(float, Scene& scene)
 		ImGui::Separator();
 
 		for (auto* node : rootNodes) {
-			drawSceneNodeRecursive(node);
+			drawSceneNodeRecursive(scene, node);
 		}
 		if (m_sceneGraphModification) {
 			m_sceneGraphModification();
@@ -63,12 +66,12 @@ void Inspector::tick(float, Scene& scene)
 	}
 	ImGui::End();
 
-	if (auto entity = scene.entityHandle(m_selectedEntity)) {
+	if (auto entity = selectedEntity(scene)) {
 		drawComponentEditorWindow(entity, "Selected Entity");
 		drawSelectionGizmo(entity);
 	}
 
-	for (auto [entity] : scene.registry.view<PinnedWindow>().each()) {
+	for (auto [entity] : scene.registry.view<PinnedWindowTag>().each()) {
 		drawComponentEditorWindow(scene.entityHandle(entity));
 	}
 }
@@ -78,12 +81,28 @@ void Inspector::drawMenuBarEntry()
 	ImGui::ToggleButton("Entities", &m_enabled);
 }
 
-void Inspector::drawSceneNodeRecursive(const SceneNode* node)
+constexpr auto SelectedEntityTag = "Inspector::SelectedEntity"_hs;
+
+EntityHandle Inspector::selectedEntity(Scene& scene)
+{
+	if (auto* entity = scene.registry.ctx().find<EntityID>(SelectedEntityTag)) {
+		return scene.entityHandle(*entity);
+	} else {
+		return scene.entityHandle(entt::null);
+	}
+}
+
+void Inspector::selectEntity(EntityHandle entity)
+{
+	entity.registry()->ctx().insert_or_assign(SelectedEntityTag, entity.entity());
+}
+
+void Inspector::drawSceneNodeRecursive(Scene& scene, const SceneNode* node)
 {
 	ANKER_ASSERT(node);
 
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-	if (m_selectedEntity == node->entity()) {
+	if (selectedEntity(scene) == node->entity()) {
 		flags |= ImGuiTreeNodeFlags_Selected;
 	}
 	if (node->children().empty()) {
@@ -93,12 +112,12 @@ void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 	bool opened = ImGui::TreeNodeEx(entityImGuiLabel(node->entity()).c_str(), flags);
 
 	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-		m_selectedEntity = node->entity();
+		selectEntity(node->entity());
 	}
 
 	if (ImGui::BeginPopupContextItem()) {
 		if (ImGui::MenuItem("Pin Edit Window")) {
-			node->entity().emplace_or_replace<PinnedWindow>();
+			node->entity().emplace_or_replace<PinnedWindowTag>();
 		}
 		if (ImGui::MenuItem("Copy Entity ID")) {
 			ImGui::SetClipboardText(std::to_string(entt::to_integral(node->entity().entity())).c_str());
@@ -134,7 +153,7 @@ void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 		// However, the tree visualization has foreground at the top and
 		// background at the bottom.
 		for (auto* child : node->children() | std::views::reverse) {
-			drawSceneNodeRecursive(child);
+			drawSceneNodeRecursive(scene, child);
 		}
 		ImGui::TreePop();
 	}
@@ -150,7 +169,7 @@ void Inspector::drawComponentEditorWindow(EntityHandle entity, std::string_view 
 	bool windowIsOpen = true;
 	ImGui::Begin(windowName.c_str(), &windowIsOpen);
 	if (!windowIsOpen) {
-		entity.remove<PinnedWindow>();
+		entity.remove<PinnedWindowTag>();
 	}
 
 	// Name widget
@@ -195,7 +214,7 @@ void Inspector::drawComponentEditorWindow(EntityHandle entity, std::string_view 
 			// ImGui::PushID(component.name);
 			if (ImGui::BeginPopupContextItem()) {
 				if (ImGui::MenuItem("Pin Edit Window")) {
-					entity.emplace_or_replace<PinnedWindow>();
+					entity.emplace_or_replace<PinnedWindowTag>();
 				}
 				if (ImGui::MenuItem("Delete")) {
 					component.removeFrom(entity);
