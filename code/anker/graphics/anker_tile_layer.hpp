@@ -16,7 +16,7 @@ inline bool serialize(EditWidgetDrawer& draw, TileLayer& tileLayer)
 {
 	bool changed = false;
 
-	changed = draw.fieldColor("color", tileLayer.color) || changed;
+	changed = draw.fieldAsColor("color", tileLayer.color) || changed;
 	changed = draw.field("parallax", tileLayer.parallax) || changed;
 
 	ImGui::Text("Parts: %d", tileLayer.parts.size());

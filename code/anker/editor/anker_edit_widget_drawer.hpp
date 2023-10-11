@@ -11,11 +11,11 @@ struct Hidden : refl::attr::usage::type,  //
                 refl::attr::usage::field, //
                 refl::attr::usage::function {};
 
-// Value is automatically converted to degrees when displayed.
+// Displays the value in degree and converts input back to radians.
 struct Radians : refl::attr::usage::field, //
                  refl::attr::usage::function {};
 
-// Field, or property is not automatically surrounded with a tree widget.
+// Field or property is not automatically surrounded with a tree widget.
 struct Inline : refl::attr::usage::field, //
                 refl::attr::usage::function {};
 
@@ -56,42 +56,46 @@ class EditWidgetDrawer {
 
 	bool field(const char* name, float& value) { return ImGui::DragFloat(name, &value); }
 
+	bool fieldAsSlider(const char* name, float& value, float min, float max)
+	{
+		return ImGui::SliderFloat(name, &value, min, max);
+	}
+
+	bool fieldAsDegree(const char* name, float& value)
+	{
+		float degrees = value * Rad2Deg;
+		if (ImGui::DragFloat(name, &degrees)) {
+			value = degrees * Deg2Rad;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, float& value)
 	{
-		float valueCopy = value;
 		if constexpr (has_attribute<attr::Radians>(member)) {
-			valueCopy = valueCopy * Rad2Deg;
-		}
-
-		bool changed = false;
-		if constexpr (has_attribute<attr::Slider>(member)) {
+			return fieldAsDegree(name, value);
+		} else if constexpr (has_attribute<attr::Slider>(member)) {
 			auto attr = get_attribute<attr::Slider>(member);
-			changed = ImGui::SliderFloat(name, &valueCopy, attr.min, attr.max);
+			return fieldAsSlider(name, value, attr.min, attr.max);
 		} else {
-			changed = field(name, valueCopy);
+			return field(name, value);
 		}
-
-		if (changed) {
-			if constexpr (has_attribute<attr::Radians>(member)) {
-				valueCopy = valueCopy * Deg2Rad;
-			}
-			value = valueCopy;
-		}
-		return changed;
 	}
 
 	bool field(const char* name, Vec2& value) { return ImGui::InputFloat2(name, &value.x); }
 
 	bool field(const char* name, Vec3& value) { return ImGui::InputFloat3(name, &value.x); }
 
-	bool fieldColor(const char* name, Vec3& value) { return ImGui::ColorEdit3(name, &value.x); }
+	bool fieldAsColor(const char* name, Vec3& value) { return ImGui::ColorEdit3(name, &value.x); }
 
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec3& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
-			return fieldColor(name, value);
+			return fieldAsColor(name, value);
 		} else {
 			return field(name, value);
 		}
@@ -99,13 +103,13 @@ class EditWidgetDrawer {
 
 	bool field(const char* name, Vec4& value) { return ImGui::InputFloat4(name, &value.x); }
 
-	bool fieldColor(const char* name, Vec4& value) { return ImGui::ColorEdit4(name, &value.x); }
+	bool fieldAsColor(const char* name, Vec4& value) { return ImGui::ColorEdit4(name, &value.x); }
 
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec4& value)
 	{
 		if constexpr (has_attribute<attr::Color>(member)) {
-			return fieldColor(name, value);
+			return fieldAsColor(name, value);
 		} else {
 			return field(name, value);
 		}
@@ -116,16 +120,6 @@ class EditWidgetDrawer {
 	bool field(const char* name, std::string& value)
 	{
 		return ImGui::InputText(name, &value, ImGuiInputTextFlags_EnterReturnsTrue);
-	}
-
-	bool field(const char* name, std::string_view& view)
-	{
-		m_tempString = view;
-		bool changed = field(name, m_tempString);
-		if (changed) {
-			view = m_tempString;
-		}
-		return changed;
 	}
 
 	bool field(const char* name, EntityID& entity)
@@ -278,9 +272,6 @@ class EditWidgetDrawer {
 	{
 		return field(label, object);
 	}
-
-	// Temporary string to support getter/setter using string_view.
-	std::string m_tempString;
 };
 
 ////////////////////////////////////////////////////////////
