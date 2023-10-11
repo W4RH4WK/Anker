@@ -8,7 +8,7 @@ concept Serializable = requires(Archive archive, T v)
 	{archive(v)};
 };
 
-namespace internal {
+namespace Internal {
 
 // Serialization mechanisms allow for customization by providing a serialize
 // function for a given Archive. This trait is used to check for such
@@ -24,5 +24,5 @@ concept CustomSerialization = requires(Archive archive, T v)
 template <typename Archive, typename T>
 concept SerializableClass = std::is_class_v<T> && (CustomSerialization<Archive, T> || refl::is_reflectable<T>());
 
-} // namespace internal
+} // namespace Internal
 } // namespace Anker

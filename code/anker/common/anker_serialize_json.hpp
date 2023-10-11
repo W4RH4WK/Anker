@@ -86,11 +86,11 @@ class JsonReader {
 	}
 
 	template <typename T>
-	bool operator()(T& outObject) requires internal::SerializableClass<JsonReader, T>
+	bool operator()(T& outObject) requires Internal::SerializableClass<JsonReader, T>
 	{
 		bool ok = true;
 
-		if constexpr (internal::CustomSerialization<JsonReader, T>) {
+		if constexpr (Internal::CustomSerialization<JsonReader, T>) {
 			ok = serialize(*this, outObject);
 		}
 
@@ -299,11 +299,11 @@ class JsonWriter {
 	}
 
 	template <typename T>
-	void operator()(const T& object) requires internal::SerializableClass<JsonWriter, T>
+	void operator()(const T& object) requires Internal::SerializableClass<JsonWriter, T>
 	{
 		m_writer.StartObject();
 
-		if constexpr (internal::CustomSerialization<JsonWriter, T>) {
+		if constexpr (Internal::CustomSerialization<JsonWriter, T>) {
 			serialize(*this, object);
 		}
 

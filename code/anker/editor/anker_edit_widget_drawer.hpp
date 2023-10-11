@@ -189,7 +189,7 @@ class EditWidgetDrawer {
 			    // Regular fields are drawn as normal.
 			    [&](auto& alternative) { return field(alternativeLabel.c_str(), alternative); },
 			    // Objects are drawn in-line.
-			    [&]<typename T>(T& alternative) requires internal::SerializableClass<EditWidgetDrawer, T> {
+			    [&]<typename T>(T& alternative) requires Internal::SerializableClass<EditWidgetDrawer, T> {
 				    return field(alternativeLabel.c_str(), alternative, true);
 			    },
 			};
@@ -202,7 +202,7 @@ class EditWidgetDrawer {
 
 	template <typename T>
 	bool field(const char* name, T& object, bool drawInline = false) //
-	    requires internal::SerializableClass<EditWidgetDrawer, T>
+	    requires Internal::SerializableClass<EditWidgetDrawer, T>
 	{
 		if (drawInline) {
 			return (*this)(object);
@@ -220,15 +220,15 @@ class EditWidgetDrawer {
 
 	template <typename ReflDescriptor, typename T>
 	bool field(ReflDescriptor member, const char* name, T& object) //
-	    requires internal::SerializableClass<EditWidgetDrawer, T>
+	    requires Internal::SerializableClass<EditWidgetDrawer, T>
 	{
 		return field(name, object, has_attribute<attr::Inline>(member));
 	}
 
 	template <typename T>
-	bool operator()(T& object) requires internal::SerializableClass<EditWidgetDrawer, T>
+	bool operator()(T& object) requires Internal::SerializableClass<EditWidgetDrawer, T>
 	{
-		if constexpr (internal::CustomSerialization<EditWidgetDrawer, T>) {
+		if constexpr (Internal::CustomSerialization<EditWidgetDrawer, T>) {
 			return serialize(*this, object);
 		}
 
