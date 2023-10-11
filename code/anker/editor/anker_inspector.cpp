@@ -7,6 +7,7 @@
 #include <anker/core/anker_scene_node.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_gizmo_renderer.hpp>
+#include <anker/graphics/anker_sprite.hpp>
 
 namespace Anker {
 
@@ -36,7 +37,7 @@ void Inspector::tick(float, Scene& scene)
 				return;
 			}
 
-			if (ImGui::Selectable(entityLabel(entity).c_str(), m_selectedEntity == entity)) {
+			if (ImGui::Selectable(entityImGuiLabel(entity).c_str(), m_selectedEntity == entity)) {
 				m_selectedEntity = entity;
 			}
 			if (ImGui::BeginPopupContextItem()) {
@@ -63,16 +64,12 @@ void Inspector::tick(float, Scene& scene)
 	ImGui::End();
 
 	if (auto entity = scene.entityHandle(m_selectedEntity)) {
-		ImGui::Begin("Entity");
-		{
-			drawNameWidget(entity);
-			drawAddComponentButton(entity);
-			ImGui::Separator();
-			drawComponentEditor(entity);
-		}
-		ImGui::End();
-
+		drawComponentEditorWindow(entity, "Selected Entity");
 		drawSelectionGizmo(entity);
+	}
+
+	for (auto [entity] : scene.registry.view<PinnedWindow>().each()) {
+		drawComponentEditorWindow(scene.entityHandle(entity));
 	}
 }
 
@@ -93,13 +90,16 @@ void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 		flags |= ImGuiTreeNodeFlags_Leaf;
 	}
 
-	bool opened = ImGui::TreeNodeEx(entityLabel(node->entity()).c_str(), flags);
+	bool opened = ImGui::TreeNodeEx(entityImGuiLabel(node->entity()).c_str(), flags);
 
 	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
 		m_selectedEntity = node->entity();
 	}
 
 	if (ImGui::BeginPopupContextItem()) {
+		if (ImGui::MenuItem("Pin Edit Window")) {
+			node->entity().emplace_or_replace<PinnedWindow>();
+		}
 		if (ImGui::MenuItem("Copy Entity ID")) {
 			ImGui::SetClipboardText(std::to_string(entt::to_integral(node->entity().entity())).c_str());
 		}
@@ -140,8 +140,20 @@ void Inspector::drawSceneNodeRecursive(const SceneNode* node)
 	}
 }
 
-void Inspector::drawNameWidget(EntityHandle entity)
+void Inspector::drawComponentEditorWindow(EntityHandle entity, std::string_view windowName_)
 {
+	std::string windowName(windowName_);
+	if (windowName.empty()) {
+		windowName = entityImGuiLabel(entity);
+	}
+
+	bool windowIsOpen = true;
+	ImGui::Begin(windowName.c_str(), &windowIsOpen);
+	if (!windowIsOpen) {
+		entity.remove<PinnedWindow>();
+	}
+
+	// Name widget
 	std::string name = entityDisplayName(entity);
 	if (ImGui::InputText("name", &name, ImGuiInputTextFlags_EnterReturnsTrue)) {
 		if (name.empty()) {
@@ -150,10 +162,8 @@ void Inspector::drawNameWidget(EntityHandle entity)
 			entity.get_or_emplace<EntityName>().name = name;
 		}
 	}
-}
 
-void Inspector::drawAddComponentButton(EntityHandle entity)
-{
+	// Add Component button
 	ImGui::SameLine(ImGui::GetWindowWidth() - 20);
 	if (ImGui::Button("+##addComp")) {
 		ImGui::OpenPopup("addCompMenu");
@@ -169,11 +179,8 @@ void Inspector::drawAddComponentButton(EntityHandle entity)
 		}
 		ImGui::EndPopup();
 	}
-}
 
-void Inspector::drawComponentEditor(EntityHandle entity)
-{
-	const auto treeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen;
+	ImGui::Separator();
 
 	EditWidgetDrawer drawer;
 	for (auto& component : components()) {
@@ -181,18 +188,21 @@ void Inspector::drawComponentEditor(EntityHandle entity)
 			continue;
 		}
 
-		bool opened = ImGui::TreeNodeEx(component.name, treeFlags);
+		bool opened = ImGui::TreeNodeEx(component.name, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen);
 
 		// context menu
 		{
-			ImGui::PushID(component.name);
+			// ImGui::PushID(component.name);
 			if (ImGui::BeginPopupContextItem()) {
+				if (ImGui::MenuItem("Pin Edit Window")) {
+					entity.emplace_or_replace<PinnedWindow>();
+				}
 				if (ImGui::MenuItem("Delete")) {
 					component.removeFrom(entity);
 				}
 				ImGui::EndPopup();
 			}
-			ImGui::PopID();
+			// ImGui::PopID();
 		}
 
 		if (opened) {
@@ -204,6 +214,8 @@ void Inspector::drawComponentEditor(EntityHandle entity)
 			ImGui::TreePop();
 		}
 	}
+
+	ImGui::End();
 }
 
 void Inspector::drawSelectionGizmo(EntityCHandle entity)
@@ -212,8 +224,13 @@ void Inspector::drawSelectionGizmo(EntityCHandle entity)
 		auto transform = node->globalTransform();
 
 		Rect2 rect;
-		rect.size = transform.scale;
-		rect.offset = transform.position - transform.scale / 2.0f;
+		if (auto* sprite = entity.try_get<Sprite>()) {
+			rect.size = Vec2(sprite->texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter;
+			rect.size *= transform.scale;
+		} else {
+			rect.size = {0.25f, 0.25f};
+		}
+		rect.offset = transform.position - rect.size / 2.0f;
 
 		g_engine->renderSystem.gizmoRenderer.addRect(rect, {0.95f, 0.60f, 0.22f, 1});
 	}

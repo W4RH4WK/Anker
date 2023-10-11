@@ -25,9 +25,9 @@ inline std::string entityDisplayName(EntityHandle entity)
 	}
 }
 
-inline std::string entityLabel(EntityHandle entity)
+inline std::string entityImGuiLabel(EntityHandle entity)
 {
-	return fmt::format("{}##entity{}", entityDisplayName(entity), entt::to_integral(entity.entity()));
+	return fmt::format("{0} ({1})##entity{1}", entityDisplayName(entity), entt::to_integral(entity.entity()));
 }
 
 } // namespace Anker

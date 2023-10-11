@@ -20,14 +20,14 @@ class PhysicsContactListener : public b2ContactListener {
 		if (auto* body = entityA.try_get<PhysicsBody>()) {
 			body->touchingContacts.push_back(contact);
 		} else {
-			ANKER_ERROR("Invalid PhysicsBody reference: {}", entityLabel(entityA));
+			ANKER_ERROR("Invalid PhysicsBody reference: {}", entityImGuiLabel(entityA));
 		}
 
 		auto entityB = m_scene.entityHandle(EntityID(contact->GetFixtureB()->GetBody()->GetUserData().entityID));
 		if (auto* body = entityB.try_get<PhysicsBody>()) {
 			body->touchingContacts.push_back(contact);
 		} else {
-			ANKER_ERROR("Invalid PhysicsBody reference: {}", entityLabel(entityA));
+			ANKER_ERROR("Invalid PhysicsBody reference: {}", entityImGuiLabel(entityA));
 		}
 	}
 

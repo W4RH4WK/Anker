@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/editor/anker_edit_widget_drawer.hpp>
+
 namespace Anker {
 
 class Scene;
@@ -18,13 +20,15 @@ class Inspector {
 	void drawMenuBarEntry();
 
   private:
+	// Marker component for entities which have their Inspector edit window
+	// pinned.
+	struct PinnedWindow {};
+
 	// We enforce node pointers to be const as we must not modify the scene
 	// graph during traversal. See m_sceneGraphModification below.
 	void drawSceneNodeRecursive(const SceneNode*);
 
-	void drawNameWidget(EntityHandle entity);
-	void drawAddComponentButton(EntityHandle entity);
-	void drawComponentEditor(EntityHandle);
+	void drawComponentEditorWindow(EntityHandle, std::string_view windowName = {});
 
 	void drawSelectionGizmo(EntityCHandle);
 

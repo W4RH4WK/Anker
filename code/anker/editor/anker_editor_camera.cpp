@@ -43,7 +43,7 @@ void EditorCameraSystem::drawMenuBarEntry(Scene& scene)
 	if (ImGui::BeginMenu("Cameras")) {
 		for (auto [entityID, _, __] : scene.registry.view<SceneNode, Camera>().each()) {
 			auto entity = scene.entityHandle(entityID);
-			if (ImGui::MenuItem(entityLabel(entity).c_str())) {
+			if (ImGui::MenuItem(entityImGuiLabel(entity).c_str())) {
 				scene.setActiveCamera(entity);
 			}
 		}

@@ -56,8 +56,8 @@ constexpr std::array Components = {
     registerComponent<PhysicsBody>("PhysicsBody"),
     registerComponent<PlayerController>("PlayerController"),
     registerComponent<Follower>("Follower"),
-    registerComponent<EditorCamera>("EditorCamera"),
     registerComponent<TileLayer>("TileLayer"),
+    registerComponent<EditorCamera>("EditorCamera"),
 };
 
 const std::unordered_map<entt::id_type, const ComponentInfo*> ComponentsById = []() {
