@@ -53,6 +53,22 @@ class TmjLoader {
 		ANKER_TRY(g_assetDataLoader.load(tmjData, filepath));
 		ANKER_TRY(m_tmjReader.parse(tmjData, filepath));
 
+		if (std::string type; !m_tmjReader.field("type", type) || type != "map") {
+			ANKER_ERROR("{}: Not a map", identifier);
+			return FormatError;
+		}
+
+		{
+			Vec2 tileSize = {256, 256};
+			m_tmjReader.field("tilewidth", tileSize.x);
+			m_tmjReader.field("tileheight", tileSize.y);
+			if (tileSize.x != tileSize.y) {
+				ANKER_ERROR("{}: Tiles must be quadratic. tileSize={}", identifier, tileSize);
+				return FormatError;
+			}
+			m_tileSize = tileSize.x;
+		}
+
 		ANKER_TRY(loadTilesets());
 		ANKER_TRY(loadLayers());
 
@@ -351,8 +367,8 @@ class TmjLoader {
 		Vec2 position;
 		m_tmjReader.field("x", position.x);
 		m_tmjReader.field("y", position.y);
-		position.x += 256.0f / 2.0f;
-		position.y -= 256.0f / 2.0f;
+		position.x += m_tileSize / 2.0f;
+		position.y -= m_tileSize / 2.0f;
 		position = convertCoordinates(position);
 
 		if (tpl.ends_with("/player.tj")) {
@@ -372,7 +388,7 @@ class TmjLoader {
 		transform.rotation = -transform.rotation * Deg2Rad;
 		m_tmjReader.field("width", transform.scale.x);
 		m_tmjReader.field("height", transform.scale.y);
-		transform.scale /= 256.0f; // pixel -> meter
+		transform.scale /= m_tileSize; // pixel -> meter
 
 		// Rotation pivot in Tiled is the bottom left corner of an object.
 		// However, our rotation pivot is the object's center.
@@ -406,7 +422,7 @@ class TmjLoader {
 		    .color = calcColor(),
 		    .parallax = calcParallax(),
 		    .offset = {-0.5f, -0.5f},
-		    .pixelToMeter = 256.0f, // TODO
+		    .pixelToMeter = m_tileSize,
 		    .texture = tileset.texture,
 		    .textureRect = tileset.textureCoordinates(gid),
 		});
@@ -476,8 +492,8 @@ class TmjLoader {
 
 	Vec2 convertCoordinates(Vec2 v) const
 	{
-		v /= 256.0f;  // pixel -> meter
-		v.y *= -1.0f; // flip Y axis
+		v /= m_tileSize; // pixel -> meter
+		v.y *= -1.0f;    // flip Y axis
 		return v;
 	}
 
@@ -501,6 +517,8 @@ class TmjLoader {
 
 	// While traversing the tree of layers we build a corresponding scene graph.
 	SceneNode* m_layerSceneNode = nullptr;
+
+	float m_tileSize = 256;
 
 	// While traversing the tree of layers, certain properties are passed on
 	// from parent to child. These are tracked here as explicit stacks.
