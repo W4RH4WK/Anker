@@ -355,14 +355,18 @@ class TmjLoader {
 	{
 		m_tmjReader.forEach("objects", [&](uint32_t) {
 			if (std::string tpl; m_tmjReader.field("template", tpl)) {
-				loadPlaceholder(tpl);
+				if (tpl.starts_with("entities/")) {
+					loadEntity(tpl);
+				} else {
+					ANKER_ERROR("{}: Tiled templates not yet supported tpl={}", m_tmjIdentifier, tpl);
+				}
 			} else {
 				loadObject();
 			}
 		});
 	}
 
-	void loadPlaceholder(std::string_view tpl)
+	void loadEntity(std::string_view tpl)
 	{
 		Vec2 position;
 		m_tmjReader.field("x", position.x);
@@ -374,7 +378,7 @@ class TmjLoader {
 		if (tpl.ends_with("/player.tj")) {
 			spawnPlayer(m_scene, position, m_layerSceneNode);
 		} else {
-			ANKER_ERROR("{}: Unknown placeholder: {}", m_tmjIdentifier, tpl);
+			ANKER_ERROR("{}: Unknown entity: {}", m_tmjIdentifier, tpl);
 		}
 	}
 
