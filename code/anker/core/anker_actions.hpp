@@ -55,6 +55,8 @@ class Action {
 // the input system.
 struct Actions {
 	Action playerMoveLeft, playerMoveRight, playerMoveUp, playerMoveDown;
+	Action playerJump;
+
 	Vec2 playerMove() const
 	{
 		return (Vec2::WorldLeft * playerMoveLeft.value()     //
@@ -78,6 +80,7 @@ REFL_FIELD(playerMoveLeft)
 REFL_FIELD(playerMoveRight)
 REFL_FIELD(playerMoveUp)
 REFL_FIELD(playerMoveDown)
+REFL_FIELD(playerJump)
 REFL_FIELD(editorToggle)
 REFL_FIELD(editorMapReload)
 REFL_END

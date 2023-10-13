@@ -156,6 +156,12 @@ template <typename T>
 const Vec2T<T> Vec2T<T>::WorldRight{1, 0};
 
 template <typename T>
+constexpr T dot(Vec2T<T> a, Vec2T<T> b)
+{
+	return a.x * b.x + a.y * b.y;
+}
+
+template <typename T>
 constexpr Vec2T<T>& operator+=(Vec2T<T>& a, Vec2T<T> b)
 {
 	a.x += b.x;
