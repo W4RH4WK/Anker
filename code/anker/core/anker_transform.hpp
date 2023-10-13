@@ -1,6 +1,6 @@
 #pragma once
 
-#include <anker/editor/anker_edit_widget_drawer.hpp>
+#include <anker/editor/anker_inspector_widget_drawer.hpp>
 
 namespace Anker {
 
@@ -74,6 +74,6 @@ inline Transform2D operator*(const Transform2D& a, const Transform2D& b)
 
 REFL_TYPE(Anker::Transform2D)
 REFL_FIELD(position)
-REFL_FIELD(rotation, Anker::attr::Radians())
+REFL_FIELD(rotation, Anker::Attr::Radians())
 REFL_FIELD(scale)
 REFL_END

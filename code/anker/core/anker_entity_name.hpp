@@ -1,6 +1,6 @@
 #pragma once
 
-#include <anker/editor/anker_edit_widget_drawer.hpp>
+#include <anker/editor/anker_inspector_widget_drawer.hpp>
 
 namespace Anker {
 
@@ -10,7 +10,7 @@ struct EntityName {
 
 } // namespace Anker
 
-REFL_TYPE(Anker::EntityName, Anker::attr::Hidden())
+REFL_TYPE(Anker::EntityName, Anker::Attr::Hidden())
 REFL_FIELD(name)
 REFL_END
 

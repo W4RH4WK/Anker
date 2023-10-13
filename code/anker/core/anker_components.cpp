@@ -2,8 +2,8 @@
 
 #include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_scene_node.hpp>
-#include <anker/editor/anker_edit_widget_drawer.hpp>
 #include <anker/editor/anker_editor_camera.hpp>
+#include <anker/editor/anker_inspector_widget_drawer.hpp>
 #include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
@@ -36,8 +36,8 @@ constexpr ComponentInfo registerComponent(const char* name, ComponentFlags flags
 		info.tick = [](float dt, Scene& scene) { Component::tick(dt, scene); };
 	}
 
-	if constexpr (Serializable<EditWidgetDrawer, Component> && !std::is_empty_v<Component>) {
-		info.drawEditWidget = [](EditWidgetDrawer& draw, EntityHandle entity) {
+	if constexpr (Serializable<InspectorWidgetDrawer, Component> && !std::is_empty_v<Component>) {
+		info.drawInspectorWidget = [](InspectorWidgetDrawer& draw, EntityHandle entity) {
 			if (auto* component = entity.try_get<Component>()) {
 				draw(*component);
 			}

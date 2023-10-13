@@ -3,7 +3,7 @@
 namespace Anker {
 
 class Scene;
-class EditWidgetDrawer;
+class InspectorWidgetDrawer;
 
 enum class ComponentFlag {
 	None = 0,
@@ -21,7 +21,7 @@ struct ComponentInfo {
 	void (*addTo)(EntityHandle);
 	void (*removeFrom)(EntityHandle);
 	bool (*isPresentIn)(EntityCHandle);
-	void (*drawEditWidget)(EditWidgetDrawer&, EntityHandle);
+	void (*drawInspectorWidget)(InspectorWidgetDrawer&, EntityHandle);
 };
 
 std::span<const ComponentInfo> components();

@@ -50,6 +50,10 @@ void Inspector::tick(float, Scene& scene)
 				if (ImGui::MenuItem("Delete")) {
 					entity.destroy();
 				}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Pin Inspector Window")) {
+					entity.emplace_or_replace<PinnedWindowTag>();
+				}
 				ImGui::EndPopup();
 			}
 		});
@@ -78,7 +82,7 @@ void Inspector::tick(float, Scene& scene)
 
 void Inspector::drawMenuBarEntry()
 {
-	ImGui::ToggleButton("Entities", &m_enabled);
+	ImGui::ToggleButton("Inspector", &m_enabled);
 }
 
 constexpr auto SelectedEntityTag = "Inspector::SelectedEntity"_hs;
@@ -116,18 +120,18 @@ void Inspector::drawSceneNodeRecursive(Scene& scene, const SceneNode* node)
 	}
 
 	if (ImGui::BeginPopupContextItem()) {
-		if (ImGui::MenuItem("Pin Edit Window")) {
-			node->entity().emplace_or_replace<PinnedWindowTag>();
-		}
 		if (ImGui::MenuItem("Copy Entity ID")) {
 			ImGui::SetClipboardText(std::to_string(entt::to_integral(node->entity().entity())).c_str());
 		}
 		if (ImGui::MenuItem("Clear Parent")) {
 			m_sceneGraphModification = [node] { const_cast<SceneNode*>(node)->clearParent(); };
 		}
-		ImGui::Separator();
 		if (ImGui::MenuItem("Delete")) {
 			m_sceneGraphModification = [node] { node->entity().destroy(); };
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Pin Inspector Window")) {
+			node->entity().emplace_or_replace<PinnedWindowTag>();
 		}
 		ImGui::EndPopup();
 	}
@@ -201,7 +205,7 @@ void Inspector::drawComponentEditorWindow(EntityHandle entity, std::string_view 
 
 	ImGui::Separator();
 
-	EditWidgetDrawer drawer;
+	InspectorWidgetDrawer drawer;
 	for (auto& component : components()) {
 		if (component.flags & ComponentFlag::HideInInspector || !component.isPresentIn(entity)) {
 			continue;
@@ -209,26 +213,18 @@ void Inspector::drawComponentEditorWindow(EntityHandle entity, std::string_view 
 
 		bool opened = ImGui::TreeNodeEx(component.name, ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen);
 
-		// context menu
-		{
-			// ImGui::PushID(component.name);
-			if (ImGui::BeginPopupContextItem()) {
-				if (ImGui::MenuItem("Pin Edit Window")) {
-					entity.emplace_or_replace<PinnedWindowTag>();
-				}
-				if (ImGui::MenuItem("Delete")) {
-					component.removeFrom(entity);
-				}
-				ImGui::EndPopup();
+		if (ImGui::BeginPopupContextItem()) {
+			if (ImGui::MenuItem("Delete")) {
+				component.removeFrom(entity);
 			}
-			// ImGui::PopID();
+			ImGui::EndPopup();
 		}
 
 		if (opened) {
-			if (component.drawEditWidget) {
-				component.drawEditWidget(drawer, entity);
+			if (component.drawInspectorWidget) {
+				component.drawInspectorWidget(drawer, entity);
 			} else {
-				ImGui::TextDisabled("No editWidget defined");
+				ImGui::TextDisabled("No Inspector widget defined");
 			}
 			ImGui::TreePop();
 		}

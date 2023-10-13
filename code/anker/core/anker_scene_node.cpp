@@ -1,6 +1,6 @@
 #include <anker/core/anker_scene_node.hpp>
 
-#include <anker/editor/anker_edit_widget_drawer.hpp>
+#include <anker/editor/anker_inspector_widget_drawer.hpp>
 
 namespace Anker {
 
@@ -109,7 +109,7 @@ void unregisterSceneNodeCallbacks(entt::registry& reg)
 	reg.on_update<SceneNode>().disconnect<&linkSceneNodeWithEntity>();
 }
 
-bool serialize(EditWidgetDrawer& draw, SceneNode& node)
+bool serialize(InspectorWidgetDrawer& draw, SceneNode& node)
 {
 	auto transform = node.localTransform();
 	if (draw(transform)) {

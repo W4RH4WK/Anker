@@ -4,7 +4,7 @@
 
 namespace Anker {
 
-namespace attr {
+namespace Attr {
 
 // Prevents the type, field, or property to show up in the editor.
 struct Hidden : refl::attr::usage::type,  //
@@ -32,12 +32,12 @@ struct Slider : refl::attr::usage::field, //
 	T max;
 };
 
-} // namespace attr
+} // namespace Attr
 
 // Draws an ImGui edit widget for the given object. Drawing of types can be
 // customized by providing a serialize function. Reflection is taken into
 // account.
-class EditWidgetDrawer {
+class InspectorWidgetDrawer {
   public:
 	bool field(const char* name, bool& value) { return ImGui::Checkbox(name, &value); }
 
@@ -46,8 +46,8 @@ class EditWidgetDrawer {
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, int& value)
 	{
-		if constexpr (has_attribute<attr::Slider>(member)) {
-			auto attr = get_attribute<attr::Slider>(member);
+		if constexpr (has_attribute<Attr::Slider>(member)) {
+			auto attr = get_attribute<Attr::Slider>(member);
 			return ImGui::SliderInt(name, &value, attr.min, attr.max);
 		} else {
 			return field(name, value);
@@ -75,10 +75,10 @@ class EditWidgetDrawer {
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, float& value)
 	{
-		if constexpr (has_attribute<attr::Radians>(member)) {
+		if constexpr (has_attribute<Attr::Radians>(member)) {
 			return fieldAsDegree(name, value);
-		} else if constexpr (has_attribute<attr::Slider>(member)) {
-			auto attr = get_attribute<attr::Slider>(member);
+		} else if constexpr (has_attribute<Attr::Slider>(member)) {
+			auto attr = get_attribute<Attr::Slider>(member);
 			return fieldAsSlider(name, value, attr.min, attr.max);
 		} else {
 			return field(name, value);
@@ -94,7 +94,7 @@ class EditWidgetDrawer {
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec3& value)
 	{
-		if constexpr (has_attribute<attr::Color>(member)) {
+		if constexpr (has_attribute<Attr::Color>(member)) {
 			return fieldAsColor(name, value);
 		} else {
 			return field(name, value);
@@ -108,7 +108,7 @@ class EditWidgetDrawer {
 	template <typename ReflDescriptor>
 	bool field(ReflDescriptor member, const char* name, Vec4& value)
 	{
-		if constexpr (has_attribute<attr::Color>(member)) {
+		if constexpr (has_attribute<Attr::Color>(member)) {
 			return fieldAsColor(name, value);
 		} else {
 			return field(name, value);
@@ -183,7 +183,7 @@ class EditWidgetDrawer {
 			    // Regular fields are drawn as normal.
 			    [&](auto& alternative) { return field(alternativeLabel.c_str(), alternative); },
 			    // Objects are drawn in-line.
-			    [&]<typename T>(T& alternative) requires Internal::SerializableClass<EditWidgetDrawer, T> {
+			    [&]<typename T>(T& alternative) requires Internal::SerializableClass<InspectorWidgetDrawer, T> {
 				    return field(alternativeLabel.c_str(), alternative, true);
 			    },
 			};
@@ -196,7 +196,7 @@ class EditWidgetDrawer {
 
 	template <typename T>
 	bool field(const char* name, T& object, bool drawInline = false) //
-	    requires Internal::SerializableClass<EditWidgetDrawer, T>
+	    requires Internal::SerializableClass<InspectorWidgetDrawer, T>
 	{
 		if (drawInline) {
 			return (*this)(object);
@@ -214,15 +214,15 @@ class EditWidgetDrawer {
 
 	template <typename ReflDescriptor, typename T>
 	bool field(ReflDescriptor member, const char* name, T& object) //
-	    requires Internal::SerializableClass<EditWidgetDrawer, T>
+	    requires Internal::SerializableClass<InspectorWidgetDrawer, T>
 	{
-		return field(name, object, has_attribute<attr::Inline>(member));
+		return field(name, object, has_attribute<Attr::Inline>(member));
 	}
 
 	template <typename T>
-	bool operator()(T& object) requires Internal::SerializableClass<EditWidgetDrawer, T>
+	bool operator()(T& object) requires Internal::SerializableClass<InspectorWidgetDrawer, T>
 	{
-		if constexpr (Internal::CustomSerialization<EditWidgetDrawer, T>) {
+		if constexpr (Internal::CustomSerialization<InspectorWidgetDrawer, T>) {
 			return serialize(*this, object);
 		}
 
@@ -231,7 +231,7 @@ class EditWidgetDrawer {
 
 			// Only consider members without the Hidden attribute.
 			auto members = filter(refl::reflect<T>().members, [](auto member) { //
-				return !has_attribute<attr::Hidden>(member);
+				return !has_attribute<Attr::Hidden>(member);
 			});
 
 			// Fields can be accessed directly via reference.
@@ -281,8 +281,8 @@ struct VertexShader;
 struct PixelShader;
 struct Texture;
 
-bool serialize(EditWidgetDrawer&, AssetPtr<VertexShader>&);
-bool serialize(EditWidgetDrawer&, AssetPtr<PixelShader>&);
-bool serialize(EditWidgetDrawer&, AssetPtr<Texture>&);
+bool serialize(InspectorWidgetDrawer&, AssetPtr<VertexShader>&);
+bool serialize(InspectorWidgetDrawer&, AssetPtr<PixelShader>&);
+bool serialize(InspectorWidgetDrawer&, AssetPtr<Texture>&);
 
 } // namespace Anker

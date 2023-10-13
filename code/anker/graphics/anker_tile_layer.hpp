@@ -1,7 +1,7 @@
 #pragma once
 
 #include <anker/core/anker_asset.hpp>
-#include <anker/editor/anker_edit_widget_drawer.hpp>
+#include <anker/editor/anker_inspector_widget_drawer.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 
 namespace Anker {
@@ -12,7 +12,7 @@ struct TileLayer {
 	std::vector<std::pair<GpuBuffer, AssetPtr<Texture>>> parts;
 };
 
-inline bool serialize(EditWidgetDrawer& draw, TileLayer& tileLayer)
+inline bool serialize(InspectorWidgetDrawer& draw, TileLayer& tileLayer)
 {
 	bool changed = false;
 
@@ -30,6 +30,6 @@ inline bool serialize(EditWidgetDrawer& draw, TileLayer& tileLayer)
 } // namespace Anker
 
 REFL_TYPE(Anker::TileLayer)
-REFL_FIELD(color, Anker::attr::Color())
+REFL_FIELD(color, Anker::Attr::Color())
 REFL_FIELD(parallax)
 REFL_END

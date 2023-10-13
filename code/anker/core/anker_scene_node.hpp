@@ -92,7 +92,7 @@ class SceneNode {
 void registerSceneNodeCallbacks(entt::registry&);
 void unregisterSceneNodeCallbacks(entt::registry&);
 
-bool serialize(EditWidgetDrawer&, SceneNode&);
+bool serialize(InspectorWidgetDrawer&, SceneNode&);
 
 } // namespace Anker
 
