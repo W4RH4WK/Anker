@@ -5,6 +5,7 @@
 #include <anker/editor/anker_editor_camera.hpp>
 #include <anker/editor/anker_inspector_widget_drawer.hpp>
 #include <anker/game/anker_follower.hpp>
+#include <anker/game/anker_player_animator.hpp>
 #include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
@@ -55,6 +56,7 @@ constexpr std::array Components = {
     registerComponent<Sprite>("Sprite"),
     registerComponent<PhysicsBody>("PhysicsBody"),
     registerComponent<PlayerController>("PlayerController"),
+    registerComponent<PlayerAnimator>("PlayerAnimator"),
     registerComponent<Follower>("Follower"),
     registerComponent<TileLayer>("TileLayer"),
     registerComponent<EditorCamera>("EditorCamera"),

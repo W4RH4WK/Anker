@@ -2,7 +2,6 @@
 
 #include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_scene.hpp>
-#include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
 
 namespace Anker {
@@ -30,7 +29,7 @@ void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 	}
 }
 
-void PlayerController::tickMove(float dt)
+void PlayerController::tickMove(float)
 {
 	float responsiveness = moveResponsiveness;
 	if (!isGrounded) {
@@ -101,14 +100,6 @@ void PlayerController::tick(float dt, Scene& scene)
 			controller.tickFalling(dt);
 
 			physicsBody.body->SetLinearVelocity(controller.velocity);
-
-			if (auto* sprite = scene.registry.try_get<Sprite>(entity)) {
-				if (controller.velocity.x < 0) {
-					sprite->flipX = true;
-				} else if (controller.velocity.x > 0) {
-					sprite->flipX = false;
-				}
-			}
 		}
 	}
 }
