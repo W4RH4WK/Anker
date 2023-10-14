@@ -36,7 +36,7 @@ void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 		if (contact->GetFixtureB()->GetBody() == body.body) {
 			normal = -normal;
 		}
-		if (dot(normal, Vec2::WorldDown) >= 0.5f) {
+		if (dot(normal, Vec2::WorldDown) >= 0.75f) {
 			m_isGrounded = true;
 			break;
 		}
@@ -58,15 +58,37 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 {
 	const Action& jumpInput = g_engine->inputSystem.actions().playerJump;
 
-	if (m_isGrounded && jumpInput.downThisFrame()) {
-		m_velocity.y = moveParam.jumpSpeed;
+	if (jumpInput.downThisFrame() && m_jumpsLeft > 0) {
+		if (m_jumpsLeft == moveParam.jumps) {
+			m_velocity.y = moveParam.jumpSpeed;
+		} else {
+			m_velocity.y = moveParam.jumpSpeedSecondary;
+		}
 		m_isGrounded = false;
+		m_jumpsLeft--;
+	}
+
+	// Update jumps
+	if (isGrounded()) {
+		m_jumpsLeft = moveParam.jumps;
+	}
+
+	// Update coyote time
+	if (isFalling()) {
+		m_coyoteTimeLeft -= dt;
+	} else {
+		m_coyoteTimeLeft = moveParam.coyoteTime;
+	}
+
+	// We lose the primary jump when falling (after coyote time).
+	if (isFalling() && m_coyoteTimeLeft <= 0 && m_jumpsLeft == moveParam.jumps) {
+		m_jumpsLeft--;
 	}
 
 	// While the player moves up, deceleration varies depending on whether the
 	// jump input is still actuated or not. This allows the player to control
 	// how high the jump should be.
-	if (m_velocity.y > 0) {
+	if (isJumping()) {
 		if (jumpInput.down()) {
 			m_velocity.y -= moveParam.gravity * dt;
 		} else {
@@ -93,7 +115,7 @@ void PlayerController::tickFalling(float dt)
 		return;
 	}
 
-	if (m_isGrounded) {
+	if (isGrounded()) {
 		m_velocity.y = 0;
 	} else {
 		m_velocity.y -= moveParam.gravity * dt;

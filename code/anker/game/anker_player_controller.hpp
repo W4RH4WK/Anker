@@ -11,6 +11,7 @@ class PlayerController {
   public:
 	bool isGrounded() const { return m_isGrounded; }
 	bool isJumping() const { return !m_isGrounded && m_velocity.y > 0; }
+	bool isFalling() const { return !m_isGrounded && m_velocity.y < 0; }
 	Vec2 velocity() const { return m_velocity; }
 
 	static void tick(float, Scene&);
@@ -25,10 +26,14 @@ class PlayerController {
 
 	bool m_isGrounded = false;
 
+	int m_jumpsLeft = 1;
+	float m_coyoteTimeLeft = 0;
+
 	Vec2 m_velocity;
 };
 
 } // namespace Anker
 
 REFL_TYPE(Anker::PlayerController)
+REFL_FIELD(moveParam)
 REFL_END
