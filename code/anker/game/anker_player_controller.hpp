@@ -1,42 +1,34 @@
 #pragma once
 
+#include <anker/game/anker_player_movement_parameters.hpp>
+
 namespace Anker {
 
 class Scene;
-
 struct PhysicsBody;
 
-struct PlayerController {
-	float moveSpeed = 10.0f;
-	float moveResponsiveness = 0.32f;
-	float moveResponsivenessInAir = 0.16f;
+class PlayerController {
+  public:
+	bool isGrounded() const { return m_isGrounded; }
+	bool isJumping() const { return !m_isGrounded && m_velocity.y > 0; }
+	Vec2 velocity() const { return m_velocity; }
 
-	float jumpVelocity = 23.5f;
-	float jumpDeceleration = 225.0f;
+	static void tick(float, Scene&);
 
-	float gravity = 56.25f;
-	float maxFallSpeed = 30.0f;
+	PlayerMovementParameters moveParam;
 
-	bool isGrounded = false;
-
-	Vec2 velocity;
-
-	bool isJumping() const { return !isGrounded && velocity.y > 0; }
-
+  private:
 	void tickIsGrounded(float, const PhysicsBody&);
 	void tickMove(float);
 	void tickJumping(float, const PhysicsBody&);
 	void tickFalling(float);
 
-	static void tick(float, Scene&);
+	bool m_isGrounded = false;
+
+	Vec2 m_velocity;
 };
 
 } // namespace Anker
 
 REFL_TYPE(Anker::PlayerController)
-REFL_FIELD(moveSpeed)
-REFL_FIELD(moveResponsiveness)
-REFL_FIELD(moveResponsivenessInAir)
-REFL_FIELD(isGrounded)
-REFL_FIELD(velocity)
 REFL_END

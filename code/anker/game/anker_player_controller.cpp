@@ -6,12 +6,26 @@
 
 namespace Anker {
 
+void PlayerController::tick(float dt, Scene& scene)
+{
+	for (auto [entity, physicsBody, controller] : scene.registry.view<PhysicsBody, PlayerController>().each()) {
+		if (physicsBody.body) {
+			controller.tickIsGrounded(dt, physicsBody);
+			controller.tickMove(dt);
+			controller.tickJumping(dt, physicsBody);
+			controller.tickFalling(dt);
+
+			physicsBody.body->SetLinearVelocity(controller.velocity());
+		}
+	}
+}
+
 void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 {
-	isGrounded = false;
+	m_isGrounded = false;
 
 	// Ground contact is ignored while the player is moving upwards.
-	if (velocity.y > 0) {
+	if (m_velocity.y > 0) {
 		return;
 	}
 
@@ -23,40 +37,40 @@ void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 			normal = -normal;
 		}
 		if (dot(normal, Vec2::WorldDown) >= 0.5f) {
-			isGrounded = true;
+			m_isGrounded = true;
 			break;
 		}
 	}
 }
 
-void PlayerController::tickMove(float)
+void PlayerController::tickMove(float dt)
 {
-	float responsiveness = moveResponsiveness;
-	if (!isGrounded) {
-		responsiveness = moveResponsivenessInAir;
+	float responsiveness = moveParam.moveResponsiveness;
+	if (!m_isGrounded) {
+		responsiveness = moveParam.moveResponsivenessInAir;
 	}
 
 	float moveInput = g_engine->inputSystem.actions().playerMove().x;
-	velocity.x -= responsiveness * (velocity.x - moveSpeed * moveInput);
+	m_velocity.x = moveTowards(m_velocity.x, moveParam.moveSpeed * moveInput, responsiveness, dt);
 }
 
 void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 {
 	const Action& jumpInput = g_engine->inputSystem.actions().playerJump;
 
-	if (isGrounded && jumpInput.downThisFrame()) {
-		velocity.y = jumpVelocity;
-		isGrounded = false;
+	if (m_isGrounded && jumpInput.downThisFrame()) {
+		m_velocity.y = moveParam.jumpSpeed;
+		m_isGrounded = false;
 	}
 
 	// While the player moves up, deceleration varies depending on whether the
 	// jump input is still actuated or not. This allows the player to control
 	// how high the jump should be.
-	if (velocity.y > 0) {
+	if (m_velocity.y > 0) {
 		if (jumpInput.down()) {
-			velocity.y -= gravity * dt;
+			m_velocity.y -= moveParam.gravity * dt;
 		} else {
-			velocity.y -= jumpDeceleration * dt;
+			m_velocity.y -= moveParam.jumpDeceleration * dt;
 		}
 
 		// Clear vertical velocity when bumping our head on something.
@@ -66,7 +80,7 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 				normal = -normal;
 			}
 			if (dot(normal, Vec2::WorldUp) >= 0.5f) {
-				velocity.y = 0;
+				m_velocity.y = 0;
 				break;
 			}
 		}
@@ -75,32 +89,18 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 
 void PlayerController::tickFalling(float dt)
 {
-	if (velocity.y > 0) {
+	if (m_velocity.y > 0) {
 		return;
 	}
 
-	if (isGrounded) {
-		velocity.y = 0;
+	if (m_isGrounded) {
+		m_velocity.y = 0;
 	} else {
-		velocity.y -= gravity * dt;
+		m_velocity.y -= moveParam.gravity * dt;
 	}
 
-	if (velocity.y < -maxFallSpeed) {
-		velocity.y = -maxFallSpeed;
-	}
-}
-
-void PlayerController::tick(float dt, Scene& scene)
-{
-	for (auto [entity, physicsBody, controller] : scene.registry.view<PhysicsBody, PlayerController>().each()) {
-		if (physicsBody.body) {
-			controller.tickIsGrounded(dt, physicsBody);
-			controller.tickMove(dt);
-			controller.tickJumping(dt, physicsBody);
-			controller.tickFalling(dt);
-
-			physicsBody.body->SetLinearVelocity(controller.velocity);
-		}
+	if (m_velocity.y < -moveParam.maxFallSpeed) {
+		m_velocity.y = -moveParam.maxFallSpeed;
 	}
 }
 
