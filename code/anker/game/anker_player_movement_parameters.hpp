@@ -29,6 +29,19 @@ struct PlayerMovementParameters {
 	// jump after running of a ledge.
 	float coyoteTime = 0.15f;
 
+	// dashes determines how many dashes the player has.
+	int dashes = 1;
+
+	// dashSpeed determines the strength of a dash.
+	float dashSpeed = 50.0f;
+
+	// dashTime determines how long the dash persists.
+	float dashTime = 0.05f;
+
+	// dashCooldown determines how long the player has to wait before dashing
+	// again.
+	float dashCooldown = 0.2f;
+
 	// gravity determines how fast the player accelerates towards the ground.
 	float gravity = 56.25f;
 
@@ -47,6 +60,10 @@ REFL_FIELD(jumpSpeed)
 REFL_FIELD(jumpSpeedSecondary)
 REFL_FIELD(jumpDeceleration)
 REFL_FIELD(coyoteTime)
+REFL_FIELD(dashes)
+REFL_FIELD(dashSpeed)
+REFL_FIELD(dashTime)
+REFL_FIELD(dashCooldown)
 REFL_FIELD(gravity)
 REFL_FIELD(maxFallSpeed)
 REFL_END

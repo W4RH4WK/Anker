@@ -27,6 +27,7 @@ void InputSystem::tick(float dt)
 	m_actions.playerMoveLeft.tick(dt, pressed(GLFW_KEY_LEFT));
 	m_actions.playerMoveRight.tick(dt, pressed(GLFW_KEY_RIGHT));
 	m_actions.playerJump.tick(dt, pressed(GLFW_KEY_SPACE));
+	m_actions.playerDash.tick(dt, pressed(GLFW_KEY_LEFT_SHIFT));
 
 	m_actions.editorToggle.tick(dt, pressed(GLFW_KEY_F1));
 	m_actions.editorMapReload.tick(dt, pressed(GLFW_KEY_F5));

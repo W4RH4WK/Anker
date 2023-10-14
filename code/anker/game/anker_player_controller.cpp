@@ -13,6 +13,7 @@ void PlayerController::tick(float dt, Scene& scene)
 			controller.tickIsGrounded(dt, physicsBody);
 			controller.tickMove(dt);
 			controller.tickJumping(dt, physicsBody);
+			controller.tickDashing(dt);
 			controller.tickFalling(dt);
 
 			physicsBody.body->SetLinearVelocity(controller.velocity());
@@ -109,9 +110,31 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 	}
 }
 
+void PlayerController::tickDashing(float dt)
+{
+	float direction = g_engine->inputSystem.actions().playerMove().x;
+	bool dashInput = g_engine->inputSystem.actions().playerDash.downThisFrame();
+	if (dashInput && m_dashesLeft > 0 && m_dashCooldownLeft <= 0) {
+		m_dashesLeft--;
+		m_dashTimeLeft = moveParam.dashTime;
+		m_dashCooldownLeft = moveParam.dashCooldown;
+	}
+
+	m_dashTimeLeft -= dt;
+	m_dashCooldownLeft -= dt;
+
+	if (isGrounded()) {
+		m_dashesLeft = moveParam.dashes;
+	}
+
+	if (isDashing()) {
+		m_velocity = {direction * moveParam.dashSpeed, 0};
+	}
+}
+
 void PlayerController::tickFalling(float dt)
 {
-	if (m_velocity.y > 0) {
+	if (m_velocity.y > 0 || isDashing()) {
 		return;
 	}
 

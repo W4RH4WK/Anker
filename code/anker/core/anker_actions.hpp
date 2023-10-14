@@ -56,6 +56,7 @@ class Action {
 struct Actions {
 	Action playerMoveLeft, playerMoveRight, playerMoveUp, playerMoveDown;
 	Action playerJump;
+	Action playerDash;
 
 	Vec2 playerMove() const
 	{
@@ -81,6 +82,7 @@ REFL_FIELD(playerMoveRight)
 REFL_FIELD(playerMoveUp)
 REFL_FIELD(playerMoveDown)
 REFL_FIELD(playerJump)
+REFL_FIELD(playerDash)
 REFL_FIELD(editorToggle)
 REFL_FIELD(editorMapReload)
 REFL_END
