@@ -39,5 +39,5 @@ REFL_FIELD(brightness, Anker::Attr::Slider(-1.0f, 1.0f))
 REFL_FIELD(colorFilter, Anker::Attr::Color())
 REFL_FIELD(saturation, Anker::Attr::Slider(0.0f, 3.0f))
 REFL_FIELD(gamma, Anker::Attr::Slider(0.0f, 5.0f))
-REFL_FIELD(toneMapping, Anker::EnumAttr(Anker::ToneMappingEntries))
+REFL_FIELD(toneMapping, Anker::Attr::Enum(Anker::ToneMappingEntries))
 REFL_END

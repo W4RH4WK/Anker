@@ -148,8 +148,8 @@ class InspectorWidgetDrawer {
 	template <typename ReflDescriptor, typename EnumType>
 	bool field(ReflDescriptor member, const char* name, EnumType& value) requires std::is_enum_v<EnumType>
 	{
-		if constexpr (has_attribute<EnumAttr<EnumType>>(member)) {
-			return field(name, value, get_attribute<EnumAttr>(member).entries);
+		if constexpr (has_attribute<Attr::Enum<EnumType>>(member)) {
+			return field(name, value, get_attribute<Attr::Enum>(member).entries);
 		} else {
 			return field(name, value);
 		}
