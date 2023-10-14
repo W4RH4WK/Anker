@@ -9,12 +9,7 @@ namespace Anker {
 void PlayerAnimator::tick(float, Scene& scene)
 {
 	for (auto [_, controller, sprite] : scene.registry.view<PlayerAnimator, PlayerController, Sprite>().each()) {
-		Vec2 velocity = controller.velocity();
-		if (velocity.x < 0) {
-			sprite.flipX = true;
-		} else if (velocity.x > 0) {
-			sprite.flipX = false;
-		}
+		sprite.flipX = controller.lookDirection().x < 0;
 	}
 }
 

@@ -14,6 +14,7 @@ class PlayerController {
 	bool isFalling() const { return !m_isGrounded && m_velocity.y < 0; }
 	bool isDashing() const { return m_dashTimeLeft > 0; }
 	Vec2 velocity() const { return m_velocity; }
+	Vec2 lookDirection() const { return m_lookDirection; }
 
 	static void tick(float, Scene&);
 
@@ -34,8 +35,11 @@ class PlayerController {
 	int m_dashesLeft = 1;
 	float m_dashTimeLeft = 0;
 	float m_dashCooldownLeft = 0;
+	bool m_dashBackwards = false;
+	Vec2 m_dashDirection;
 
 	Vec2 m_velocity;
+	Vec2 m_lookDirection = Vec2::WorldRight;
 };
 
 } // namespace Anker

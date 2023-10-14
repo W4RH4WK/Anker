@@ -35,12 +35,22 @@ struct PlayerMovementParameters {
 	// dashSpeed determines the strength of a dash.
 	float dashSpeed = 50.0f;
 
+	// dashSpeedBackwards determines the strength of the backwards dash.
+	float dashSpeedBackwards = 25.0f;
+
 	// dashTime determines how long the dash persists.
 	float dashTime = 0.05f;
+
+	// dashTimeBackwards determines how long the backwards dash persists.
+	float dashTimeBackwards = 0.02f;
 
 	// dashCooldown determines how long the player has to wait before dashing
 	// again.
 	float dashCooldown = 0.2f;
+
+	// dashBackwardsCooldown determines how long the player has to wait before
+	// dashing again after doing a backwards dash.
+	float dashBackwardsCooldown = 0.15f;
 
 	// gravity determines how fast the player accelerates towards the ground.
 	float gravity = 56.25f;

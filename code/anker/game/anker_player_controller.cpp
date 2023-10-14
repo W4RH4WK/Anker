@@ -53,6 +53,11 @@ void PlayerController::tickMove(float dt)
 
 	float moveInput = g_engine->inputSystem.actions().playerMove().x;
 	m_velocity.x = moveTowards(m_velocity.x, moveParam.moveSpeed * moveInput, responsiveness, dt);
+	if (moveInput > 0) {
+		m_lookDirection = Vec2::Right;
+	} else if (moveInput < 0) {
+		m_lookDirection = Vec2::Left;
+	}
 }
 
 void PlayerController::tickJumping(float dt, const PhysicsBody& body)
@@ -112,24 +117,38 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 
 void PlayerController::tickDashing(float dt)
 {
-	float direction = g_engine->inputSystem.actions().playerMove().x;
-	bool dashInput = g_engine->inputSystem.actions().playerDash.downThisFrame();
-	if (dashInput && m_dashesLeft > 0 && m_dashCooldownLeft <= 0) {
-		m_dashesLeft--;
-		m_dashTimeLeft = moveParam.dashTime;
-		m_dashCooldownLeft = moveParam.dashCooldown;
-	}
+	const Actions& actions = g_engine->inputSystem.actions();
 
-	m_dashTimeLeft -= dt;
-	m_dashCooldownLeft -= dt;
+	bool dashInput = actions.playerDash.downThisFrame();
+	if (dashInput && m_dashesLeft > 0 && m_dashCooldownLeft <= 0) {
+		Vec2 moveInput = actions.playerMove();
+		m_dashBackwards = moveInput.x == 0;
+		if (m_dashBackwards) {
+			m_dashDirection = -m_lookDirection;
+			m_dashTimeLeft = moveParam.dashTimeBackwards;
+			m_dashCooldownLeft = moveParam.dashBackwardsCooldown;
+		} else {
+			m_dashDirection = moveInput.x > 0 ? Vec2::WorldRight : Vec2::WorldLeft;
+			m_dashTimeLeft = moveParam.dashTime;
+			m_dashCooldownLeft = moveParam.dashCooldown;
+		}
+		m_dashesLeft--;
+	}
 
 	if (isGrounded()) {
 		m_dashesLeft = moveParam.dashes;
 	}
 
 	if (isDashing()) {
-		m_velocity = {direction * moveParam.dashSpeed, 0};
+		float speed = moveParam.dashSpeed;
+		if (m_dashBackwards) {
+			speed = moveParam.dashSpeedBackwards;
+		}
+		m_velocity = speed * m_dashDirection;
 	}
+
+	m_dashTimeLeft -= dt;
+	m_dashCooldownLeft -= dt;
 }
 
 void PlayerController::tickFalling(float dt)
