@@ -5,7 +5,7 @@
 namespace Anker {
 
 template <typename Buffer>
-static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
+static Status readFileIntoBuffer(Buffer& buffer, const fs::path& filepath)
 {
 	ANKER_PROFILE_ZONE_T(filepath.string());
 
@@ -17,10 +17,10 @@ static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 	}
 
 	file.seekg(0, std::ios_base::end);
-	outData.resize(file.tellg());
+	buffer.resize(file.tellg());
 
 	file.seekg(0, std::ios_base::beg);
-	file.read(reinterpret_cast<char*>(outData.data()), outData.size());
+	file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
 	if (!file) {
 		ANKER_ERROR("{}: std::ifstream::read failed: {}", filepath, //
 		            std::system_error(errno, std::generic_category()).what());
@@ -30,22 +30,22 @@ static Status readFileIntoBuffer(const fs::path& filepath, Buffer& outData)
 	return Ok;
 }
 
-Status readFile(const fs::path& filepath, ByteBuffer& outData)
+Status readFile(ByteBuffer& buffer, const fs::path& filepath)
 {
-	return readFileIntoBuffer(filepath, outData);
+	return readFileIntoBuffer(buffer, filepath);
 }
 
-Status readFile(const fs::path& filepath, std::string& outData)
+Status readFile(std::string& buffer, const fs::path& filepath)
 {
-	return readFileIntoBuffer(filepath, outData);
+	return readFileIntoBuffer(buffer, filepath);
 }
 
-Status writeFile(const fs::path& filepath, std::span<const uint8_t> data)
+Status writeFile(std::span<const uint8_t> data, const fs::path& filepath)
 {
-	return writeFile(filepath, {reinterpret_cast<const char*>(data.data()), data.size()});
+	return writeFile({reinterpret_cast<const char*>(data.data()), data.size()}, filepath);
 }
 
-Status writeFile(const fs::path& filepath, std::string_view data)
+Status writeFile(std::string_view data, const fs::path& filepath)
 {
 	ANKER_PROFILE_ZONE_T(filepath.string());
 

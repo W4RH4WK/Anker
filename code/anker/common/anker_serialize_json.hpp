@@ -22,10 +22,10 @@ namespace Anker {
 class JsonReader {
   public:
 	template <typename T>
-	static Status fromFile(const fs::path& filepath, T& outValue) requires Serializable<JsonReader, T>
+	static Status fromFile(T& outValue, const fs::path& filepath) requires Serializable<JsonReader, T>
 	{
 		std::string buffer;
-		ANKER_TRY(readFile(filepath, buffer));
+		ANKER_TRY(readFile(buffer, filepath));
 
 		JsonReader read(buffer);
 		if (!read(outValue)) {
@@ -267,7 +267,7 @@ class JsonWriter {
 	{
 		JsonWriter write;
 		write(value);
-		return writeFile(filepath, write.output());
+		return writeFile(write.output(), filepath);
 	}
 
 	JsonWriter()

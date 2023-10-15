@@ -10,9 +10,9 @@ DataLoaderFilesystem::DataLoaderFilesystem(const fs::path& root) : m_root(root)
 	}
 }
 
-Status DataLoaderFilesystem::load(ByteBuffer& outBuffer, const fs::path& filepath) const
+Status DataLoaderFilesystem::load(ByteBuffer& buffer, const fs::path& filepath) const
 {
-	ANKER_TRY(readFile(m_root / filepath, outBuffer));
+	ANKER_TRY(readFile(buffer, m_root / filepath));
 
 	// Record modification time for comparison.
 	std::error_code lastWriteTimeError;

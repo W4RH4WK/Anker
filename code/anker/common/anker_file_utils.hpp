@@ -7,11 +7,11 @@ namespace Anker {
 
 namespace fs = std::filesystem;
 
-Status readFile(const fs::path&, ByteBuffer&);
-Status readFile(const fs::path&, std::string&);
+Status readFile(ByteBuffer&, const fs::path&);
+Status readFile(std::string&, const fs::path&);
 
-Status writeFile(const fs::path&, std::span<const uint8_t>);
-Status writeFile(const fs::path&, std::string_view);
+Status writeFile(std::span<const uint8_t>, const fs::path&);
+Status writeFile(std::string_view, const fs::path&);
 
 fs::path stripFileExtensions(const fs::path&);
 std::string stripFileExtensions(const std::string&);
