@@ -12,18 +12,7 @@ namespace Anker {
 template <typename Enum>
 using EnumEntries = std::span<const std::pair<Enum, const char*>>;
 
-namespace Attr {
 
-// Enum attribute for refl-cpp that stores the entries array (as std::span).
-template <typename E>
-struct Enum : refl::attr::usage::field {
-	constexpr Enum(EnumEntries<E> e) : entries(e) {}
-	EnumEntries<E> entries;
-};
-template <typename E, usize N>
-Enum(std::array<std::pair<E, const char*>, N>) -> Enum<E>;
-
-} // namespace Attr
 
 ////////////////////////////////////////////////////////////
 // Flag Enum

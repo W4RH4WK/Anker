@@ -1,7 +1,5 @@
 #pragma once
 
-#include <anker/editor/anker_inspector_widget_drawer.hpp>
-
 namespace Anker {
 
 struct Transform2D {

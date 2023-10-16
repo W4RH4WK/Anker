@@ -25,4 +25,43 @@ template <typename Archive, typename T>
 concept SerializableClass = std::is_class_v<T> && (CustomSerialization<Archive, T> || refl::is_reflectable<T>());
 
 } // namespace Internal
+
+namespace Attr {
+
+// Prevents the type, field, or property to show up in the editor.
+struct Hidden : refl::attr::usage::type,  //
+                refl::attr::usage::field, //
+                refl::attr::usage::function {};
+
+// Displays the value in degree and converts input back to radians.
+struct Radians : refl::attr::usage::field, //
+                 refl::attr::usage::function {};
+
+// Field or property is not automatically surrounded with a tree widget.
+struct Inline : refl::attr::usage::field, //
+                refl::attr::usage::function {};
+
+// Adds a color preview + picker.
+struct Color : refl::attr::usage::field, //
+               refl::attr::usage::function {};
+
+// Uses a slider widget instead of the regular drag widget.
+template <typename T>
+struct Slider : refl::attr::usage::field, //
+                refl::attr::usage::function {
+	constexpr Slider(T min, T max) : min(min), max(max) {}
+	T min;
+	T max;
+};
+
+// Enum attribute for refl-cpp that stores the entries array (as std::span).
+template <typename E>
+struct Enum : refl::attr::usage::field {
+	constexpr Enum(EnumEntries<E> e) : entries(e) {}
+	EnumEntries<E> entries;
+};
+template <typename E, usize N>
+Enum(std::array<std::pair<E, const char*>, N>) -> Enum<E>;
+
+} // namespace Attr
 } // namespace Anker

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <anker/core/anker_asset.hpp>
-#include <anker/editor/anker_inspector_widget_drawer.hpp>
 
 namespace Anker {
 
