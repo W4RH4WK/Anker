@@ -1,8 +1,10 @@
 #pragma once
 
+#include "anker_type_utils.hpp"
+
 namespace Anker {
 
-inline std::string win32ErrorMessage(uint32_t error)
+inline std::string win32ErrorMessage(u32 error)
 {
 #if ANKER_PLATFORM_WINDOWS
 	if (error == 0) {
@@ -14,8 +16,8 @@ inline std::string win32ErrorMessage(uint32_t error)
 	                        | FORMAT_MESSAGE_IGNORE_INSERTS;
 
 	LPSTR buffer = nullptr;
-	size_t size = FormatMessageA(formatFlags, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), //
-	                             (LPSTR)&buffer, 0, NULL);
+	usize size = FormatMessageA(formatFlags, NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), //
+	                            (LPSTR)&buffer, 0, NULL);
 
 	std::string message = fmt::format("{:#x} {}", error, std::string_view(buffer, size));
 	LocalFree(buffer);

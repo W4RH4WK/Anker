@@ -16,7 +16,7 @@ FontSystem::FontSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevice
 	}
 }
 
-Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData)
+Status FontSystem::loadFontFromTTF(Font& font, std::span<const u8> fontData)
 {
 	stbtt_fontinfo info;
 	if (!stbtt_InitFont(&info, fontData.data(), 0)) {
@@ -29,7 +29,7 @@ Status FontSystem::loadFontFromTTF(Font& font, std::span<const uint8_t> fontData
 
 	const Vec2u texSize = font.m_texture.info.size;
 
-	std::vector<uint8_t> bitmap(texSize.x * texSize.y);
+	std::vector<u8> bitmap(texSize.x * texSize.y);
 
 	// Render glyphs to bitmap and populate the font's charData.
 	{

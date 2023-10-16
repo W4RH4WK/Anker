@@ -1,5 +1,7 @@
 #pragma once
 
+#include "anker_type_utils.hpp"
+
 namespace Anker {
 
 ////////////////////////////////////////////////////////////
@@ -18,7 +20,7 @@ struct Enum : refl::attr::usage::field {
 	constexpr Enum(EnumEntries<E> e) : entries(e) {}
 	EnumEntries<E> entries;
 };
-template <typename E, size_t N>
+template <typename E, usize N>
 Enum(std::array<std::pair<E, const char*>, N>) -> Enum<E>;
 
 } // namespace Attr

@@ -79,13 +79,13 @@ void GizmoRenderer::draw()
 
 	if (!m_verticesForLines.empty()) {
 		m_renderDevice.fillBuffer(m_vertexBuffer, m_verticesForLines);
-		m_renderDevice.draw(m_vertexBuffer, uint32_t(m_verticesForLines.size()), Topology::LineList);
+		m_renderDevice.draw(m_vertexBuffer, u32(m_verticesForLines.size()), Topology::LineList);
 		m_verticesForLines.clear();
 	}
 
 	if (!m_verticesForTriangles.empty()) {
 		m_renderDevice.fillBuffer(m_vertexBuffer, m_verticesForTriangles);
-		m_renderDevice.draw(m_vertexBuffer, uint32_t(m_verticesForTriangles.size()), Topology::TriangleList);
+		m_renderDevice.draw(m_vertexBuffer, u32(m_verticesForTriangles.size()), Topology::TriangleList);
 		m_verticesForTriangles.clear();
 	}
 }

@@ -14,7 +14,7 @@
 
 namespace Anker {
 
-using TileId = uint32_t;
+using TileId = u32;
 constexpr TileId EmptyTile = 0;
 
 enum TileFlipFlag : TileId {
@@ -83,10 +83,10 @@ class TmjLoader {
 	// we need to get the texture coordinates for each tile.
 
 	struct Tileset {
-		Rect2 textureCoordinates(uint32_t gid) const
+		Rect2 textureCoordinates(u32 gid) const
 		{
 			ANKER_ASSERT(gid >= firstTileId);
-			uint32_t index = gid - firstTileId;
+			u32 index = gid - firstTileId;
 
 			ANKER_ASSERT(index < tileCount.x * tileCount.y);
 			float x = float(index % tileCount.x);
@@ -108,7 +108,7 @@ class TmjLoader {
 	{
 		Status status;
 
-		m_tmjReader.forEach("tilesets", [&](uint32_t tilesetIndex) {
+		m_tmjReader.forEach("tilesets", [&](u32 tilesetIndex) {
 			if (not status) {
 				return;
 			}
@@ -148,7 +148,7 @@ class TmjLoader {
 		ANKER_TRY(tsjReader.parse(tsjData, filepath.string()));
 
 		std::string image;
-		uint32_t tileCountTotal = 0;
+		u32 tileCountTotal = 0;
 		bool formatOk = tsjReader.field("image", image)                  //
 		             && tsjReader.field("tilecount", tileCountTotal)     //
 		             && tsjReader.field("columns", tileset.tileCount.x)  //
@@ -173,7 +173,7 @@ class TmjLoader {
 	{
 		Status status;
 
-		m_tmjReader.forEach("layers", [&](uint32_t) {
+		m_tmjReader.forEach("layers", [&](u32) {
 			if (not status) {
 				return;
 			}
@@ -261,7 +261,7 @@ class TmjLoader {
 		}
 		data = decodeBase64(data);
 
-		uint32_t width = 0, height = 0;
+		u32 width = 0, height = 0;
 		m_tmjReader.field("width", width);
 		m_tmjReader.field("height", height);
 
@@ -304,7 +304,7 @@ class TmjLoader {
 	}
 
 	void loadTileLayerVertices(std::vector<TileLayerVertices>& verticesPerPart, //
-	                           std::span<const TileId> tiles, uint32_t width)
+	                           std::span<const TileId> tiles, u32 width)
 	{
 		for (auto [tileIndex, tile] : iter::enumerate(tiles)) {
 			if (tile == EmptyTile) {
@@ -316,7 +316,7 @@ class TmjLoader {
 
 			// From the global id, we can determine the Tileset used for this
 			// specific tile.
-			const uint32_t tilesetIndex = findTilesetIndex(gid);
+			const u32 tilesetIndex = findTilesetIndex(gid);
 
 			const Rect2 pos = Rect2(Vec2(1), {float(tileIndex % width), -float(tileIndex / width) - 1.0f});
 
@@ -353,7 +353,7 @@ class TmjLoader {
 
 	void loadObjectLayer()
 	{
-		m_tmjReader.forEach("objects", [&](uint32_t) {
+		m_tmjReader.forEach("objects", [&](u32) {
 			if (std::string tpl; m_tmjReader.field("template", tpl)) {
 				if (tpl.starts_with("entities/")) {
 					loadEntity(tpl);
@@ -434,7 +434,7 @@ class TmjLoader {
 
 	Status loadCollisionLayer()
 	{
-		m_tmjReader.forEach("objects", [&](uint32_t) {
+		m_tmjReader.forEach("objects", [&](u32) {
 			if (m_tmjReader.hasKey("ellipse")) {
 				ANKER_WARN("{}: Ellipse collider not supported", m_tmjIdentifier);
 				return;
@@ -450,7 +450,7 @@ class TmjLoader {
 
 			std::vector<b2Vec2> vertices;
 			if (m_tmjReader.hasKey("polygon")) {
-				m_tmjReader.forEach("polygon", [&](uint32_t) {
+				m_tmjReader.forEach("polygon", [&](u32) {
 					Vec2 vertex;
 					m_tmjReader.field("x", vertex.x);
 					m_tmjReader.field("y", vertex.y);
@@ -488,10 +488,10 @@ class TmjLoader {
 
 	// Given a global id (without flip bits), this function returns the index of
 	// the corresponding Tileset.
-	uint32_t findTilesetIndex(uint32_t gid) const
+	u32 findTilesetIndex(u32 gid) const
 	{
 		auto iter = std::ranges::find_if(m_tilesets, [=](auto& tileset) { return gid >= tileset.firstTileId; });
-		return uint32_t(std::distance(m_tilesets.begin(), iter));
+		return u32(std::distance(m_tilesets.begin(), iter));
 	}
 
 	Vec2 convertCoordinates(Vec2 v) const

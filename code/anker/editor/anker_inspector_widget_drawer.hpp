@@ -124,7 +124,7 @@ class InspectorWidgetDrawer {
 
 	bool field(const char* name, EntityID& entity)
 	{
-		uint32_t value = entt::to_integral(entity);
+		u32 value = entt::to_integral(entity);
 		if (ImGui::InputScalar(name, ImGuiDataType_U32, &value)) {
 			entity = EntityID(value);
 			return true;

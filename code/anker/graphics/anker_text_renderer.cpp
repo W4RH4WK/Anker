@@ -80,7 +80,7 @@ void TextRenderer::draw(const Font& font, std::string_view text)
 	m_renderDevice.bindPixelShader(*m_pixelShader);
 
 	m_renderDevice.bindTexturePS(0, font.texture());
-	m_renderDevice.draw(m_vertexBuffer, uint32_t(vertices.size()));
+	m_renderDevice.draw(m_vertexBuffer, u32(vertices.size()));
 	m_renderDevice.unbindTexturePS(0);
 }
 

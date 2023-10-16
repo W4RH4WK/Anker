@@ -28,14 +28,14 @@ static D3D11_SAMPLER_DESC convertSamplerDesc(const SamplerDesc& desc)
 	};
 }
 
-static Status createTextureFromDDS(Texture& texture, std::span<uint8_t> ddsData, RenderDevice& device)
+static Status createTextureFromDDS(Texture& texture, std::span<u8> ddsData, RenderDevice& device)
 {
 	ddspp::Descriptor ddsDesc;
 	if (ddspp::decode_header(ddsData.data(), ddsDesc) != ddspp::Success) {
 		ANKER_ERROR("{}: Invalid image format", texture.info.name);
 		return FormatError;
 	}
-	const uint8_t* ddsDataBody = ddsData.data() + ddsDesc.headerSize;
+	const u8* ddsDataBody = ddsData.data() + ddsDesc.headerSize;
 
 	texture.info.size = {ddsDesc.width, ddsDesc.height};
 	texture.info.mipLevels = ddsDesc.numMips;
@@ -60,7 +60,7 @@ static Status createTextureFromDDS(Texture& texture, std::span<uint8_t> ddsData,
 	return device.createTexture(texture, inits);
 }
 
-static Status createTextureFromPNGorJPG(Texture& texture, std::span<uint8_t> imageData, RenderDevice& device)
+static Status createTextureFromPNGorJPG(Texture& texture, std::span<u8> imageData, RenderDevice& device)
 {
 	Image image(imageData);
 	if (!image) {
@@ -74,7 +74,7 @@ static Status createTextureFromPNGorJPG(Texture& texture, std::span<uint8_t> ima
 	const std::array inits = {
 	    TextureInit{
 	        .data = image.pixels(),
-	        .rowPitch = uint32_t(image.rowPitch()),
+	        .rowPitch = u32(image.rowPitch()),
 	    },
 	};
 
@@ -138,9 +138,9 @@ RenderDevice::RenderDevice()
 	}
 }
 
-Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init)
+Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const u8> init)
 {
-	buffer.info.size = std::max(buffer.info.size, uint32_t(init.size()));
+	buffer.info.size = std::max(buffer.info.size, u32(init.size()));
 	ANKER_ASSERT(buffer.info.size != 0);
 
 	buffer.buffer.Reset();
@@ -181,12 +181,12 @@ Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const uint8_t> in
 	return Ok;
 }
 
-void RenderDevice::bindBufferVS(uint32_t slot, const GpuBuffer& buffer)
+void RenderDevice::bindBufferVS(u32 slot, const GpuBuffer& buffer)
 {
 	m_context->VSSetConstantBuffers(slot, 1, buffer.buffer.GetAddressOf());
 }
 
-void RenderDevice::bindBufferPS(uint32_t slot, const GpuBuffer& buffer)
+void RenderDevice::bindBufferPS(u32 slot, const GpuBuffer& buffer)
 {
 	m_context->PSSetConstantBuffers(slot, 1, buffer.buffer.GetAddressOf());
 }
@@ -378,14 +378,14 @@ Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit
 	return Ok;
 }
 
-void RenderDevice::bindTexturePS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
+void RenderDevice::bindTexturePS(u32 slot, const Texture& texture, const SamplerDesc& samplerDesc)
 {
 	auto* samplerState = samplerStateFromDesc(samplerDesc);
 	m_context->PSSetSamplers(slot, 1, &samplerState);
 	m_context->PSSetShaderResources(slot, 1, texture.shaderView.GetAddressOf());
 }
 
-void RenderDevice::unbindTexturePS(uint32_t slot)
+void RenderDevice::unbindTexturePS(u32 slot)
 {
 	ID3D11ShaderResourceView* none = nullptr;
 	m_context->PSSetShaderResources(slot, 1, &none);
@@ -436,14 +436,14 @@ void RenderDevice::enableAlphaBlending()
 	m_context->OMSetBlendState(m_alphaBlendState.Get(), 0, 0xffffffff);
 }
 
-void RenderDevice::bindRenderTargetPS(uint32_t slot, const Texture& texture, const SamplerDesc& samplerDesc)
+void RenderDevice::bindRenderTargetPS(u32 slot, const Texture& texture, const SamplerDesc& samplerDesc)
 {
 	auto* samplerState = samplerStateFromDesc(samplerDesc);
 	m_context->PSSetSamplers(slot, 1, &samplerState);
 	m_context->PSSetShaderResources(slot, 1, texture.shaderView.GetAddressOf());
 }
 
-void RenderDevice::draw(uint32_t vertexCount, Topology topology)
+void RenderDevice::draw(u32 vertexCount, Topology topology)
 {
 	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY(topology));
 	m_context->Draw(vertexCount, 0);
@@ -454,7 +454,7 @@ void RenderDevice::draw(const GpuBuffer& vertexBuffer, Topology topology)
 	draw(vertexBuffer, vertexBuffer.info.elementCount(), topology);
 }
 
-void RenderDevice::draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology topology)
+void RenderDevice::draw(const GpuBuffer& vertexBuffer, u32 vertexCount, Topology topology)
 {
 	UINT offset = 0;
 	m_context->IASetVertexBuffers(0, 1, vertexBuffer.buffer.GetAddressOf(), &vertexBuffer.info.stride, &offset);
@@ -462,8 +462,7 @@ void RenderDevice::draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Top
 	m_context->Draw(vertexCount, 0);
 }
 
-void RenderDevice::draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, uint32_t indexCount,
-                        Topology topology)
+void RenderDevice::draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, u32 indexCount, Topology topology)
 {
 	UINT offset = 0;
 	m_context->IASetVertexBuffers(0, 1, vertexBuffer.buffer.GetAddressOf(), &vertexBuffer.info.stride, &offset);
@@ -474,13 +473,13 @@ void RenderDevice::draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuf
 	m_context->DrawIndexed(indexCount, 0, 0);
 }
 
-void RenderDevice::drawInstanced(uint32_t vertexCount, uint32_t instanceCount)
+void RenderDevice::drawInstanced(u32 vertexCount, u32 instanceCount)
 {
 	m_context->DrawInstanced(vertexCount, instanceCount, 0, 0);
 }
 
-void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer, uint32_t vertexCount,     //
-                                 const GpuBuffer& instanceBuffer, uint32_t instanceCount, //
+void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer, u32 vertexCount,     //
+                                 const GpuBuffer& instanceBuffer, u32 instanceCount, //
                                  Topology topology)
 {
 	std::array buffers{vertexBuffer.buffer.Get(), instanceBuffer.buffer.Get()};
@@ -492,9 +491,9 @@ void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer, uint32_t vertexC
 	m_context->DrawInstanced(vertexCount, instanceCount, 0, 0);
 }
 
-void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer,                           //
-                                 const GpuBuffer& indexBuffer, uint32_t indexCount,       //
-                                 const GpuBuffer& instanceBuffer, uint32_t instanceCount, //
+void RenderDevice::drawInstanced(const GpuBuffer& vertexBuffer,                      //
+                                 const GpuBuffer& indexBuffer, u32 indexCount,       //
+                                 const GpuBuffer& instanceBuffer, u32 instanceCount, //
                                  Topology topology)
 {
 	std::array buffers{vertexBuffer.buffer.Get(), instanceBuffer.buffer.Get()};
@@ -625,7 +624,7 @@ ID3D11RasterizerState* RenderDevice::rasterizerStateFromDesc(const RasterizerDes
 	return rasterizer.Get();
 }
 
-void* RenderDevice::mapResource(ID3D11Resource* resource, uint32_t* outRowPitch, uint32_t* outDepthPitch)
+void* RenderDevice::mapResource(ID3D11Resource* resource, u32* outRowPitch, u32* outDepthPitch)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	HRESULT hresult = m_context->Map(resource, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

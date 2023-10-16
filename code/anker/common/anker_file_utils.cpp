@@ -40,7 +40,7 @@ Status readFile(std::string& buffer, const fs::path& filepath)
 	return readFileIntoBuffer(buffer, filepath);
 }
 
-Status writeFile(std::span<const uint8_t> data, const fs::path& filepath)
+Status writeFile(std::span<const u8> data, const fs::path& filepath)
 {
 	return writeFile({reinterpret_cast<const char*>(data.data()), data.size()}, filepath);
 }

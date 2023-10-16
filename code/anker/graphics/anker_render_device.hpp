@@ -56,12 +56,12 @@ ANKER_ENUM_FLAGS(GpuBufferFlag)
 
 struct GpuBufferInfo {
 	std::string name;
-	uint32_t size = 0;
-	uint32_t stride = 1;
+	u32 size = 0;
+	u32 stride = 1;
 	GpuBindFlags bindFlags;
 	GpuBufferFlags flags;
 
-	uint32_t elementCount() const { return size / stride; }
+	u32 elementCount() const { return size / stride; }
 };
 
 struct GpuBuffer {
@@ -117,16 +117,16 @@ ANKER_ENUM_FLAGS(TextureFlag)
 struct TextureInfo {
 	std::string name;
 	Vec2u size;
-	uint32_t mipLevels = 1;
-	uint32_t arraySize = 1;
+	u32 mipLevels = 1;
+	u32 arraySize = 1;
 	TextureFormat format = TextureFormat::R8G8B8A8_UNORM;
 	GpuBindFlags bindFlags = GpuBindFlag::Shader;
 	TextureFlags flags;
 };
 
 struct TextureInit {
-	const uint8_t* data;
-	uint32_t rowPitch;
+	const u8* data;
+	u32 rowPitch;
 };
 
 struct Texture {
@@ -169,19 +169,19 @@ class RenderDevice {
 	// Buffers
 
 	// Creates a GPU buffer according to buffer.info .
-	Status createBuffer(GpuBuffer& buffer, std::span<const uint8_t> init = {});
+	Status createBuffer(GpuBuffer& buffer, std::span<const u8> init = {});
 
 	Status createBuffer(GpuBuffer& buffer, Spannable auto const& init)
 	{
 		std::span initView = init;
 		buffer.info.stride = sizeof(decltype(initView)::value_type);
-		return createBuffer(buffer, std::span<const uint8_t>(asBytes(initView)));
+		return createBuffer(buffer, std::span<const u8>(asBytes(initView)));
 	}
 
-	void bindBufferVS(uint32_t slot, const GpuBuffer&);
-	void bindBufferPS(uint32_t slot, const GpuBuffer&);
+	void bindBufferVS(u32 slot, const GpuBuffer&);
+	void bindBufferPS(u32 slot, const GpuBuffer&);
 
-	template <typename T = uint8_t>
+	template <typename T = u8>
 	T* mapBuffer(GpuBuffer& buffer)
 	{
 		return static_cast<T*>(mapResource(buffer.buffer.Get()));
@@ -195,7 +195,7 @@ class RenderDevice {
 
 		// Automatically grow buffer as needed.
 		if (buffer.info.size < dataView.size_bytes()) {
-			buffer.info.size = uint32_t(dataView.size_bytes());
+			buffer.info.size = u32(dataView.size_bytes());
 			if (not createBuffer(buffer)) {
 				ANKER_FATAL("Failed to grow {}", buffer.info.name);
 			}
@@ -223,11 +223,11 @@ class RenderDevice {
 	// Creates a texture according to texture.info .
 	Status createTexture(Texture&, std::span<const TextureInit> = {});
 
-	void bindTexturePS(uint32_t slot, const Texture&, const SamplerDesc& = {});
-	void unbindTexturePS(uint32_t slot);
+	void bindTexturePS(u32 slot, const Texture&, const SamplerDesc& = {});
+	void unbindTexturePS(u32 slot);
 
-	template <typename T = uint8_t>
-	T* mapTexture(const Texture& texture, uint32_t* outRowPitch)
+	template <typename T = u8>
+	T* mapTexture(const Texture& texture, u32* outRowPitch)
 	{
 		ANKER_ASSERT(outRowPitch);
 		return static_cast<T*>(mapResource(texture.texture.Get(), outRowPitch));
@@ -250,23 +250,23 @@ class RenderDevice {
 	void setRenderTarget(const Texture&, const Texture* depth = nullptr);
 	void clearRenderTarget(const Texture&, const Texture* depth = nullptr, const Vec3& clearColor = Vec3(0));
 
-	void bindRenderTargetPS(uint32_t slot, const Texture&, const SamplerDesc& = {});
+	void bindRenderTargetPS(u32 slot, const Texture&, const SamplerDesc& = {});
 
 	////////////////////////////////////////////////////////////
 
-	void draw(uint32_t vertexCount, Topology = Topology::TriangleList);
+	void draw(u32 vertexCount, Topology = Topology::TriangleList);
 	void draw(const GpuBuffer& vertexBuffer, Topology = Topology::TriangleList);
-	void draw(const GpuBuffer& vertexBuffer, uint32_t vertexCount, Topology = Topology::TriangleList);
-	void draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, uint32_t indexCount,
+	void draw(const GpuBuffer& vertexBuffer, u32 vertexCount, Topology = Topology::TriangleList);
+	void draw(const GpuBuffer& vertexBuffer, const GpuBuffer& indexBuffer, u32 indexCount,
 	          Topology = Topology::TriangleList);
 
-	void drawInstanced(uint32_t vertexCount, uint32_t instanceCount);
-	void drawInstanced(const GpuBuffer& vertexBuffer, uint32_t vertexCount,         //
-	                   const GpuBuffer& instanceDataBuffer, uint32_t instanceCount, //
+	void drawInstanced(u32 vertexCount, u32 instanceCount);
+	void drawInstanced(const GpuBuffer& vertexBuffer, u32 vertexCount,         //
+	                   const GpuBuffer& instanceDataBuffer, u32 instanceCount, //
 	                   Topology = Topology::TriangleList);
-	void drawInstanced(const GpuBuffer& vertexBuffer,                               //
-	                   const GpuBuffer& indexBuffer, uint32_t indexCount,           //
-	                   const GpuBuffer& instanceDataBuffer, uint32_t instanceCount, //
+	void drawInstanced(const GpuBuffer& vertexBuffer,                          //
+	                   const GpuBuffer& indexBuffer, u32 indexCount,           //
+	                   const GpuBuffer& instanceDataBuffer, u32 instanceCount, //
 	                   Topology = Topology::TriangleList);
 
 	////////////////////////////////////////////////////////////
@@ -300,7 +300,7 @@ class RenderDevice {
 	ID3D11RasterizerState* rasterizerStateFromDesc(const RasterizerDesc&);
 	std::map<RasterizerDesc, ComPtr<ID3D11RasterizerState>> m_rasterizerStates;
 
-	void* mapResource(ID3D11Resource*, uint32_t* outRowPitch = nullptr, uint32_t* outDepthPitch = nullptr);
+	void* mapResource(ID3D11Resource*, u32* outRowPitch = nullptr, u32* outDepthPitch = nullptr);
 	void unmapResource(ID3D11Resource*);
 
 	ComPtr<ID3D11Device> m_device;

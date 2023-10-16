@@ -2,6 +2,7 @@
 
 #include "anker_io_utils.hpp"
 #include "anker_status.hpp"
+#include "anker_type_utils.hpp"
 
 namespace Anker {
 
@@ -10,7 +11,7 @@ namespace fs = std::filesystem;
 Status readFile(ByteBuffer&, const fs::path&);
 Status readFile(std::string&, const fs::path&);
 
-Status writeFile(std::span<const uint8_t>, const fs::path&);
+Status writeFile(std::span<const u8>, const fs::path&);
 Status writeFile(std::string_view, const fs::path&);
 
 fs::path stripFileExtensions(const fs::path&);

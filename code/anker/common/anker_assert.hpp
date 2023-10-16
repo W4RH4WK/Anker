@@ -1,6 +1,7 @@
 #pragma once
 
 #include "anker_log.hpp"
+#include "anker_type_utils.hpp"
 
 #define ANKER_ASSERT_ENABLED 1
 #define ANKER_ASSERT_INBOUNDS_ENABLED 1
@@ -19,7 +20,7 @@
 
 #if ANKER_ASSERT_INBOUNDS_ENABLED
 #define ANKER_ASSERT_INBOUNDS(index, size) \
-	ANKER_ASSERT(static_cast<::std::size_t>(index) < static_cast<::std::size_t>(size))
+	ANKER_ASSERT(static_cast<::Anker::usize>(index) < static_cast<::Anker::usize>(size))
 #else
 #define ANKER_ASSERT_INBOUNDS(index, size)
 #endif

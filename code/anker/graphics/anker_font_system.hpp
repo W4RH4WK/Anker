@@ -20,7 +20,7 @@ class FontSystem {
 	AssetPtr<Font> systemFont() const { return m_systemFont; }
 
   private:
-	Status loadFontFromTTF(Font& font, std::span<const uint8_t> fontData);
+	Status loadFontFromTTF(Font& font, std::span<const u8> fontData);
 
 	RenderDevice& m_renderDevice;
 

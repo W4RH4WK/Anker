@@ -5,6 +5,7 @@
 #include "anker_serialize.hpp"
 #include "anker_status.hpp"
 #include "anker_string_utils.hpp"
+#include "anker_type_utils.hpp"
 
 namespace Anker {
 
@@ -51,14 +52,14 @@ class JsonReader {
 		return Ok;
 	}
 
-	Status parse(std::span<const uint8_t> input, std::string_view identifier = {})
+	Status parse(std::span<const u8> input, std::string_view identifier = {})
 	{
 		return parse(asStringView(input), identifier);
 	}
 
 	bool operator()(bool& outValue) { return readPrimitive(outValue); }
 	bool operator()(int& outValue) { return readPrimitive(outValue); }
-	bool operator()(uint32_t& outValue) { return readPrimitive(outValue); }
+	bool operator()(u32& outValue) { return readPrimitive(outValue); }
 	bool operator()(float& outValue) { return readPrimitive(outValue); }
 	bool operator()(double& outValue) { return readPrimitive(outValue); }
 	bool operator()(std::string& outValue) { return readPrimitive(outValue); }
@@ -119,7 +120,7 @@ class JsonReader {
 	bool isObject() const { return current().IsObject(); }
 	bool hasKey(const char* key) const { return current().HasMember(key); }
 
-	uint32_t arrayLength() const
+	u32 arrayLength() const
 	{
 		if (current().IsArray()) {
 			return current().GetArray().Size();
@@ -143,7 +144,7 @@ class JsonReader {
 	}
 
 	// Same as above, but for accessing an element of the current array.
-	bool push(uint32_t index)
+	bool push(u32 index)
 	{
 		if (current().IsArray()) {
 			if (index < current().GetArray().Size()) {
@@ -167,7 +168,7 @@ class JsonReader {
 
 	// Reads the element at the given index from the current array.
 	template <typename T>
-	bool arrayElement(uint32_t index, T& outValue) requires Serializable<JsonReader, T>
+	bool arrayElement(u32 index, T& outValue) requires Serializable<JsonReader, T>
 	{
 		ANKER_TRY(push(index));
 		ANKER_DEFER([&] { pop(); });
@@ -189,10 +190,10 @@ class JsonReader {
 
 	// Invokes function for each element in the current array.
 	template <typename F>
-	void forEach(F function) requires std::invocable<F, uint32_t>
+	void forEach(F function) requires std::invocable<F, u32>
 	{
 		if (current().IsArray()) {
-			for (uint32_t i = 0; i < current().GetArray().Size(); ++i) {
+			for (u32 i = 0; i < current().GetArray().Size(); ++i) {
 				m_values.push_back(&current().GetArray()[i]);
 				function(i);
 				m_values.pop_back();
@@ -214,7 +215,7 @@ class JsonReader {
 	// Invokes function for each field in the object or element in the array
 	// (depending on F's signature), located at the given array index.
 	template <typename F>
-	bool forEach(uint32_t index, F function)
+	bool forEach(u32 index, F function)
 	{
 		ANKER_TRY(push(index));
 		forEach(function);
@@ -281,10 +282,10 @@ class JsonWriter {
 
 	void operator()(bool value) { m_writer.Bool(value); }
 	void operator()(int value) { m_writer.Int(value); }
-	void operator()(uint32_t value) { m_writer.Uint(value); }
+	void operator()(u32 value) { m_writer.Uint(value); }
 	void operator()(float value) { m_writer.Double(value); }
 	void operator()(const char* value) { m_writer.String(value); }
-	void operator()(std::string_view value) { m_writer.String(value.data(), static_cast<uint32_t>(value.size())); }
+	void operator()(std::string_view value) { m_writer.String(value.data(), u32(value.size())); }
 
 	void operator()(EntityID value) { (*this)(static_cast<entt::id_type>(value)); }
 

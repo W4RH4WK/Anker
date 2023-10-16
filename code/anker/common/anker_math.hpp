@@ -226,8 +226,8 @@ constexpr Vec2T<T> operator/(Vec2T<T> a, Vec2T<T> b) { return a /= b; }
 // clang-format on
 
 using Vec2 = Vec2T<float>;
-using Vec2i = Vec2T<int>;
-using Vec2u = Vec2T<unsigned>;
+using Vec2i = Vec2T<i32>;
+using Vec2u = Vec2T<u32>;
 using Vec2d = Vec2T<double>;
 
 ////////////////////////////////////////////////////////////
@@ -357,8 +357,8 @@ constexpr Vec3T<T> operator/(Vec3T<T> a, Vec3T<T> b) { return a /= b; }
 // clang-format on
 
 using Vec3 = Vec3T<float>;
-using Vec3i = Vec3T<int>;
-using Vec3u = Vec3T<unsigned>;
+using Vec3i = Vec3T<i32>;
+using Vec3u = Vec3T<u32>;
 using Vec3d = Vec3T<double>;
 
 ////////////////////////////////////////////////////////////
@@ -498,8 +498,8 @@ constexpr Vec4T<T> operator/(Vec4T<T> a, Vec4T<T> b) { return a /= b; }
 // clang-format on
 
 using Vec4 = Vec4T<float>;
-using Vec4i = Vec4T<int>;
-using Vec4u = Vec4T<unsigned>;
+using Vec4i = Vec4T<i32>;
+using Vec4u = Vec4T<u32>;
 using Vec4d = Vec4T<double>;
 
 ////////////////////////////////////////////////////////////

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "anker_type_utils.hpp"
+
 namespace Anker {
 
-// A resize-able buffer for bytes; elements are stored on the heap. uint8_t is
+// A resize-able buffer for bytes; elements are stored on the heap. u8 is
 // preferred to std::byte for better interoperability with low-level C APIs.
-using ByteBuffer = std::vector<uint8_t>;
+using ByteBuffer = std::vector<u8>;
 
 template <typename Container>
 concept Spannable = requires(Container & container)
@@ -12,23 +14,23 @@ concept Spannable = requires(Container & container)
 	{std::span(container)};
 };
 
-// Since we are using uint8_t instead of std::byte, we provide asBytes and
-// asBytesWritable for uint8_t.
-template <typename T, size_t N>
+// Since we are using u8 instead of std::byte, we provide asBytes and
+// asBytesWritable for u8.
+template <typename T, usize N>
 auto asBytes(std::span<T, N> s) noexcept
 {
-	using ReturnType = std::span<const uint8_t, N == std::dynamic_extent ? std::dynamic_extent : sizeof(T) * N>;
-	return ReturnType{reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
+	using ReturnType = std::span<const u8, N == std::dynamic_extent ? std::dynamic_extent : sizeof(T) * N>;
+	return ReturnType{reinterpret_cast<const u8*>(s.data()), s.size_bytes()};
 }
 
-template <typename T, size_t N>
+template <typename T, usize N>
 auto asBytesWritable(std::span<T, N> s) noexcept requires(!std::is_const_v<T>)
 {
-	using ReturnType = std::span<uint8_t, N == std::dynamic_extent ? std::dynamic_extent : sizeof(T) * N>;
-	return ReturnType{reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
+	using ReturnType = std::span<u8, N == std::dynamic_extent ? std::dynamic_extent : sizeof(T) * N>;
+	return ReturnType{reinterpret_cast<u8*>(s.data()), s.size_bytes()};
 }
 
-inline auto asStringView(std::span<const uint8_t> s) noexcept
+inline auto asStringView(std::span<const u8> s) noexcept
 {
 	return std::string_view(reinterpret_cast<const char*>(s.data()), s.size());
 }

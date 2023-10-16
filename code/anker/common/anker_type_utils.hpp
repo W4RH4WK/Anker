@@ -25,6 +25,19 @@ constexpr void forEachType(F f)
 }
 
 ////////////////////////////////////////////////////////////
+// Integer Types
+
+using i8 = std::int8_t;
+using u8 = std::uint8_t;
+using i16 = std::int16_t;
+using u16 = std::uint16_t;
+using i32 = std::int32_t;
+using u32 = std::uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using usize = std::size_t;
+
+////////////////////////////////////////////////////////////
 // Type Name
 
 template <typename T>
@@ -34,14 +47,14 @@ constexpr const char* typeName()
 }
 
 // clang-format off
-template <> constexpr const char* typeName<int8_t>() { return "int8"; }
-template <> constexpr const char* typeName<uint8_t>() { return "uint8"; }
-template <> constexpr const char* typeName<int16_t>() { return "int16"; }
-template <> constexpr const char* typeName<uint16_t>() { return "uint16"; }
-template <> constexpr const char* typeName<int32_t>() { return "int32"; }
-template <> constexpr const char* typeName<uint32_t>() { return "uint32"; }
-template <> constexpr const char* typeName<int64_t>() { return "int64"; }
-template <> constexpr const char* typeName<uint64_t>() { return "uint64"; }
+template <> constexpr const char* typeName<i8>() { return "i8"; }
+template <> constexpr const char* typeName<u8>() { return "u8"; }
+template <> constexpr const char* typeName<i16>() { return "i16"; }
+template <> constexpr const char* typeName<u16>() { return "u16"; }
+template <> constexpr const char* typeName<i32>() { return "i32"; }
+template <> constexpr const char* typeName<u32>() { return "u32"; }
+template <> constexpr const char* typeName<i64>() { return "i64"; }
+template <> constexpr const char* typeName<u64>() { return "u64"; }
 template <> constexpr const char* typeName<float>() { return "float"; }
 template <> constexpr const char* typeName<double>() { return "double"; }
 template <> constexpr const char* typeName<std::monostate>() { return "std::monostate"; }

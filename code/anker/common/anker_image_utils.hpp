@@ -1,6 +1,7 @@
 #pragma once
 
 #include "anker_file_utils.hpp"
+#include "anker_type_utils.hpp"
 
 namespace Anker {
 
@@ -8,7 +9,7 @@ namespace Anker {
 // images.
 class Image {
   public:
-	explicit Image(std::span<const uint8_t>, int desiredChannels = 4);
+	explicit Image(std::span<const u8>, int desiredChannels = 4);
 	explicit Image(const fs::path&, int desiredChannels = 4);
 	Image(const Image&) = delete;
 	Image& operator=(const Image&) = delete;
@@ -17,7 +18,7 @@ class Image {
 	~Image() noexcept;
 
 	explicit operator bool() const { return m_pixels; }
-	const uint8_t* pixels() const { return m_pixels; }
+	const u8* pixels() const { return m_pixels; }
 
 	template <typename T>
 	const T& pixel(int index) const
@@ -38,7 +39,7 @@ class Image {
 	int rowPitch() const { return m_width * m_pixelStride; }
 
   private:
-	const uint8_t* m_pixels = nullptr;
+	const u8* m_pixels = nullptr;
 	int m_width = 0;
 	int m_height = 0;
 	int m_channels = 0;
