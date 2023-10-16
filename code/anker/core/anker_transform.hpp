@@ -33,8 +33,6 @@ struct Transform2D {
 	Vec2 position;
 	float rotation = 0;
 	Vec2 scale = Vec2(1);
-
-	uint32_t layer = 0;
 };
 
 inline Transform2D inverse(Transform2D transform)
