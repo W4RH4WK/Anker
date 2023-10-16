@@ -85,11 +85,6 @@ struct Vec2T {
 	constexpr Vec2T(T v) : x(v), y(v) {}
 	constexpr Vec2T(T x, T y) : x(x), y(y) {}
 
-	constexpr Vec2T(const Vec2T&) = default;
-	constexpr Vec2T& operator=(const Vec2T&) = default;
-	constexpr Vec2T(Vec2T&&) noexcept = default;
-	constexpr Vec2T& operator=(Vec2T&&) noexcept = default;
-
 	constexpr Vec2T(glm::vec<2, T> v) : x(v.x), y(v.y) {}
 	constexpr operator glm::vec<2, T>() const { return {x, y}; }
 
@@ -244,11 +239,6 @@ struct Vec3T {
 	constexpr Vec3T(T v) : x(v), y(v), z(v) {}
 	constexpr Vec3T(T x, T y, T z) : x(x), y(y), z(z) {}
 
-	constexpr Vec3T(const Vec3T&) = default;
-	constexpr Vec3T& operator=(const Vec3T&) = default;
-	constexpr Vec3T(Vec3T&&) noexcept = default;
-	constexpr Vec3T& operator=(Vec3T&&) noexcept = default;
-
 	constexpr Vec3T(glm::vec<3, T> v) : x(v.x), y(v.y), z(v.z) {}
 	constexpr operator glm::vec<3, T>() const { return {x, y, z}; }
 
@@ -379,11 +369,6 @@ struct Vec4T {
 	constexpr Vec4T() = default;
 	constexpr Vec4T(T v) : x(v), y(v), z(v), w(v) {}
 	constexpr Vec4T(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
-
-	constexpr Vec4T(const Vec4T&) = default;
-	constexpr Vec4T& operator=(const Vec4T&) = default;
-	constexpr Vec4T(Vec4T&&) noexcept = default;
-	constexpr Vec4T& operator=(Vec4T&&) noexcept = default;
 
 	constexpr Vec4T(glm::vec<4, T> v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
 	constexpr operator glm::vec<4, T>() const { return {x, y, z, w}; }
