@@ -12,6 +12,7 @@
 #include "anker_log.hpp"
 #include "anker_macros.hpp"
 #include "anker_math.hpp"
+#include "anker_physics_utils.hpp"
 #include "anker_profiling.hpp"
 #include "anker_serialize.hpp"
 #include "anker_serialize_json.hpp"

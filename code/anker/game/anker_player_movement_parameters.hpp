@@ -16,10 +16,10 @@ struct PlayerMovementParameters {
 
 	// jumpSpeed determines the initial velocity when jumping, therefore how
 	// high we can jump.
-	float jumpSpeed = 23.5f;
+	float jumpSpeed = 20.0f;
 
 	// Jumps beyond the primary jump use a slightly different strength.
-	float jumpSpeedSecondary = 18.8f;
+	float jumpSpeedSecondary = 18.0f;
 
 	// Jump height can be reduced by letting go of the jump input, in which
 	// case, this deceleration is used until the player starts falling.
@@ -33,10 +33,10 @@ struct PlayerMovementParameters {
 	int dashes = 1;
 
 	// dashSpeed determines the strength of a dash.
-	float dashSpeed = 50.0f;
+	float dashSpeed = 30.0f;
 
 	// dashSpeedBackwards determines the strength of the backwards dash.
-	float dashSpeedBackwards = 25.0f;
+	float dashSpeedBackwards = 20.0f;
 
 	// dashTime determines how long the dash persists.
 	float dashTime = 0.05f;
@@ -46,11 +46,11 @@ struct PlayerMovementParameters {
 
 	// dashCooldown determines how long the player has to wait before dashing
 	// again.
-	float dashCooldown = 0.2f;
+	float dashCooldown = 0.6f;
 
 	// dashBackwardsCooldown determines how long the player has to wait before
 	// dashing again after doing a backwards dash.
-	float dashBackwardsCooldown = 0.15f;
+	float dashBackwardsCooldown = 0.4f;
 
 	// gravity determines how fast the player accelerates towards the ground.
 	float gravity = 56.25f;
@@ -72,8 +72,11 @@ REFL_FIELD(jumpDeceleration)
 REFL_FIELD(coyoteTime)
 REFL_FIELD(dashes)
 REFL_FIELD(dashSpeed)
+REFL_FIELD(dashSpeedBackwards)
 REFL_FIELD(dashTime)
+REFL_FIELD(dashTimeBackwards)
 REFL_FIELD(dashCooldown)
+REFL_FIELD(dashBackwardsCooldown)
 REFL_FIELD(gravity)
 REFL_FIELD(maxFallSpeed)
 REFL_END

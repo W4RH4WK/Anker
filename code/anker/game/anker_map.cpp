@@ -556,7 +556,7 @@ ScenePtr loadMap(std::string_view mapIdentifier)
 	if (player) {
 		auto camera = scene->activeCamera();
 		camera.get<SceneNode>().setGlobalTransform(player.get<SceneNode>().globalTransform());
-		camera.get<Camera>().distance = 3;
+		camera.get<Camera>().distance = 4;
 		camera.emplace<Follower>(player).speed = 8.0f;
 	}
 

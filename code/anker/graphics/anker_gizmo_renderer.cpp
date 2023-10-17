@@ -36,6 +36,12 @@ GizmoRenderer::GizmoRenderer(RenderDevice& renderDevice, AssetCache& assetCache)
 	}
 }
 
+void GizmoRenderer::addPoint(const Vec2& point, const Vec4& color)
+{
+	addLine(point + Vec2(-0.05f, 0.0f), point + Vec2(0.05f, 0.0f), color);
+	addLine(point + Vec2(0.0f, -0.05f), point + Vec2(0.0f, 0.05f), color);
+}
+
 void GizmoRenderer::addLine(const Vec2& from, const Vec2& to, const Vec4& color)
 {
 	m_verticesForLines.emplace_back(from, color);

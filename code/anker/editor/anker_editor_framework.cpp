@@ -18,9 +18,9 @@ void EditorFramework::tick(float dt, Scene& scene)
 
 	// Editor UI can be toggled on/off with a single button press.
 	if (actions.editorToggle) {
-		m_enabled = !m_enabled;
+		enabled = !enabled;
 	}
-	if (!m_enabled) {
+	if (!enabled) {
 		return;
 	}
 

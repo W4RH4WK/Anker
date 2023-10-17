@@ -42,6 +42,9 @@ void Engine::tick()
 
 	if (editor) {
 		editor->tick(dt, *activeScene);
+		if (editor->enabled) {
+			dt /= 10.0f;
+		}
 	}
 
 	// ImGui::ShowDemoWindow();

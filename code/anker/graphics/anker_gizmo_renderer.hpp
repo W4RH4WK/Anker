@@ -17,6 +17,8 @@ class GizmoRenderer {
 	GizmoRenderer(GizmoRenderer&&) noexcept = delete;
 	GizmoRenderer& operator=(GizmoRenderer&&) noexcept = delete;
 
+	void addPoint(const Vec2& point, const Vec4& color = Vec4(1));
+
 	void addLine(const Vec2& from, const Vec2& to, const Vec4& color = Vec4(1));
 
 	void addTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, const Vec4& color = Vec4(1));

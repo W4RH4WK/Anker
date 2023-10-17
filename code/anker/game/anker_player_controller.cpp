@@ -33,10 +33,7 @@ void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 	// Check contact points for ground contact. We also take slopes into account
 	// unless they are too steep.
 	for (auto* contact : body.touchingContacts) {
-		Vec2 normal = contact->GetManifold()->localNormal;
-		if (contact->GetFixtureB()->GetBody() == body.body) {
-			normal = -normal;
-		}
+		Vec2 normal = normalFromContact(contact, body.body);
 		if (dot(normal, Vec2::WorldDown) >= 0.75f) {
 			m_isGrounded = true;
 			break;
@@ -103,10 +100,7 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 
 		// Clear vertical velocity when bumping our head on something.
 		for (auto* contact : body.touchingContacts) {
-			Vec2 normal = contact->GetManifold()->localNormal;
-			if (contact->GetFixtureB()->GetBody() == body.body) {
-				normal = -normal;
-			}
+			Vec2 normal = normalFromContact(contact, body.body);
 			if (dot(normal, Vec2::WorldUp) >= 0.5f) {
 				m_velocity.y = 0;
 				break;
@@ -135,7 +129,7 @@ void PlayerController::tickDashing(float dt)
 		m_dashesLeft--;
 	}
 
-	if (isGrounded()) {
+	if (isGrounded() && m_dashCooldownLeft <= 0) {
 		m_dashesLeft = moveParam.dashes;
 	}
 
@@ -153,7 +147,7 @@ void PlayerController::tickDashing(float dt)
 
 void PlayerController::tickFalling(float dt)
 {
-	if (m_velocity.y > 0 || isDashing()) {
+	if (isJumping() || isDashing()) {
 		return;
 	}
 

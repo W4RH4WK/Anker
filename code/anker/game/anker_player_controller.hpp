@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/editor/anker_inspector_widget_drawer.hpp>
 #include <anker/game/anker_player_movement_parameters.hpp>
 
 namespace Anker {
@@ -41,6 +42,17 @@ class PlayerController {
 	Vec2 m_velocity;
 	Vec2 m_lookDirection = Vec2::WorldRight;
 };
+
+inline bool serialize(InspectorWidgetDrawer draw, PlayerController& controller)
+{
+	ImGui::Text("Velocity %f %f", controller.velocity().x, controller.velocity().y);
+	ImGui::Text("Grounded: %d", controller.isGrounded());
+	ImGui::Text("Jumping:  %d", controller.isJumping());
+	ImGui::Text("Falling:  %d", controller.isFalling());
+	ImGui::Text("Dashing:  %d", controller.isDashing());
+
+	return draw.field("moveParam", controller.moveParam, false);
+}
 
 } // namespace Anker
 
