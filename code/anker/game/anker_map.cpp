@@ -436,25 +436,24 @@ class TmjLoader {
 	Status loadCollisionLayer()
 	{
 		bool platforms = false;
-		{
-			std::string layerName;
-			m_tmjReader.field("name", layerName);
-			if (layerName.ends_with("Platforms")) {
-				platforms = true;
-			}
+		if (std::string layerName; m_tmjReader.field("name", layerName) && layerName.ends_with("Platforms")) {
+			platforms = true;
 		}
+
+		int id = 0;
+		m_tmjReader.field("id", id);
 
 		m_tmjReader.forEach("objects", [&](u32) {
 			if (m_tmjReader.hasKey("ellipse")) {
-				ANKER_WARN("{}: Ellipse collider not supported", m_tmjIdentifier);
+				ANKER_WARN("{}: Ellipse collider not supported. id={}", m_tmjIdentifier, id);
 				return;
 			}
 			if (m_tmjReader.hasKey("point")) {
-				ANKER_WARN("{}: Point collider not supported", m_tmjIdentifier);
+				ANKER_WARN("{}: Point collider not supported. id={}", m_tmjIdentifier, id);
 				return;
 			}
 			if (float rotation; m_tmjReader.field("rotation", rotation) && rotation != 0) {
-				ANKER_WARN("{}: Collider rotation not supported", m_tmjIdentifier);
+				ANKER_WARN("{}: Collider rotation not supported. id={}", m_tmjIdentifier, id);
 				return;
 			}
 
@@ -493,10 +492,11 @@ class TmjLoader {
 					m_tmjReader.field("y", vertex.y);
 					vertices.push_back(convertCoordinates(vertex));
 				});
+				ANKER_ASSERT(vertices.size() >= 2);
 
 				// ghost vertices
-				Vec2 prev = vertices.front() + (vertices.back() - vertices.front());
-				Vec2 next = vertices.back() + (vertices.front() - vertices.back());
+				Vec2 prev = *vertices.begin() + (*(vertices.begin() + 1) - *vertices.begin());
+				Vec2 next = *vertices.rbegin() + (*(vertices.rbegin() + 1) - *vertices.rbegin());
 
 				b2ChainShape shape;
 				shape.CreateChain(vertices.data(), int32(vertices.size()), prev, next);
@@ -506,6 +506,11 @@ class TmjLoader {
 				Vec2 boxSize;
 				m_tmjReader.field("width", boxSize.x);
 				m_tmjReader.field("height", boxSize.y);
+
+				if (boxSize.x == 0 && boxSize.y == 0) {
+					ANKER_ERROR("{}: Invalid size for collider. id={}", m_tmjIdentifier, id);
+					return;
+				}
 
 				std::vector<b2Vec2> vertices;
 				vertices.push_back(convertCoordinates({0, 0}));
@@ -520,7 +525,7 @@ class TmjLoader {
 			}
 
 			if (!fixture) {
-				ANKER_ERROR("{}: Could not create fixture for collider", m_tmjIdentifier);
+				ANKER_ERROR("{}: Could not create fixture for collider. id={}", m_tmjIdentifier, id);
 				return;
 			}
 
