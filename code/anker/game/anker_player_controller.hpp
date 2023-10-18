@@ -15,6 +15,7 @@ class PlayerController {
 	bool isDroppingThrough() const { return m_dropThroughTimeLeft > 0; }
 	bool isFalling() const { return !m_isGrounded && m_velocity.y < 0; }
 	bool isDashing() const { return m_dashTimeLeft > 0; }
+	bool isDashingBackwards() const { return isDashing() && m_dashBackwards; }
 	Vec2 velocity() const { return m_velocity; }
 	Vec2 lookDirection() const { return m_lookDirection; }
 

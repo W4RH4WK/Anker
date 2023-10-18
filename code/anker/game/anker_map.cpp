@@ -4,8 +4,8 @@
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_scene_node.hpp>
-#include <anker/game/anker_follower.hpp>
 #include <anker/game/anker_player.hpp>
+#include <anker/game/anker_player_camera_follower.hpp>
 #include <anker/graphics/anker_camera.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/graphics/anker_tile_layer.hpp>
@@ -606,12 +606,9 @@ ScenePtr loadMap(std::string_view mapIdentifier)
 		ANKER_ASSERT(node.validateParentChildLink());
 	}
 
-	auto player = scene->entityHandle(scene->registry.view<PlayerTag>().front());
-	if (player) {
+	if (auto player = scene->entityHandle(scene->registry.view<PlayerTag>().front())) {
 		auto camera = scene->activeCamera();
-		camera.get<SceneNode>().setGlobalTransform(player.get<SceneNode>().globalTransform());
-		camera.get<Camera>().distance = 4;
-		camera.emplace<Follower>(player).speed = 8.0f;
+		camera.emplace<PlayerCameraFollower>(player);
 	}
 
 	return scene;
