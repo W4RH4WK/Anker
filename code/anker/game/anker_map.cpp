@@ -11,6 +11,7 @@
 #include <anker/graphics/anker_tile_layer.hpp>
 #include <anker/graphics/anker_tile_layer_renderer.hpp>
 #include <anker/physics/anker_physics_body.hpp>
+#include <anker/physics/anker_physics_layers.hpp>
 
 namespace Anker {
 
@@ -434,6 +435,15 @@ class TmjLoader {
 
 	Status loadCollisionLayer()
 	{
+		bool platforms = false;
+		{
+			std::string layerName;
+			m_tmjReader.field("name", layerName);
+			if (layerName.ends_with("Platforms")) {
+				platforms = true;
+			}
+		}
+
 		m_tmjReader.forEach("objects", [&](u32) {
 			if (m_tmjReader.hasKey("ellipse")) {
 				ANKER_WARN("{}: Ellipse collider not supported", m_tmjIdentifier);
@@ -448,24 +458,6 @@ class TmjLoader {
 				return;
 			}
 
-			std::vector<b2Vec2> vertices;
-			if (m_tmjReader.hasKey("polygon")) {
-				m_tmjReader.forEach("polygon", [&](u32) {
-					Vec2 vertex;
-					m_tmjReader.field("x", vertex.x);
-					m_tmjReader.field("y", vertex.y);
-					vertices.push_back(convertCoordinates(vertex));
-				});
-			} else {
-				Vec2 boxSize;
-				m_tmjReader.field("width", boxSize.x);
-				m_tmjReader.field("height", boxSize.y);
-				vertices.push_back(convertCoordinates({0, 0}));
-				vertices.push_back(convertCoordinates({0, boxSize.y}));
-				vertices.push_back(convertCoordinates({boxSize.x, boxSize.y}));
-				vertices.push_back(convertCoordinates({boxSize.x, 0}));
-			}
-
 			auto entity = m_scene.createEntity("Collider");
 
 			Transform2D transform;
@@ -478,9 +470,66 @@ class TmjLoader {
 			auto* physicsBody = entity.emplace<PhysicsBody>().body;
 			physicsBody->SetType(b2_staticBody);
 
-			b2ChainShape chain;
-			chain.CreateLoop(vertices.data(), int32(vertices.size()));
-			physicsBody->CreateFixture(&chain, 0);
+			b2Fixture* fixture = nullptr;
+
+			if (m_tmjReader.hasKey("polygon")) {
+				std::vector<b2Vec2> vertices;
+				m_tmjReader.forEach("polygon", [&](u32) {
+					Vec2 vertex;
+					m_tmjReader.field("x", vertex.x);
+					m_tmjReader.field("y", vertex.y);
+					vertices.push_back(convertCoordinates(vertex));
+				});
+
+				b2ChainShape shape;
+				shape.CreateLoop(vertices.data(), int32(vertices.size()));
+
+				fixture = physicsBody->CreateFixture(&shape, 0);
+			} else if (m_tmjReader.hasKey("polyline")) {
+				std::vector<b2Vec2> vertices;
+				m_tmjReader.forEach("polyline", [&](u32) {
+					Vec2 vertex;
+					m_tmjReader.field("x", vertex.x);
+					m_tmjReader.field("y", vertex.y);
+					vertices.push_back(convertCoordinates(vertex));
+				});
+
+				// ghost vertices
+				Vec2 prev = vertices.front() + (vertices.back() - vertices.front());
+				Vec2 next = vertices.back() + (vertices.front() - vertices.back());
+
+				b2ChainShape shape;
+				shape.CreateChain(vertices.data(), int32(vertices.size()), prev, next);
+
+				fixture = physicsBody->CreateFixture(&shape, 0);
+			} else {
+				Vec2 boxSize;
+				m_tmjReader.field("width", boxSize.x);
+				m_tmjReader.field("height", boxSize.y);
+
+				std::vector<b2Vec2> vertices;
+				vertices.push_back(convertCoordinates({0, 0}));
+				vertices.push_back(convertCoordinates({0, boxSize.y}));
+				vertices.push_back(convertCoordinates({boxSize.x, boxSize.y}));
+				vertices.push_back(convertCoordinates({boxSize.x, 0}));
+
+				b2ChainShape shape;
+				shape.CreateLoop(vertices.data(), int32(vertices.size()));
+
+				fixture = physicsBody->CreateFixture(&shape, 0);
+			}
+
+			if (!fixture) {
+				ANKER_ERROR("{}: Could not create fixture for collider", m_tmjIdentifier);
+				return;
+			}
+
+			b2Filter filter;
+			filter.categoryBits = PhysicsLayers::Map;
+			if (platforms) {
+				filter.categoryBits = PhysicsLayers::MapPlatforms;
+			}
+			fixture->SetFilterData(filter);
 		});
 
 		return Ok;

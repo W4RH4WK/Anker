@@ -3,6 +3,7 @@
 #include <anker/core/anker_engine.hpp>
 #include <anker/core/anker_scene.hpp>
 #include <anker/physics/anker_physics_body.hpp>
+#include <anker/physics/anker_physics_layers.hpp>
 
 namespace Anker {
 
@@ -13,6 +14,7 @@ void PlayerController::tick(float dt, Scene& scene)
 			controller.tickIsGrounded(dt, physicsBody);
 			controller.tickMove(dt);
 			controller.tickJumping(dt, physicsBody);
+			controller.tickDropThrough(dt, physicsBody);
 			controller.tickDashing(dt);
 			controller.tickFalling(dt);
 
@@ -59,9 +61,9 @@ void PlayerController::tickMove(float dt)
 
 void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 {
-	const Action& jumpInput = g_engine->inputSystem.actions().playerJump;
+	const Actions& actions = g_engine->inputSystem.actions();
 
-	if (jumpInput.downThisFrame() && m_jumpsLeft > 0) {
+	if (actions.playerJump.downThisFrame() && m_jumpsLeft > 0 && !actions.playerMoveDown.down()) {
 		if (m_jumpsLeft == moveParam.jumps) {
 			m_velocity.y = moveParam.jumpSpeed;
 		} else {
@@ -92,7 +94,7 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 	// jump input is still actuated or not. This allows the player to control
 	// how high the jump should be.
 	if (isJumping()) {
-		if (jumpInput.down()) {
+		if (actions.playerJump.down()) {
 			m_velocity.y -= moveParam.gravity * dt;
 		} else {
 			m_velocity.y -= moveParam.jumpDeceleration * dt;
@@ -107,6 +109,32 @@ void PlayerController::tickJumping(float dt, const PhysicsBody& body)
 			}
 		}
 	}
+}
+
+void PlayerController::tickDropThrough(float dt, const PhysicsBody& body)
+{
+	const Actions& actions = g_engine->inputSystem.actions();
+
+	if (isGrounded() && actions.playerMoveDown.down() && actions.playerJump.downThisFrame()) {
+		m_dropThroughTimeLeft = moveParam.dropThroughTime;
+	}
+
+	// Update fixtures, but only set filter data if mask has changed.
+	for (b2Fixture* fixture = body.body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+		b2Filter filter = fixture->GetFilterData();
+		u16 mask = filter.maskBits;
+		if (isDroppingThrough()) {
+			mask &= ~PhysicsLayers::MapPlatforms;
+		} else {
+			mask |= PhysicsLayers::MapPlatforms;
+		}
+		if (mask != filter.maskBits) {
+			filter.maskBits = mask;
+			fixture->SetFilterData(filter);
+		}
+	}
+
+	m_dropThroughTimeLeft -= dt;
 }
 
 void PlayerController::tickDashing(float dt)

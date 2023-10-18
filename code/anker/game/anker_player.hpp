@@ -7,6 +7,7 @@
 #include <anker/game/anker_player_controller.hpp>
 #include <anker/graphics/anker_sprite.hpp>
 #include <anker/physics/anker_physics_body.hpp>
+#include <anker/physics/anker_physics_layers.hpp>
 
 namespace Anker {
 
@@ -35,6 +36,7 @@ inline EntityHandle spawnPlayer(Scene& scene, Vec2 position, SceneNode* parent =
 		fixtureDef.shape = &dynamicBox;
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 0.0f;
+		fixtureDef.filter.categoryBits = PhysicsLayers::Player;
 
 		body->CreateFixture(&fixtureDef);
 	}

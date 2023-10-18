@@ -57,6 +57,10 @@ struct PlayerMovementParameters {
 
 	// Falling speed is capped at this value.
 	float maxFallSpeed = 30.0f;
+
+	// dropThroughTime determines how long collision with platforms is ignored
+	// when dropping through a platform.
+	float dropThroughTime = 0.2f;
 };
 
 } // namespace Anker
@@ -79,4 +83,5 @@ REFL_FIELD(dashCooldown)
 REFL_FIELD(dashBackwardsCooldown)
 REFL_FIELD(gravity)
 REFL_FIELD(maxFallSpeed)
+REFL_FIELD(dropThroughTime)
 REFL_END
