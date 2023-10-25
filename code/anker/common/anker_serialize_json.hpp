@@ -79,7 +79,7 @@ class JsonReader {
 			ANKER_TRY(current().IsString());
 			return fromString(outValue, current().GetString());
 		} else {
-			int i;
+			int i = 0;
 			ANKER_TRY(readPrimitive(i));
 			outValue = EnumType(i);
 			return true;

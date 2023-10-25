@@ -7,6 +7,7 @@
 #include <GLFW/glfw3native.h>
 
 #include <anker/core/anker_data_loader.hpp>
+#include <anker/platform/anker_input_state.hpp>
 
 // The Platform abstracts away various operating system specific parts, like
 // window management and mouse cursor handling. It is initialized before the
@@ -37,6 +38,8 @@ NativeWindow nativeWindow();
 
 ////////////////////////////////////////////////////////////
 // Input / Cursor
+
+const InputState& inputState();
 
 Vec2 cursorPosition();
 

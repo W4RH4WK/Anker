@@ -16,6 +16,8 @@ static std::optional<DataLoaderFilesystem> g_assetDataLoaderFs;
 static bool g_windowHasFocus = true;
 static bool g_hideCursor = false;
 
+static InputState g_inputState;
+
 void initialize()
 {
 	{
@@ -46,7 +48,34 @@ void tick()
 {
 	g_assetDataLoader.tick();
 
+	g_inputState.scrollDelta = 0;
+
 	glfwPollEvents();
+
+	// Update InputState
+	{
+		auto keyPressed = [](int key) { return glfwGetKey(g_glfwWindow, key) == GLFW_PRESS; };
+
+		g_inputState[KeyInput::Left] = keyPressed(GLFW_KEY_LEFT);
+		g_inputState[KeyInput::Right] = keyPressed(GLFW_KEY_RIGHT);
+		g_inputState[KeyInput::Up] = keyPressed(GLFW_KEY_UP);
+		g_inputState[KeyInput::Down] = keyPressed(GLFW_KEY_DOWN);
+		g_inputState[KeyInput::Space] = keyPressed(GLFW_KEY_SPACE);
+		g_inputState[KeyInput::Shift] = keyPressed(GLFW_KEY_LEFT_SHIFT);
+
+		GLFWgamepadstate gamepadState = {};
+		glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState);
+
+		g_inputState[GamepadInput::LsLeft] = gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT];
+		g_inputState[GamepadInput::LsRight] = gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT];
+		g_inputState[GamepadInput::LsUp] = gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP];
+		g_inputState[GamepadInput::LsDown] = gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN];
+		g_inputState[GamepadInput::A] = gamepadState.buttons[GLFW_GAMEPAD_BUTTON_A];
+		g_inputState[GamepadInput::B] = gamepadState.buttons[GLFW_GAMEPAD_BUTTON_B];
+
+		g_inputState.cursorDelta = cursorPosition() - g_inputState.cursorPosition;
+		g_inputState.cursorPosition = cursorPosition();
+	}
 
 	// Any component that wants to hide the cursor calls hideCursor. If none
 	// does, we display the cursor as normal.
@@ -76,10 +105,8 @@ void createMainWindow()
 
 	glfwSetWindowFocusCallback(g_glfwWindow, [](GLFWwindow*, int focused) { g_windowHasFocus = focused; });
 
-	glfwSetScrollCallback(g_glfwWindow, [](GLFWwindow*, double, double yoffset) {
-		if (g_engine) {
-			g_engine->inputSystem.onScroll(float(yoffset));
-		}
+	glfwSetScrollCallback(g_glfwWindow, [](GLFWwindow*, double, double yoffset) { //
+		g_inputState.scrollDelta += float(yoffset);
 	});
 
 #if ANKER_PLATFORM_WINDOWS
@@ -115,6 +142,11 @@ GLFWwindow* glfwWindow()
 NativeWindow nativeWindow()
 {
 	return g_nativeWindow;
+}
+
+const InputState& inputState()
+{
+	return g_inputState;
 }
 
 Vec2 cursorPosition()
