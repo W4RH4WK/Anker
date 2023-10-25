@@ -31,7 +31,7 @@ class Action {
 
 	void tick(float dt, float value)
 	{
-		m_value = value;
+		m_value = clamp01(value);
 		m_consumed = false;
 
 		if (down()) {

@@ -30,6 +30,7 @@ void createMainWindow();
 void destroyMainWindow();
 
 Vec2i windowSize();
+bool windowHasFocus();
 
 GLFWwindow* glfwWindow();
 NativeWindow nativeWindow();

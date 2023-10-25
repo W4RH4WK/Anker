@@ -13,6 +13,7 @@ static NativeWindow g_nativeWindow = nullptr;
 
 static std::optional<DataLoaderFilesystem> g_assetDataLoaderFs;
 
+static bool g_windowHasFocus = true;
 static bool g_hideCursor = false;
 
 void initialize()
@@ -73,6 +74,8 @@ void createMainWindow()
 		}
 	});
 
+	glfwSetWindowFocusCallback(g_glfwWindow, [](GLFWwindow*, int focused) { g_windowHasFocus = focused; });
+
 	glfwSetScrollCallback(g_glfwWindow, [](GLFWwindow*, double, double yoffset) {
 		if (g_engine) {
 			g_engine->inputSystem.onScroll(float(yoffset));
@@ -97,6 +100,11 @@ Vec2i windowSize()
 	Vec2i size;
 	glfwGetWindowSize(g_glfwWindow, &size.x, &size.y);
 	return size;
+}
+
+bool windowHasFocus()
+{
+	return g_windowHasFocus;
 }
 
 GLFWwindow* glfwWindow()
