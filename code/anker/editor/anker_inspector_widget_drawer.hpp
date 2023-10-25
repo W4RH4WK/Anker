@@ -231,7 +231,7 @@ class InspectorWidgetDrawer {
   private:
 	// Fallback to silently accept all types are not drawable.
 	template <typename T>
-	bool field(const char*, T&)
+	bool field(const char*, T&) requires (!Internal::SerializableClass<InspectorWidgetDrawer, T>)
 	{
 		return false;
 	}

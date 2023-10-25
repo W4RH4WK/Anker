@@ -57,7 +57,7 @@ inline bool serialize(InspectorWidgetDrawer draw, PlayerController& controller)
 	ImGui::Text("Falling:  %d", controller.isFalling());
 	ImGui::Text("Dashing:  %d", controller.isDashing());
 
-	return draw.field("moveParam", controller.moveParam, false);
+	return draw.field("moveParam", controller.moveParam);
 }
 
 } // namespace Anker
