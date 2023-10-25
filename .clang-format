@@ -6,30 +6,31 @@ TabWidth: 4
 UseTab: ForIndentation
 PointerAlignment: Left
 
-# Visually separate function signature from body
+# Visually separate function signature from the body.
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterFunction: true
   SplitEmptyFunction: false
   SplitEmptyRecord: false
 
-# Pull backslashes to the left due to increased column limit
+# Pull backslashes to the left due to increased column limit.
 AlignEscapedNewlines: DontAlign
 
 # Compress simple statements
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 
-# Improve alignment of multi-line
+# Improve alignment of multi-line expressions.
 AlignOperands: AlignAfterOperator
 BreakBeforeBinaryOperators: NonAssignment
 PenaltyBreakAssignment: 25
 
-# Increase readability of templates
+# Increase readability of templates.
 AlwaysBreakTemplateDeclarations: true
 
-# Increase readability of large constructor initializers
+# Increase readability of large constructor initializers.
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 
+# Clang-Format currently has issues with formatting C++20 requires clauses, hence C++17.
 Standard: c++17
 ...
