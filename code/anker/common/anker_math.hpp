@@ -102,6 +102,15 @@ struct Vec2T {
 
 	constexpr double ratio() const { return double(x) / double(y); }
 
+	constexpr Vec2T& normalize()
+	{
+		if (double len = length(); len > 0) {
+			x = T(x / len);
+			y = T(y / len);
+		}
+		return *this;
+	}
+
 	constexpr Vec2T& clampLength(double maximum)
 	{
 		if (lengthSquared() > maximum * maximum) {
