@@ -27,7 +27,7 @@ void EditorCameraSystem::tick(float, Scene& scene)
 	}
 
 	auto& actions = g_engine->inputSystem.actions();
-	if (actions.editorCameraActivate) {
+	if (actions.editorCameraActivate.down()) {
 		Platform::hideCursor();
 
 		auto transform = node->globalTransform();

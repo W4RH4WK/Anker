@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/core/anker_inputs.hpp>
+
 namespace Anker {
 
 constexpr float InputAnalogToDigitalThreshold = 0.3f;
@@ -10,6 +12,11 @@ constexpr float InputHoldThreshold = 0.3f;
 // specific states like tapped or holding.
 class Action {
   public:
+	Action() = default;
+	Action(MkbInput bindingMkb) : bindingMkb1(bindingMkb) {}
+	Action(MkbInput bindingMkb, GamepadInput bindingGamepad) : bindingMkb1(bindingMkb), bindingGamepad1(bindingGamepad)
+	{}
+
 	// These functions interpret the floating-point value as button input:
 	bool down() const { return value() > InputAnalogToDigitalThreshold; }
 	bool downThisFrame() const { return down() && m_previousTime == 0; }
@@ -29,34 +36,27 @@ class Action {
 	// appears as if no actuation is taking place.
 	void consume() { m_consumed = true; }
 
-	void tick(float dt, float value)
-	{
-		m_value = clamp01(value);
-		m_consumed = false;
+	void tick(float dt);
 
-		if (down()) {
-			m_previousTime = m_currentTime;
-			m_currentTime += dt;
-		} else {
-			m_previousTime = 0;
-			m_currentTime = 0;
-		}
-	}
+	std::optional<MkbInput> bindingMkb1, bindingMkb2;
+	std::optional<GamepadInput> bindingGamepad1, bindingGamepad2;
 
   private:
 	float m_value = 0;
-	bool m_consumed = false;
-
 	float m_currentTime = 0;
 	float m_previousTime = 0;
+	bool m_consumed = false;
 };
 
 // All input actions are combined into this struct. The actions are updated by
 // the input system.
 struct Actions {
-	Action playerMoveLeft, playerMoveRight, playerMoveUp, playerMoveDown;
-	Action playerJump;
-	Action playerDash;
+	Action playerMoveLeft = {MkbInput::Left, GamepadInput::PadLeft};
+	Action playerMoveRight = {MkbInput::Right, GamepadInput::PadRight};
+	Action playerMoveUp = {MkbInput::Up, GamepadInput::PadUp};
+	Action playerMoveDown = {MkbInput::Down, GamepadInput::PadDown};
+	Action playerJump = {MkbInput::Space, GamepadInput::A};
+	Action playerDash = {MkbInput::LeftShift, GamepadInput::B};
 
 	Vec2 playerMove() const
 	{
@@ -67,9 +67,9 @@ struct Actions {
 		    .clampLength(1);
 	}
 
-	Action editorToggle;
-	Action editorMapReload;
-	bool editorCameraActivate = false;
+	Action editorToggle = {MkbInput::F1};
+	Action editorMapReload = {MkbInput::F5};
+	Action editorCameraActivate = {MkbInput::MouseRight};
 	Vec2 editorCameraPan;
 	float editorCameraZoom = 0;
 };
@@ -85,4 +85,5 @@ REFL_FIELD(playerJump)
 REFL_FIELD(playerDash)
 REFL_FIELD(editorToggle)
 REFL_FIELD(editorMapReload)
+REFL_FIELD(editorCameraActivate)
 REFL_END

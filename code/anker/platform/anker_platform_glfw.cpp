@@ -77,11 +77,11 @@ static void tickInput()
 	// Update gamepad state
 	if (glfwGetGamepadState(GLFW_JOYSTICK_1, &g_gamepadState.pad)) {
 		g_gamepadState.leftStick = {g_gamepadState.pad.axes[GLFW_GAMEPAD_AXIS_LEFT_X],
-		                            g_gamepadState.pad.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]};
+		                            -g_gamepadState.pad.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]};
 		g_gamepadState.leftStick = radialDeadzone(g_gamepadState.leftStick, Deadzone);
 
 		g_gamepadState.rightStick = {g_gamepadState.pad.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
-		                             g_gamepadState.pad.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]};
+		                             -g_gamepadState.pad.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]};
 		g_gamepadState.rightStick = radialDeadzone(g_gamepadState.rightStick, Deadzone);
 	} else {
 		g_gamepadState = {};
