@@ -5,6 +5,8 @@
 #define ANKER_INPUTS_KEY(_name)
 #endif
 
+ANKER_INPUTS_KEY(Unkown)
+
 ANKER_INPUTS_KEY(Space)
 
 ANKER_INPUTS_KEY(A)

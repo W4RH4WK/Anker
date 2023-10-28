@@ -62,10 +62,13 @@ target_include_directories(anker PUBLIC code)
 target_precompile_headers(anker PUBLIC code/anker/anker_pch.hpp)
 target_link_libraries(anker PUBLIC
 	mimalloc fmt cppbase64 cppitertools reflcpp stb ddspp glm rapidjson entt
-	imgui glfw box2d tracy)
+	imgui sdl2 box2d tracy)
 
 add_executable(anker_main WIN32 code/anker_main.cpp)
 anker_compile_options(anker_main)
 target_link_libraries(anker_main PRIVATE anker)
+add_custom_command(TARGET anker_main POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:anker_main> $<TARGET_FILE_DIR:anker_main>
+	COMMAND_EXPAND_LISTS)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT anker_main)

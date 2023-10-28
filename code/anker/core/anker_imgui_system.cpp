@@ -12,7 +12,7 @@ ImguiSystem::ImguiSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevi
 	Platform::imguiImplInit();
 	renderDevice.imguiImplInit();
 
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
 }
 
 ImguiSystem::~ImguiSystem()

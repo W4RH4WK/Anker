@@ -7,10 +7,10 @@ namespace Anker {
 void InputSystem::tick(float dt)
 {
 	// Suppress actions during ImGui interaction
-	if (ImGui::GetIO().WantTextInput) {
-		m_actions = {};
-		return;
-	}
+	//if (ImGui::GetIO().WantTextInput) {
+	//	m_actions = {};
+	//	return;
+	//}
 
 	for_each(refl::reflect<Actions>().members, [&](auto member) { //
 		member(m_actions).tick(dt);

@@ -29,6 +29,7 @@ void EditorCameraSystem::tick(float, Scene& scene)
 	auto& actions = g_engine->inputSystem.actions();
 	if (actions.editorCameraActivate.down()) {
 		Platform::hideCursor();
+		Platform::enableRelativeCursorMode();
 
 		auto transform = node->globalTransform();
 		transform.position += actions.editorCameraPan * editorCamera->speed * camera->distance;

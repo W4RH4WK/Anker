@@ -3,7 +3,7 @@
 #include <anker/core/anker_inputs.hpp>
 
 #if ANKER_PLATFORM_WINDOWS
-#include <anker/platform/anker_platform_glfw.hpp>
+using NativeWindow = HWND;
 #endif
 
 // The Platform abstracts away various operating system specific parts, like
@@ -44,6 +44,11 @@ Vec2 scrollDelta();
 // the cursor has to call this function on every tick. If no system calls this
 // function, the cursor is shown.
 void hideCursor();
+
+// Enables relative cursor mode. Any system that wants to use relative cursor
+// mode has to call this function every tick. If no system calls this function,
+// relative cursor mode is disabled.
+void enableRelativeCursorMode();
 
 ////////////////////////////////////////////////////////////
 // ImGui

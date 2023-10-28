@@ -1,8 +1,8 @@
 add_library(imgui STATIC
 	code/backends/imgui_impl_dx11.cpp
 	code/backends/imgui_impl_dx11.h
-	code/backends/imgui_impl_glfw.cpp
-	code/backends/imgui_impl_glfw.h
+	code/backends/imgui_impl_sdl2.cpp
+	code/backends/imgui_impl_sdl2.h
 	code/imconfig.h
 	code/imgui_demo.cpp
 	code/imgui_draw.cpp
@@ -17,5 +17,5 @@ add_library(imgui STATIC
 	code/misc/cpp/imgui_stdlib.cpp
 	code/misc/cpp/imgui_stdlib.h)
 target_include_directories(imgui SYSTEM PUBLIC code code/backends code/misc/cpp)
-target_link_libraries(imgui PRIVATE glfw)
+target_link_libraries(imgui PRIVATE sdl2)
 set_target_properties(imgui PROPERTIES FOLDER external)
