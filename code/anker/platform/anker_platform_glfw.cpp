@@ -1,11 +1,10 @@
-#include <anker/platform/anker_platform_glfw.hpp>
+#include <anker/platform/anker_platform.hpp>
 
 #include <imgui_impl_glfw.h>
 
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_data_loader_filesystem.hpp>
 #include <anker/core/anker_engine.hpp>
-#include <anker/core/anker_inputs.hpp>
 
 namespace Anker::Platform {
 
