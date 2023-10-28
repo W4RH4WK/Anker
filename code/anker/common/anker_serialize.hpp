@@ -61,7 +61,7 @@ struct Enum : refl::attr::usage::field {
 	EnumEntries<E> entries;
 };
 template <typename E, usize N>
-Enum(std::array<std::pair<E, const char*>, N>) -> Enum<E>;
+Enum(std::array<std::pair<E, entt::hashed_string>, N>) -> Enum<E>;
 
 } // namespace Attr
 } // namespace Anker

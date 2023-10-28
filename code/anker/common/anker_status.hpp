@@ -27,15 +27,15 @@ enum StatusCode : u8 {
 	FontError,
 };
 constexpr std::array StatusCodeEntries{
-    std::pair{Ok, "Ok"},
-    std::pair{UnknownError, "UnknownError"},
-    std::pair{NotImplementedError, "NotImplementedError"},
-    std::pair{ReadError, "ReadError"},
-    std::pair{WriteError, "WriteError"},
-    std::pair{EnumError, "EnumError"},
-    std::pair{FormatError, "FormatError"},
-    std::pair{GraphicsError, "GraphicsError"},
-    std::pair{FontError, "FontError"},
+    std::pair{Ok, "Ok"_hs},
+    std::pair{UnknownError, "UnknownError"_hs},
+	std::pair{NotImplementedError, "NotImplementedError"_hs},
+	std::pair{ReadError, "ReadError"_hs},
+	std::pair{WriteError, "WriteError"_hs},
+	std::pair{EnumError, "EnumError"_hs},
+	std::pair{FormatError, "FormatError"_hs},
+	std::pair{GraphicsError, "GraphicsError"_hs},
+	std::pair{FontError, "FontError"_hs},
 };
 ANKER_ENUM_TO_FROM_STRING(StatusCode)
 

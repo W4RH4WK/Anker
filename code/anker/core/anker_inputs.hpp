@@ -11,8 +11,8 @@ enum class MkbInput {
 #include "anker_inputs.inc"
 };
 constexpr std::array MkbInputEntries = {
-#define ANKER_INPUTS_KEY(_name) std::pair(MkbInput::_name, #_name),
-#define ANKER_INPUTS_MOUSE(_name) std::pair(MkbInput::_name, #_name),
+#define ANKER_INPUTS_KEY(_name) std::pair(MkbInput::_name, #_name##_hs),
+#define ANKER_INPUTS_MOUSE(_name) std::pair(MkbInput::_name, #_name##_hs),
 #include "anker_inputs.inc"
 };
 ANKER_ENUM_TO_FROM_STRING(MkbInput)
@@ -30,7 +30,7 @@ enum class GamepadInput {
 #include "anker_inputs.inc"
 };
 constexpr std::array GamepadInputEntries = {
-#define ANKER_INPUTS_GAMEPAD(_name) std::pair(GamepadInput::_name, #_name),
+#define ANKER_INPUTS_GAMEPAD(_name) std::pair(GamepadInput::_name, #_name##_hs),
 #include "anker_inputs.inc"
 };
 ANKER_ENUM_TO_FROM_STRING(GamepadInput)

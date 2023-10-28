@@ -10,9 +10,7 @@ namespace Anker {
 // A convenience alias for the entries array. We use std::span to erase the size
 // template parameter.
 template <typename Enum>
-using EnumEntries = std::span<const std::pair<Enum, const char*>>;
-
-
+using EnumEntries = std::span<const std::pair<Enum, entt::hashed_string>>;
 
 ////////////////////////////////////////////////////////////
 // Flag Enum
@@ -109,15 +107,10 @@ constexpr Flags<Enum> operator&(Enum flag, const Flags<Enum>& flags)
 	} \
 	inline bool from_string(Enum& result, std::string_view input) \
 	{ \
-		static const auto lookup = [] { \
-			std::unordered_map<std::string_view, Enum> lookup_; \
-			for (const auto& entry : Enum##Entries) { \
-				lookup_[entry.second] = entry.first; \
-			} \
-			return lookup_; \
-		}(); \
-		if (auto it = lookup.find(input); it != lookup.end()) { \
-			result = it->second; \
+		entt::hashed_string input_hs(input.data(), input.size()); \
+		auto it = std::ranges::find_if(Enum##Entries, [&](auto& pair) { return pair.second == input_hs; }); \
+		if (it != Enum##Entries.end()) { \
+			result = it->first; \
 			return true; \
 		} else { \
 			return false; \

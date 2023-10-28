@@ -4,9 +4,9 @@ namespace Anker {
 
 enum class ToneMapping { None, Uncharted2, ACES };
 constexpr std::array ToneMappingEntries{
-    std::pair(ToneMapping::None, "None"),
-    std::pair(ToneMapping::Uncharted2, "Uncharted2"),
-    std::pair(ToneMapping::ACES, "ACES"),
+    std::pair(ToneMapping::None, "None"_hs),
+    std::pair(ToneMapping::Uncharted2, "Uncharted2"_hs),
+    std::pair(ToneMapping::ACES, "ACES"_hs),
 };
 ANKER_ENUM_TO_FROM_STRING(ToneMapping)
 
