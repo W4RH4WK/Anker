@@ -2,6 +2,8 @@
 
 namespace Anker::Log {
 
+static std::mutex g_stdoutLock;
+
 void log(Severity severity, std::string_view function, long line, std::string_view message)
 {
 	using namespace std::chrono;
@@ -9,12 +11,17 @@ void log(Severity severity, std::string_view function, long line, std::string_vi
 	// Using system_clock here since fmt only supports this type for formatting.
 	auto now = system_clock::now();
 
+	std::lock_guard lock(g_stdoutLock);
 	fmt::vprint("{0:%H:%M}:{1:%S} {2:} [{3:}:{4:}] {5:}\n",
 	            fmt::make_format_args(                                //
 	                now, round<milliseconds>(now.time_since_epoch()), //
 	                toChar(severity),                                 //
 	                function, line,                                   //
 	                message));
+
+	if (severity >= Severity::Warning) {
+		std::fflush(stdout);
+	}
 }
 
 } // namespace Anker::Log
