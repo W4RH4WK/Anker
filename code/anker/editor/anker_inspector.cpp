@@ -103,7 +103,7 @@ void Inspector::selectEntity(EntityHandle entity)
 
 void Inspector::drawSceneNodeRecursive(Scene& scene, const SceneNode* node)
 {
-	ANKER_ASSERT(node);
+	ANKER_CHECK(node);
 
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 	if (selectedEntity(scene) == node->entity()) {

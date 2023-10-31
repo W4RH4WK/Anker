@@ -11,7 +11,7 @@
 #define ANKER_ASSERT(condition) \
 	do { \
 		if (!(condition)) { \
-			ANKER_FATAL("Check failed: " #condition); \
+			ANKER_FATAL("Assert failed: " #condition); \
 		} \
 	} while (0)
 #else

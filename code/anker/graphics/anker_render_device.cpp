@@ -141,7 +141,7 @@ RenderDevice::RenderDevice()
 Status RenderDevice::createBuffer(GpuBuffer& buffer, std::span<const u8> init)
 {
 	buffer.info.size = std::max(buffer.info.size, u32(init.size()));
-	ANKER_ASSERT(buffer.info.size != 0);
+	ANKER_CHECK(buffer.info.size != 0, InvalidArgumentError);
 
 	buffer.buffer.Reset();
 
@@ -291,7 +291,7 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 
 Status RenderDevice::createTexture(Texture& texture, std::span<const TextureInit> inits)
 {
-	ANKER_ASSERT(texture.info.size != Vec2u(0));
+	ANKER_CHECK(texture.info.size != Vec2u(0), InvalidArgumentError);
 
 	D3D11_TEXTURE2D_DESC desc{
 	    .Width = texture.info.size.x,

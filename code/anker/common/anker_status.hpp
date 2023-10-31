@@ -19,6 +19,7 @@ enum StatusCode : u8 {
 	Ok = 0,
 	UnknownError,
 	NotImplementedError,
+	InvalidArgumentError,
 	ReadError,
 	WriteError,
 	EnumError,
@@ -29,13 +30,14 @@ enum StatusCode : u8 {
 constexpr std::array StatusCodeEntries{
     std::pair{Ok, "Ok"_hs},
     std::pair{UnknownError, "UnknownError"_hs},
-	std::pair{NotImplementedError, "NotImplementedError"_hs},
-	std::pair{ReadError, "ReadError"_hs},
-	std::pair{WriteError, "WriteError"_hs},
-	std::pair{EnumError, "EnumError"_hs},
-	std::pair{FormatError, "FormatError"_hs},
-	std::pair{GraphicsError, "GraphicsError"_hs},
-	std::pair{FontError, "FontError"_hs},
+    std::pair{NotImplementedError, "NotImplementedError"_hs},
+    std::pair{InvalidArgumentError, "InvalidArgumentError"_hs},
+    std::pair{ReadError, "ReadError"_hs},
+    std::pair{WriteError, "WriteError"_hs},
+    std::pair{EnumError, "EnumError"_hs},
+    std::pair{FormatError, "FormatError"_hs},
+    std::pair{GraphicsError, "GraphicsError"_hs},
+    std::pair{FontError, "FontError"_hs},
 };
 ANKER_ENUM_TO_FROM_STRING(StatusCode)
 

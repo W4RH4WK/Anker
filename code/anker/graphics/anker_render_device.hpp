@@ -191,7 +191,7 @@ class RenderDevice {
 	void fillBuffer(GpuBuffer& buffer, Spannable auto const& data)
 	{
 		std::span dataView = data;
-		ANKER_ASSERT(buffer.info.stride == sizeof(decltype(dataView)::value_type));
+		ANKER_CHECK(buffer.info.stride == sizeof(decltype(dataView)::value_type));
 
 		// Automatically grow buffer as needed.
 		if (buffer.info.size < dataView.size_bytes()) {
@@ -229,7 +229,6 @@ class RenderDevice {
 	template <typename T = u8>
 	T* mapTexture(const Texture& texture, u32* outRowPitch)
 	{
-		ANKER_ASSERT(outRowPitch);
 		return static_cast<T*>(mapResource(texture.texture.Get(), outRowPitch));
 	}
 	void unmapTexture(const Texture&);

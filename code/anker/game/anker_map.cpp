@@ -86,10 +86,10 @@ class TmjLoader {
 	struct Tileset {
 		Rect2 textureCoordinates(u32 gid) const
 		{
-			ANKER_ASSERT(gid >= firstTileId);
+			ANKER_CHECK(gid >= firstTileId, {});
 			u32 index = gid - firstTileId;
 
-			ANKER_ASSERT(index < tileCount.x * tileCount.y);
+			ANKER_CHECK(index < tileCount.x * tileCount.y, {});
 			float x = float(index % tileCount.x);
 			float y = float(index / tileCount.x);
 
@@ -492,7 +492,7 @@ class TmjLoader {
 					m_tmjReader.field("y", vertex.y);
 					vertices.push_back(convertCoordinates(vertex));
 				});
-				ANKER_ASSERT(vertices.size() >= 2);
+				ANKER_CHECK(vertices.size() >= 2);
 
 				// ghost vertices
 				Vec2 prev = *vertices.begin() + (*(vertices.begin() + 1) - *vertices.begin());

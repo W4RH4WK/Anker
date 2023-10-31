@@ -25,7 +25,7 @@ bool DataLoader::exists(const fs::path& filepath) const
 
 void DataLoader::addSource(IDataLoaderSource* source)
 {
-	ANKER_ASSERT(source);
+	ANKER_CHECK(source);
 	m_sources.emplace_back(source);
 }
 
