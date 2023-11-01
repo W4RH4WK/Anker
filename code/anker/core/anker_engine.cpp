@@ -42,7 +42,7 @@ void Engine::tick()
 
 	if (editor) {
 		editor->tick(dt, *activeScene);
-		if (editor->enabled) {
+		if (editor->enabled && editor->timescale) {
 			dt /= 10.0f;
 		}
 	}

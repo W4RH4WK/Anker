@@ -31,6 +31,7 @@ void EditorFramework::tick(float dt, Scene& scene)
 		m_inspector.drawMenuBarEntry();
 		m_cameraSystem.drawMenuBarEntry(scene);
 
+		ImGui::ToggleButton("Timescale", &timescale);
 		ImGui::ToggleButton("PhysDbg", &g_engine->physicsSystem.debugDraw);
 
 		drawMapsMenuBarEntry();

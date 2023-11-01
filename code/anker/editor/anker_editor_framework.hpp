@@ -20,6 +20,7 @@ class EditorFramework {
 	void tick(float, Scene&);
 
 	bool enabled = false;
+	bool timescale = true;
 
   private:
 	void drawMapsMenuBarEntry();
