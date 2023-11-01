@@ -132,8 +132,7 @@ RenderDevice::RenderDevice()
 
 	setRasterizer();
 
-	m_fallbackTexture = makeAssetPtr<Texture>();
-	if (not loadTexture(*m_fallbackTexture, "fallback/fallback_texture")) {
+	if (not loadTexture(m_fallbackTexture, "fallback/fallback_texture")) {
 		ANKER_ERROR("Fallback texture could not be loaded!");
 	}
 }

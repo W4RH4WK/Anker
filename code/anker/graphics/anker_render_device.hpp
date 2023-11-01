@@ -1,7 +1,5 @@
 #pragma once
 
-#include <anker/core/anker_asset.hpp>
-
 namespace Anker {
 
 enum class GpuBindFlag {
@@ -284,7 +282,7 @@ class RenderDevice {
 
 	const Texture& backBuffer() const { return m_backBuffer; }
 
-	AssetPtr<Texture> fallbackTexture() const { return m_fallbackTexture; }
+	const Texture& fallbackTexture() const { return m_fallbackTexture; }
 
 	// Avoid directly accessing these if possible:
 	ID3D11Device* device() { return m_device.Get(); }
@@ -312,8 +310,7 @@ class RenderDevice {
 	ComPtr<ID3D11BlendState> m_alphaBlendState;
 
 	Texture m_backBuffer;
-
-	AssetPtr<Texture> m_fallbackTexture;
+	Texture m_fallbackTexture;
 };
 
 } // namespace Anker
