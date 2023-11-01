@@ -41,7 +41,6 @@ void TileLayerRenderer::draw(const Scene&, const SceneNode* node)
 
 	auto* layer = node->entity().try_get<TileLayer>();
 	if (!layer) {
-		ANKER_ERROR("{}: Missing TileLayer component!", entityDisplayName(node->entity()));
 		return;
 	}
 
@@ -60,9 +59,11 @@ void TileLayerRenderer::draw(const Scene&, const SceneNode* node)
 	}
 
 	for (auto& [vertexBuffer, texture] : layer->parts) {
-		m_renderDevice.bindTexturePS(0, *texture);
-		m_renderDevice.draw(vertexBuffer);
-		m_renderDevice.unbindTexturePS(0);
+		if (texture) {
+			m_renderDevice.bindTexturePS(0, *texture);
+			m_renderDevice.draw(vertexBuffer);
+			m_renderDevice.unbindTexturePS(0);
+		}
 	}
 }
 

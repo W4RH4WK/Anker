@@ -239,7 +239,7 @@ void Inspector::drawSelectionGizmo(EntityCHandle entity)
 		auto transform = node->globalTransform();
 
 		Rect2 rect;
-		if (auto* sprite = entity.try_get<Sprite>()) {
+		if (auto* sprite = entity.try_get<Sprite>(); sprite && sprite->texture) {
 			rect.size = Vec2(sprite->texture->info.size) * sprite->textureRect.size / sprite->pixelToMeter;
 			rect.size *= transform.scale;
 		} else {

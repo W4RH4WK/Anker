@@ -50,8 +50,7 @@ void SpriteRenderer::draw(const Scene&, const SceneNode* node)
 	ANKER_PROFILE_ZONE();
 
 	auto* sprite = node->entity().try_get<Sprite>();
-	if (!sprite) {
-		ANKER_ERROR("{}: Missing Sprite component!", entityDisplayName(node->entity()));
+	if (!sprite || !sprite->texture) {
 		return;
 	}
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/core/anker_entity_name.hpp>
 #include <anker/core/anker_transform.hpp>
 #include <anker/editor/anker_inspector_widget_drawer.hpp>
 
@@ -24,6 +25,8 @@ class SceneNode {
 	~SceneNode();
 
 	EntityHandle entity() const { return m_entity; }
+
+	std::string name() const { return entityDisplayName(m_entity); }
 
 	const Transform2D& localTransform() const { return m_localTransform; }
 	void setLocalTransform(const Transform2D& transform)
