@@ -187,7 +187,7 @@ void Inspector::drawComponentEditorWindow(EntityHandle entity, std::string_view 
 	}
 
 	// Add Component button
-	ImGui::SameLine(ImGui::GetWindowWidth() - 20);
+	ImGui::SameLine(ImGui::GetWindowWidth() - 30);
 	if (ImGui::Button("+##addComp")) {
 		ImGui::OpenPopup("addCompMenu");
 	}
