@@ -6,12 +6,6 @@ namespace Anker {
 
 class Font {
   public:
-	Font() = default;
-	Font(const Font&) = delete;
-	Font& operator=(const Font&) = delete;
-	Font(Font&&) noexcept = delete;
-	Font& operator=(Font&&) noexcept = delete;
-
 	struct CharData {
 		Rect2 texRect;      // Glyph location in texture
 		Rect2 visRect;      // Glyph offset for rendering

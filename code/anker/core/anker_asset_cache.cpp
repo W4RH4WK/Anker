@@ -23,9 +23,7 @@ AssetPtr<VertexShader> AssetCache::loadVertexShaderUncached(std::string_view ide
 {
 	auto vertexShader = makeAssetPtr<VertexShader>();
 	vertexShader->info.inputs.assign(shaderInputs.begin(), shaderInputs.end());
-	if (not m_renderDevice.loadVertexShader(*vertexShader, identifier)) {
-		return nullptr;
-	}
+	(void)m_renderDevice.loadVertexShader(*vertexShader, identifier);
 	return vertexShader;
 }
 
@@ -40,9 +38,7 @@ AssetPtr<PixelShader> AssetCache::loadPixelShader(std::string_view identifier)
 AssetPtr<PixelShader> AssetCache::loadPixelShaderUncached(std::string_view identifier)
 {
 	auto pixelShader = makeAssetPtr<PixelShader>();
-	if (not m_renderDevice.loadPixelShader(*pixelShader, identifier)) {
-		return nullptr;
-	}
+	(void)m_renderDevice.loadPixelShader(*pixelShader, identifier);
 	return pixelShader;
 }
 
@@ -80,7 +76,7 @@ AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
 
 	if (not m_fontSystem.loadFont(*font, identifier)) {
 		ANKER_WARN("{}: Missing, using fallback!", identifier);
-		font = m_fontSystem.systemFont();
+		*font = m_fontSystem.systemFont();
 	}
 
 	return font;

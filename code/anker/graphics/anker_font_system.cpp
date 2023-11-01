@@ -10,8 +10,7 @@ namespace Anker {
 
 FontSystem::FontSystem(RenderDevice& renderDevice) : m_renderDevice(renderDevice)
 {
-	m_systemFont = makeAssetPtr<Font>();
-	if (not loadFont(*m_systemFont, "fonts/Roboto")) {
+	if (not loadFont(m_systemFont, "fonts/Roboto")) {
 		ANKER_FATAL("Failed to load system font");
 	}
 }

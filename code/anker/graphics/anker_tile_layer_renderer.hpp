@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/core/anker_asset.hpp>
 #include <anker/graphics/anker_render_device.hpp>
 #include <anker/graphics/anker_vertex.hpp>
 

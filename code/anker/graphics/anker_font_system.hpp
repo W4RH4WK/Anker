@@ -1,6 +1,5 @@
 #pragma once
 
-#include <anker/core/anker_asset.hpp>
 #include <anker/graphics/anker_font.hpp>
 
 namespace Anker {
@@ -17,14 +16,14 @@ class FontSystem {
 
 	Status loadFont(Font& font, std::string_view identifier);
 
-	AssetPtr<Font> systemFont() const { return m_systemFont; }
+	const Font& systemFont() const { return m_systemFont; }
 
   private:
 	Status loadFontFromTTF(Font& font, std::span<const u8> fontData);
 
 	RenderDevice& m_renderDevice;
 
-	AssetPtr<Font> m_systemFont;
+	Font m_systemFont;
 };
 
 } // namespace Anker
