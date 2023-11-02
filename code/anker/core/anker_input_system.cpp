@@ -1,11 +1,8 @@
 #include <anker/core/anker_input_system.hpp>
 
-#include <anker/core/anker_imgui_system.hpp>
 #include <anker/platform/anker_platform.hpp>
 
 namespace Anker {
-
-InputSystem::InputSystem(ImguiSystem& imgui) : m_imgui(imgui) {}
 
 void InputSystem::tick(float dt)
 {

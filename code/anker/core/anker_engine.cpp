@@ -10,7 +10,6 @@ Engine::Engine()
     : renderDevice(),
       fontSystem(renderDevice),
       imguiSystem(renderDevice),
-      inputSystem(imguiSystem),
       assetCache(renderDevice, fontSystem),
       renderSystem(renderDevice, assetCache),
       physicsSystem(renderSystem.gizmoRenderer)
