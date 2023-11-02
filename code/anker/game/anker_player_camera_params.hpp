@@ -2,7 +2,7 @@
 
 namespace Anker {
 
-struct PlayerCameraParameters {
+struct PlayerCameraParams {
 	// distance determines how far the camera is pulled out.
 	float distance = 4.0f;
 
@@ -32,7 +32,7 @@ struct PlayerCameraParameters {
 
 } // namespace Anker
 
-REFL_TYPE(Anker::PlayerCameraParameters)
+REFL_TYPE(Anker::PlayerCameraParams)
 REFL_FIELD(distance)
 REFL_FIELD(baseOffset)
 REFL_FIELD(lookOffset)

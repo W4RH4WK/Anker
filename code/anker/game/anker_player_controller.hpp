@@ -1,7 +1,7 @@
 #pragma once
 
 #include <anker/editor/anker_inspector_widget_drawer.hpp>
-#include <anker/game/anker_player_movement_parameters.hpp>
+#include <anker/game/anker_player_movement_params.hpp>
 
 namespace Anker {
 
@@ -21,7 +21,7 @@ class PlayerController {
 
 	static void tick(float, Scene&);
 
-	PlayerMovementParameters moveParam;
+	PlayerMovementParams moveParam;
 
   private:
 	void tickIsGrounded(float, const PhysicsBody&);

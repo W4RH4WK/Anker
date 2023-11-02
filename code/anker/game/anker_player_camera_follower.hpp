@@ -1,6 +1,6 @@
 #pragma once
 
-#include <anker/game/anker_player_camera_parameters.hpp>
+#include <anker/game/anker_player_camera_params.hpp>
 
 namespace Anker {
 
@@ -17,7 +17,7 @@ struct PlayerCameraFollower {
 
 	float fallingOffsetDelayLeft = 0;
 
-	PlayerCameraParameters params;
+	PlayerCameraParams params;
 
 	void tickFollow(float dt, SceneNode& cameraNode, const SceneNode& playerNode, const PlayerController&);
 

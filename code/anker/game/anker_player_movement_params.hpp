@@ -2,7 +2,7 @@
 
 namespace Anker {
 
-struct PlayerMovementParameters {
+struct PlayerMovementParams {
 	// moveSpeed determines the player's horizontal movement speed.
 	float moveSpeed = 8.0f;
 
@@ -65,7 +65,7 @@ struct PlayerMovementParameters {
 
 } // namespace Anker
 
-REFL_TYPE(Anker::PlayerMovementParameters)
+REFL_TYPE(Anker::PlayerMovementParams)
 REFL_FIELD(moveSpeed)
 REFL_FIELD(moveResponsiveness)
 REFL_FIELD(moveResponsivenessInAir)
