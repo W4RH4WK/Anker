@@ -1,7 +1,5 @@
 #include "anker_file_utils.hpp"
 
-#include "anker_assert.hpp"
-
 namespace Anker {
 
 template <typename Buffer>
@@ -83,7 +81,7 @@ std::string_view stripFileExtensions(std::string_view filepath)
 
 std::string toIdentifier(fs::path filepath)
 {
-	ANKER_ASSERT(filepath.is_relative());
+	ANKER_CHECK(filepath.is_relative(), "");
 
 	filepath = fs::relative(filepath, ""); // normalize
 	filepath.replace_extension();          // strip extension

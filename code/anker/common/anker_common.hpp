@@ -1,6 +1,5 @@
 #pragma once
 
-#include "anker_assert.hpp"
 #include "anker_check.hpp"
 #include "anker_defer.hpp"
 #include "anker_entt_utils.hpp"

@@ -58,7 +58,11 @@ void SceneNode::setParent(SceneNode* newParent)
 		m_parent->m_children.push_back(this);
 	}
 
-	ANKER_ASSERT(validateParentChildLink());
+#if ANKER_CHECK_SCENE_NODE_INVARIANT_ENABLED
+	if (!validateParentChildLink()) {
+		ANKER_ERROR("Broken SceneNode invariant on {}", name());
+	}
+#endif
 }
 
 bool SceneNode::validateParentChildLink() const

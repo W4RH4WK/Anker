@@ -407,7 +407,7 @@ class TmjLoader {
 
 		TileId tile = 0;
 		m_tmjReader.field("gid", tile);
-		ANKER_ASSERT(tile != 0); // TODO
+		ANKER_CHECK(tile != 0); // TODO
 
 		// The tile number consists of a global id and flip bits.
 		const TileId gid = tile & ~FlipMask;
@@ -602,9 +602,13 @@ ScenePtr loadMap(std::string_view mapIdentifier)
 		ANKER_ERROR("Failed to load map: {}", mapIdentifier);
 	}
 
+#if ANKER_CHECK_SCENE_NODE_INVARIANT_ENABLED
 	for (auto [_, node] : scene->registry.view<SceneNode>().each()) {
-		ANKER_ASSERT(node.validateParentChildLink());
+		if (!node.validateParentChildLink()) {
+			ANKER_ERROR("Broken SceneNode invariant on {}", node.name());
+		}
 	}
+#endif
 
 	if (auto player = scene->entityHandle(scene->registry.view<PlayerTag>().front())) {
 		auto camera = scene->activeCamera();

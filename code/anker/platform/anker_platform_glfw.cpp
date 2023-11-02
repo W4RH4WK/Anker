@@ -133,7 +133,10 @@ void createMainWindow()
 	g_nativeWindow = glfwGetWin32Window(g_glfwWindow);
 #endif
 
-	ANKER_ASSERT(glfwRawMouseMotionSupported());
+	if (!glfwRawMouseMotionSupported()) {
+		ANKER_WARN("GLFW: Raw mouse motion not supported");
+	}
+
 	glfwSetInputMode(g_glfwWindow, GLFW_RAW_MOUSE_MOTION, true);
 }
 
