@@ -8,11 +8,10 @@
 
 - Use *camel-case* as default (e.g. `configFile`, `loadConfig`)
 - Capitalize constants, enum members, types, type parameters, concepts, and namespaces (e.g. `ConfigManager`, `ConfigPath`)
-- Use *all-caps* for defines / macros (e.g. `DEBUG_BREAK`)
+- Use *all-caps* for defines / macros along with a project specific prefix (e.g. `ANKER_DEBUG_BREAK`)
 - Omit the `get` prefix for getters
 - Use prefixes like `is` or `has` for predicates (e.g. `hasParent`)
 - Function names should start with a verb as they *do* something (e.g. `loadConfig`)
-- Add adjectives to variables to convey additional information (e.g. `activeUser` instead of `user`)
 
 Certain identifiers are prefixed to make their *impact* easily recognizable in code:
 - Prefix global variables with `g_`
