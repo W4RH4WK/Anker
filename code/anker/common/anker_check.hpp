@@ -8,7 +8,7 @@
 #define ANKER_CHECK(condition, ret) \
 	do { \
 		if (!(condition)) { \
-			ANKER_ERROR("Check failed: " #condition); \
+			ANKER_ERROR("{}", "Check failed: " #condition); \
 			return ret; \
 		} \
 	} while (0)
