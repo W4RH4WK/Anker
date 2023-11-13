@@ -98,8 +98,8 @@ constexpr Flags<Enum> operator&(Enum flag, const Flags<Enum>& flags)
 #define ANKER_ENUM_TO_FROM_STRING(Enum) \
 	inline const char* to_string(Enum e) \
 	{ \
-		static const std::unordered_map<Enum, const char*> lookup{Enum##Entries.begin(), Enum##Entries.end()}; \
-		if (auto it = lookup.find(e); it != lookup.end()) { \
+		auto it = std::ranges::find_if(Enum##Entries, [e](auto& pair) { return pair.first == e; }); \
+		if (it != Enum##Entries.end()) { \
 			return it->second; \
 		} else { \
 			return "invalid"; \
@@ -108,7 +108,7 @@ constexpr Flags<Enum> operator&(Enum flag, const Flags<Enum>& flags)
 	inline bool from_string(Enum& result, std::string_view input) \
 	{ \
 		entt::hashed_string input_hs(input.data(), input.size()); \
-		auto it = std::ranges::find_if(Enum##Entries, [&](auto& pair) { return pair.second == input_hs; }); \
+		auto it = std::ranges::find_if(Enum##Entries, [input_hs](auto& pair) { return pair.second == input_hs; }); \
 		if (it != Enum##Entries.end()) { \
 			result = it->first; \
 			return true; \
