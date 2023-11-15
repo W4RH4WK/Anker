@@ -45,9 +45,6 @@ struct Inline : refl::attr::usage::field, //
 struct Color : refl::attr::usage::field, //
                refl::attr::usage::function {};
 
-// Attribute to serialize enum as string.
-struct Enum : refl::attr::usage::field {};
-
 // Uses a slider widget instead of the regular drag widget.
 template <typename T>
 struct Slider : refl::attr::usage::field, //

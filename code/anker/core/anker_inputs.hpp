@@ -10,6 +10,7 @@ enum class MkbInput {
 #define ANKER_INPUTS_MOUSE(_name) _name,
 #include "anker_inputs.inc"
 };
+
 template <>
 constexpr std::array EnumEntries<MkbInput> = {
 #define ANKER_INPUTS_KEY(_name) std::pair(MkbInput::_name, #_name##_hs),
@@ -29,6 +30,7 @@ enum class GamepadInput {
 #define ANKER_INPUTS_GAMEPAD(_name) _name,
 #include "anker_inputs.inc"
 };
+
 template <>
 constexpr std::array EnumEntries<GamepadInput> = {
 #define ANKER_INPUTS_GAMEPAD(_name) std::pair(GamepadInput::_name, #_name##_hs),

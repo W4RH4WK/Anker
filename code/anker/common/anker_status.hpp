@@ -27,6 +27,7 @@ enum StatusCode : u8 {
 	GraphicsError,
 	FontError,
 };
+
 template <>
 constexpr std::array EnumEntries<StatusCode> = {
     std::pair{Ok, "Ok"_hs},

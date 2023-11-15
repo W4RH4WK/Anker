@@ -3,6 +3,7 @@
 namespace Anker {
 
 enum class ToneMapping { None, Uncharted2, ACES };
+
 template <>
 constexpr std::array EnumEntries<ToneMapping> = {
     std::pair(ToneMapping::None, "None"_hs),
@@ -37,5 +38,5 @@ REFL_FIELD(brightness, Anker::Attr::Slider(-1.0f, 1.0f))
 REFL_FIELD(colorFilter, Anker::Attr::Color())
 REFL_FIELD(saturation, Anker::Attr::Slider(0.0f, 3.0f))
 REFL_FIELD(gamma, Anker::Attr::Slider(0.0f, 5.0f))
-REFL_FIELD(toneMapping, Anker::Attr::Enum())
+REFL_FIELD(toneMapping)
 REFL_END
