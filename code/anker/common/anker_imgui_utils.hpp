@@ -43,13 +43,12 @@ inline bool InputQuat(const char* label, glm::quat* v)
 	return false;
 }
 
-template <typename EnumType>
-bool InputEnum(const char* label, EnumType* value, Anker::EnumEntries<EnumType> entries) //
-    requires std::is_enum_v<EnumType>
+template <typename Enum>
+bool InputEnum(const char* label, Enum* value) requires Anker::HasEnumEntries<Enum>
 {
 	bool changed = false;
 	if (ImGui::BeginCombo(label, to_string(*value))) {
-		for (auto& [entry, entryString] : entries) {
+		for (auto& [entry, entryString] : Anker::EnumEntries<Enum>) {
 			bool isSelected = *value == entry;
 			if (ImGui::Selectable(entryString, isSelected)) {
 				*value = entry;

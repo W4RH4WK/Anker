@@ -45,6 +45,9 @@ struct Inline : refl::attr::usage::field, //
 struct Color : refl::attr::usage::field, //
                refl::attr::usage::function {};
 
+// Attribute to serialize enum as string.
+struct Enum : refl::attr::usage::field {};
+
 // Uses a slider widget instead of the regular drag widget.
 template <typename T>
 struct Slider : refl::attr::usage::field, //
@@ -53,15 +56,6 @@ struct Slider : refl::attr::usage::field, //
 	T min;
 	T max;
 };
-
-// Enum attribute for refl-cpp that stores the entries array (as std::span).
-template <typename E>
-struct Enum : refl::attr::usage::field {
-	constexpr Enum(EnumEntries<E> e) : entries(e) {}
-	EnumEntries<E> entries;
-};
-template <typename E, usize N>
-Enum(std::array<std::pair<E, entt::hashed_string>, N>) -> Enum<E>;
 
 } // namespace Attr
 } // namespace Anker

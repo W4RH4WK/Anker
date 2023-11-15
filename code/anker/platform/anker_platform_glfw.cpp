@@ -18,7 +18,7 @@ static std::optional<DataLoaderFilesystem> g_assetDataLoaderFs;
 static bool g_windowHasFocus = true;
 static bool g_hideCursor = false;
 
-static std::array<int, MkbInputEntries.size()> g_mkbMapping;
+static std::array<int, EnumEntries<MkbInput>.size()> g_mkbMapping;
 
 static Vec2 g_cursorPosition;
 static Vec2 g_cursorDelta;

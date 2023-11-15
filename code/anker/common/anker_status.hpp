@@ -27,7 +27,8 @@ enum StatusCode : u8 {
 	GraphicsError,
 	FontError,
 };
-constexpr std::array StatusCodeEntries{
+template <>
+constexpr std::array EnumEntries<StatusCode> = {
     std::pair{Ok, "Ok"_hs},
     std::pair{UnknownError, "UnknownError"_hs},
     std::pair{NotImplementedError, "NotImplementedError"_hs},

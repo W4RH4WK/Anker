@@ -110,16 +110,16 @@ class InspectorWidgetDrawer {
 	}
 
 	template <typename EnumType>
-	bool field(const char* name, EnumType& value, EnumEntries<EnumType> entries) requires std::is_enum_v<EnumType>
+	bool fieldAsEnum(const char* name, EnumType& value)
 	{
-		return ImGui::InputEnum(name, &value, entries);
+		return ImGui::InputEnum(name, &value);
 	}
 
 	template <typename ReflDescriptor, typename EnumType>
 	bool field(ReflDescriptor member, const char* name, EnumType& value) requires std::is_enum_v<EnumType>
 	{
-		if constexpr (has_attribute<Attr::Enum<EnumType>>(member)) {
-			return field(name, value, get_attribute<Attr::Enum>(member).entries);
+		if constexpr (has_attribute<Attr::Enum>(member)) {
+			return fieldAsEnum(name, value);
 		} else {
 			return field(name, value);
 		}
@@ -231,7 +231,7 @@ class InspectorWidgetDrawer {
   private:
 	// Fallback to silently accept all types are not drawable.
 	template <typename T>
-	bool field(const char*, T&) requires (!Internal::SerializableClass<InspectorWidgetDrawer, T>)
+	bool field(const char*, T&) requires(!Internal::SerializableClass<InspectorWidgetDrawer, T>)
 	{
 		return false;
 	}
