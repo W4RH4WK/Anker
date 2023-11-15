@@ -40,7 +40,6 @@ constexpr std::array EnumEntries<StatusCode> = {
     std::pair{GraphicsError, "GraphicsError"_hs},
     std::pair{FontError, "FontError"_hs},
 };
-ANKER_ENUM_TO_FROM_STRING(StatusCode)
 
 // Status is used as a thin wrapper around StatusCode. The primary goal here is
 // to invert boolean conversion. Status converts to true on success, and false
@@ -75,7 +74,7 @@ struct [[nodiscard]] Status {
 
 	constexpr explicit operator bool() const { return code == Ok; }
 
-	const char* toString() const { return to_string(code); }
+	std::string toString() const { return Anker::toString(code); }
 	static bool fromString(Status& status, std::string_view view) { return Anker::fromString(status.code, view); }
 
 	StatusCode code = Ok;

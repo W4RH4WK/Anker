@@ -8,7 +8,7 @@ inline std::string win32ErrorMessage(u32 error)
 {
 #if ANKER_PLATFORM_WINDOWS
 	if (error == 0) {
-		return to_string(Ok);
+		return toString(Ok);
 	}
 
 	const DWORD formatFlags = FORMAT_MESSAGE_ALLOCATE_BUFFER //

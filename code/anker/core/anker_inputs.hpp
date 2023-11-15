@@ -16,7 +16,6 @@ constexpr std::array EnumEntries<MkbInput> = {
 #define ANKER_INPUTS_MOUSE(_name) std::pair(MkbInput::_name, #_name##_hs),
 #include "anker_inputs.inc"
 };
-ANKER_ENUM_TO_FROM_STRING(MkbInput)
 
 inline bool isMouseInput(MkbInput input)
 {
@@ -35,7 +34,6 @@ constexpr std::array EnumEntries<GamepadInput> = {
 #define ANKER_INPUTS_GAMEPAD(_name) std::pair(GamepadInput::_name, #_name##_hs),
 #include "anker_inputs.inc"
 };
-ANKER_ENUM_TO_FROM_STRING(GamepadInput)
 
 ////////////////////////////////////////////////////////////
 // Deadzones

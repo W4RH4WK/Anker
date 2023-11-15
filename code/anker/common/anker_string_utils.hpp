@@ -16,10 +16,21 @@ std::string toString(const T& v)
 {
 	if constexpr (HasToStringMemFn<T>) {
 		return v.toString();
-	} else {
+	}
+
+	else if constexpr (HasEnumEntries<T>) {
+		auto it = std::ranges::find_if(EnumEntries<T>, [v](auto& pair) { return pair.first == v; });
+		if (it != EnumEntries<T>.end()) {
+			return std::string(it->second);
+		} else {
+			return "invalid";
+		}
+	}
+
+	else {
 		// using ADL as fallback
 		using std::to_string;
-		return std::string{to_string(v)};
+		return std::string(to_string(v));
 	}
 }
 
@@ -54,7 +65,20 @@ bool fromString(T& result, std::string_view input)
 {
 	if constexpr (HasFromStringMemFn<T>) {
 		return T::fromString(result, input);
-	} else {
+	}
+
+	else if constexpr (HasEnumEntries<T>) {
+		entt::hashed_string input_hs(input.data(), input.size());
+		auto it = std::ranges::find_if(EnumEntries<T>, [input_hs](auto& pair) { return pair.second == input_hs; });
+		if (it != ::Anker::EnumEntries<T>.end()) {
+			result = it->first;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	else {
 		return from_string(result, input);
 	}
 }

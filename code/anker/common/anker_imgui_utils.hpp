@@ -47,7 +47,7 @@ template <typename Enum>
 bool InputEnum(const char* label, Enum* value) requires Anker::HasEnumEntries<Enum>
 {
 	bool changed = false;
-	if (ImGui::BeginCombo(label, to_string(*value))) {
+	if (ImGui::BeginCombo(label, Anker::toString(*value).c_str())) {
 		for (auto& [entry, entryString] : Anker::EnumEntries<Enum>) {
 			bool isSelected = *value == entry;
 			if (ImGui::Selectable(entryString, isSelected)) {

@@ -9,7 +9,6 @@ constexpr std::array EnumEntries<ToneMapping> = {
     std::pair(ToneMapping::Uncharted2, "Uncharted2"_hs),
     std::pair(ToneMapping::ACES, "ACES"_hs),
 };
-ANKER_ENUM_TO_FROM_STRING(ToneMapping)
 
 ////////////////////////////////////////////////////////////
 

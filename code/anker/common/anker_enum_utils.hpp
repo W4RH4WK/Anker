@@ -8,42 +8,12 @@ namespace Anker {
 // Enum reflection utilities
 
 // The EnumEntries template is to be specialized with the corresponding enum
-// type for serialization and reflection.
+// type for string serialization and reflection.
 template <typename Enum>
 constexpr std::array<std::pair<Enum, entt::hashed_string>, 0> EnumEntries;
 
 template <typename Enum>
 constexpr bool HasEnumEntries = !EnumEntries<Enum>.empty();
-
-////////////////////////////////////////////////////////////
-// Enum to_string/from_string generator
-
-// Generates the to_string/from_string utility functions for the given enum.
-//
-// See invocations of this macro across the code-base for examples.
-#define ANKER_ENUM_TO_FROM_STRING(Enum) \
-	static_assert(::Anker::HasEnumEntries<Enum>); \
-	inline const char* to_string(Enum e) \
-	{ \
-		auto it = std::ranges::find_if(::Anker::EnumEntries<Enum>, [e](auto& pair) { return pair.first == e; }); \
-		if (it != ::Anker::EnumEntries<Enum>.end()) { \
-			return it->second; \
-		} else { \
-			return "invalid"; \
-		} \
-	} \
-	inline bool from_string(Enum& result, std::string_view input) \
-	{ \
-		entt::hashed_string input_hs(input.data(), input.size()); \
-		auto it = std::ranges::find_if(::Anker::EnumEntries<Enum>, \
-		                               [input_hs](auto& pair) { return pair.second == input_hs; }); \
-		if (it != ::Anker::EnumEntries<Enum>.end()) { \
-			result = it->first; \
-			return true; \
-		} else { \
-			return false; \
-		} \
-	}
 
 ////////////////////////////////////////////////////////////
 // Flag Enum
