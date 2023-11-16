@@ -5,7 +5,7 @@ namespace Anker {
 enum class ToneMapping { None, Uncharted2, ACES };
 
 template <>
-constexpr std::array EnumEntries<ToneMapping> = {
+inline constexpr std::array EnumEntries<ToneMapping> = {
     std::pair(ToneMapping::None, "None"_hs),
     std::pair(ToneMapping::Uncharted2, "Uncharted2"_hs),
     std::pair(ToneMapping::ACES, "ACES"_hs),

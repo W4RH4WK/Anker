@@ -29,7 +29,7 @@ enum StatusCode : u8 {
 };
 
 template <>
-constexpr std::array EnumEntries<StatusCode> = {
+inline constexpr std::array EnumEntries<StatusCode> = {
     std::pair{Ok, "Ok"_hs},
     std::pair{UnknownError, "UnknownError"_hs},
     std::pair{NotImplementedError, "NotImplementedError"_hs},

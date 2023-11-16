@@ -10,7 +10,7 @@ namespace Anker {
 // The EnumEntries template is to be specialized with the corresponding enum
 // type for string serialization and reflection.
 template <typename Enum>
-constexpr std::array<std::pair<Enum, entt::hashed_string>, 0> EnumEntries;
+inline constexpr std::array<std::pair<Enum, entt::hashed_string>, 0> EnumEntries;
 
 template <typename Enum>
 constexpr bool HasEnumEntries = !EnumEntries<Enum>.empty();
