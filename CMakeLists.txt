@@ -18,9 +18,10 @@ function(anker_compile_options target)
 
 	target_compile_options(${target} PRIVATE
 		$<$<CXX_COMPILER_ID:MSVC>:/MP /W4 /external:W0 /bigobj /utf-8>
+		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:RELEASE>>:/Oi>
 		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wpedantic -Wtype-limits -Wconversion -Wsign-conversion -Wdouble-promotion -Wundef -g>
 
-		# Enable MSVC debug symbols and edit and continue support
+		# Enable MSVC debug symbols and edit-and-continue support
 		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:DEBUG>>:/ZI>
 		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:RELEASE>>:/Zi>
 
@@ -34,8 +35,10 @@ function(anker_compile_options target)
 
 	get_target_property(target_type ${target} TYPE)
 	if(target_type STREQUAL EXECUTABLE)
+		target_link_options(${target} PRIVATE
+			$<$<CXX_COMPILER_ID:MSVC>:/ENTRY:mainCRTStartup>
+			$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:RELEASE>>:/OPT:REF /OPT:ICF /DEBUG>)
 		set_target_properties(${target} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-		target_link_options(${target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/ENTRY:mainCRTStartup>)
 	endif()
 
 	get_target_property(target_srcs ${target} SOURCES)
