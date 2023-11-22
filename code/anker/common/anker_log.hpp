@@ -21,12 +21,11 @@ inline constexpr char toChar(Severity severity)
 {
 	switch (severity) {
 	case Severity::Trace: return 'T';
-	case Severity::Info: return 'I';
 	case Severity::Warning: return 'W';
 	case Severity::Error: return 'E';
 	case Severity::Fatal: return 'F';
+	default: return 'I';
 	}
-	return '?';
 }
 
 void log(Severity, std::string_view function, long line, std::string_view message);
