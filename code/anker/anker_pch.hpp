@@ -97,9 +97,6 @@ using Clock = std::chrono::steady_clock;
 
 using namespace entt::literals;
 
-// Recent MSVC workaround
-using refl::descriptor::has_attribute;
-
 } // namespace Anker
 
 #include <anker/common/anker_common.hpp>
