@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+		"castwide.solargraph",
+		"EditorConfig.EditorConfig",
+		"twxs.cmake",
+	],
+	"unwantedRecommendations": [
+		"Shopify.ruby-lsp"
+	],
+}
