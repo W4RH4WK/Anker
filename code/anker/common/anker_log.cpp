@@ -12,12 +12,11 @@ void log(Severity severity, std::string_view function, long line, std::string_vi
 	auto now = system_clock::now();
 
 	std::lock_guard lock(g_stdoutLock);
-	fmt::vprint("{0:%H:%M}:{1:%S} {2:} [{3:}:{4:}] {5:}\n",
-	            fmt::make_format_args(                                //
-	                now, round<milliseconds>(now.time_since_epoch()), //
-	                toChar(severity),                                 //
-	                function, line,                                   //
-	                message));
+	fmt::print("{0:%R}:{1:%S} {2:} [{3:}:{4:}] {5:}\n",          //
+	           now, round<milliseconds>(now.time_since_epoch()), //
+	           toChar(severity),                                 //
+	           function, line,                                   //
+	           message);
 
 	if (severity >= Severity::Warning) {
 		std::fflush(stdout);
