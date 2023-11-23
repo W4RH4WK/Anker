@@ -10,6 +10,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <numbers>
 #include <numeric>
 #include <ranges>

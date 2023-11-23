@@ -171,7 +171,7 @@ class RenderDevice {
 
 	Status createBuffer(GpuBuffer& buffer, Spannable auto const& init)
 	{
-		std::span initView = init;
+		auto initView = std::span(init);
 		buffer.info.stride = sizeof(decltype(initView)::value_type);
 		return createBuffer(buffer, std::span<const u8>(asBytes(initView)));
 	}
@@ -188,7 +188,7 @@ class RenderDevice {
 
 	void fillBuffer(GpuBuffer& buffer, Spannable auto const& data)
 	{
-		std::span dataView = data;
+		auto dataView = std::span(data);
 		ANKER_CHECK(buffer.info.stride == sizeof(decltype(dataView)::value_type));
 
 		// Automatically grow buffer as needed.
