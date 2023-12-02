@@ -18,6 +18,9 @@ void PlayerCameraFollower::tickFollow(float dt, SceneNode& cameraNode, const Sce
 
 	Vec2 speed = params.baseSpeed;
 
+	// TODO: Alternatively, the camera follow speed could be scaled with the
+	// player's velocity.
+
 	if (playerController.isFalling()) {
 		if (fallingOffsetDelayLeft <= 0) {
 			targetPosition.y += params.fallingOffset * playerController.velocity().y;
