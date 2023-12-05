@@ -1,5 +1,6 @@
 #pragma once
 
+#include <anker/audio/anker_audio_system.hpp>
 #include <anker/core/anker_asset_cache.hpp>
 #include <anker/core/anker_data_loader.hpp>
 #include <anker/core/anker_imgui_system.hpp>
@@ -41,6 +42,7 @@ class Engine {
 	FontSystem fontSystem;
 	ImguiSystem imguiSystem;
 	InputSystem inputSystem;
+	AudioSystem audioSystem;
 
 	AssetCache assetCache;
 	RenderSystem renderSystem;

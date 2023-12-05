@@ -82,6 +82,36 @@ AssetPtr<Font> AssetCache::loadFontUncached(std::string_view identifier)
 	return font;
 }
 
+AssetPtr<AudioTrack> AssetCache::loadAudioTrack(std::string_view identifier)
+{
+	if (auto it = m_audioTrackCache.find(identifier); it != m_audioTrackCache.end()) {
+		return it->second;
+	}
+	return m_audioTrackCache[std::string{identifier}] = loadAudioTrackUncached(identifier);
+}
+
+AssetPtr<AudioTrack> AssetCache::loadAudioTrackUncached(std::string_view identifier)
+{
+	auto track = makeAssetPtr<AudioTrack>();
+	(void)track->load(identifier);
+	return track;
+}
+
+AssetPtr<AudioStream> AssetCache::loadAudioStream(std::string_view identifier)
+{
+	if (auto it = m_audioStreamCache.find(identifier); it != m_audioStreamCache.end()) {
+		return it->second;
+	}
+	return m_audioStreamCache[std::string{identifier}] = loadAudioStreamUncached(identifier);
+}
+
+AssetPtr<AudioStream> AssetCache::loadAudioStreamUncached(std::string_view identifier)
+{
+	auto track = makeAssetPtr<AudioStream>();
+	(void)track->load(identifier);
+	return track;
+}
+
 void AssetCache::reloadModifiedAssets()
 {
 	for (const auto& modifiedAssetFilepath : g_assetDataLoader.modifiedFiles()) {
@@ -112,6 +142,8 @@ void AssetCache::clearUnused()
 	std::erase_if(m_pixelShaderCache, isUnused);
 	std::erase_if(m_textureCache, isUnused);
 	std::erase_if(m_fontCache, isUnused);
+	std::erase_if(m_audioTrackCache, isUnused);
+	std::erase_if(m_audioStreamCache, isUnused);
 }
 
 void AssetCache::clearAll()
@@ -120,6 +152,8 @@ void AssetCache::clearAll()
 	m_pixelShaderCache.clear();
 	m_textureCache.clear();
 	m_fontCache.clear();
+	m_audioTrackCache.clear();
+	m_audioStreamCache.clear();
 }
 
 } // namespace Anker

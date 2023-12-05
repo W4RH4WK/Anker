@@ -1,9 +1,10 @@
 #pragma once
 
+#include <anker/audio/anker_audio_track.hpp>
+#include <anker/audio/anker_audio_stream.hpp>
+#include <anker/core/anker_asset.hpp>
 #include <anker/graphics/anker_font.hpp>
 #include <anker/graphics/anker_render_device.hpp>
-
-#include <anker/core/anker_asset.hpp>
 
 namespace Anker {
 
@@ -40,6 +41,12 @@ class AssetCache {
 	AssetPtr<Font> loadFont(std::string_view identifier);
 	AssetPtr<Font> loadFontUncached(std::string_view identifier);
 
+	AssetPtr<AudioTrack> loadAudioTrack(std::string_view identifier);
+	AssetPtr<AudioTrack> loadAudioTrackUncached(std::string_view identifier);
+
+	AssetPtr<AudioStream> loadAudioStream(std::string_view identifier);
+	AssetPtr<AudioStream> loadAudioStreamUncached(std::string_view identifier);
+
 	////////////////////////////////////////////////////////////
 
 	// Reload assets that have been modified according to the underlying
@@ -66,6 +73,8 @@ class AssetCache {
 	Cache<PixelShader> m_pixelShaderCache;
 	Cache<Texture> m_textureCache;
 	Cache<Font> m_fontCache;
+	Cache<AudioTrack> m_audioTrackCache;
+	Cache<AudioStream> m_audioStreamCache;
 };
 
 } // namespace Anker

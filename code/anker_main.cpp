@@ -17,6 +17,9 @@ int main(int argc, char* argv[])
 		g_engine->nextScene = loadMap("maps/" + mapName);
 	}
 
+	auto music = g_engine->assetCache.loadAudioStream("bgm/lone_rider");
+	g_engine->audioSystem.playMusic(*music);
+
 	while (!Platform::shouldShutdown()) {
 		Platform::tick();
 		g_engine->tick();
