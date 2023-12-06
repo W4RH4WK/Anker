@@ -265,6 +265,7 @@ Status RenderDevice::loadTexture(Texture& texture, std::string_view identifier)
 	ANKER_PROFILE_ZONE_T(identifier);
 
 	texture.info.name = identifier;
+	texture.info.size = m_fallbackTexture.info.size;
 	texture.texture.Reset();
 	texture.shaderView.Reset();
 	texture.renderTargetView.Reset();
@@ -381,7 +382,12 @@ void RenderDevice::bindTexturePS(u32 slot, const Texture& texture, const Sampler
 {
 	auto* samplerState = samplerStateFromDesc(samplerDesc);
 	m_context->PSSetSamplers(slot, 1, &samplerState);
-	m_context->PSSetShaderResources(slot, 1, texture.shaderView.GetAddressOf());
+
+	if (texture.shaderView) {
+		m_context->PSSetShaderResources(slot, 1, texture.shaderView.GetAddressOf());
+	} else {
+		m_context->PSSetShaderResources(slot, 1, m_fallbackTexture.shaderView.GetAddressOf());
+	}
 }
 
 void RenderDevice::unbindTexturePS(u32 slot)

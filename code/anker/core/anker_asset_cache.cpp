@@ -53,12 +53,9 @@ AssetPtr<Texture> AssetCache::loadTexture(std::string_view identifier)
 AssetPtr<Texture> AssetCache::loadTextureUncached(std::string_view identifier)
 {
 	auto texture = makeAssetPtr<Texture>();
-
 	if (not m_renderDevice.loadTexture(*texture, identifier)) {
-		ANKER_ERROR("{}: Missing, using fallback!", identifier);
-		*texture = m_renderDevice.fallbackTexture();
+		ANKER_ERROR("{}: Missing, fallback texture will be used!", identifier);
 	}
-
 	return texture;
 }
 
@@ -119,17 +116,17 @@ void AssetCache::reloadModifiedAssets()
 
 		if (auto it = m_vertexShaderCache.find(modifiedAssetIdentifier); it != m_vertexShaderCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			*it->second = *loadVertexShaderUncached(it->first, it->second->info.inputs);
+			(void)m_renderDevice.loadVertexShader(*it->second, it->first);
 			continue;
 		}
 		if (auto it = m_pixelShaderCache.find(modifiedAssetIdentifier); it != m_pixelShaderCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			*it->second = *loadPixelShaderUncached(it->first);
+			(void)m_renderDevice.loadPixelShader(*it->second, it->first);
 			continue;
 		}
 		if (auto it = m_textureCache.find(modifiedAssetIdentifier); it != m_textureCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			*it->second = *loadTextureUncached(it->first);
+			(void)m_renderDevice.loadTexture(*it->second, it->first);
 			continue;
 		}
 	}
