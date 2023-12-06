@@ -104,6 +104,8 @@ void finalize()
 
 void tick()
 {
+	g_assetDataLoader.tick();
+
 	g_scrollDelta = Vec2(0);
 
 	SDL_Event event;
