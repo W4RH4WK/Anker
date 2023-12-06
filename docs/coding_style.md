@@ -29,12 +29,14 @@ Certain identifiers are prefixed to make their *impact* easily recognizable in c
 
 ## Error Handling
 
+This is experimental!
+
 - Return `Anker::Status` to indicate success or failure
 - Use output parameters for the actual result
     - Put output parameters the beginning of the parameter list
     - Consider `std::optional<T>` as output parameter for factory functions
 - Log errors immediately when they emerge
 - Memorize the following macros:
-    - `ANKER_TRY`
     - `ANKER_CHECK`
-    - `ANKER_ASSERT`
+    - `ANKER_TRY`
+    - `ANKER_DEFER`

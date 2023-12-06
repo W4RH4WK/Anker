@@ -1,15 +1,25 @@
 # Anker
 
-Anker is a prototype implementation for a 2D metroidvania-style game.
-The prototype is build from scratch using conventional open-source libraries.
+Anker is a work-in-progress prototype implementation for a 2D metroidvania-style game.
+
+The engine code is a fork of an internal research project named [*Ikaros*](https://ph3at.github.io/posts/CPP-Static-Reflection-1/).
+Various open-source libraries are used, most notably:
+
+- [SDL2](https://www.libsdl.org/)
+- [refl-cpp](https://github.com/veselink1/refl-cpp)
+- [EnTT](https://github.com/skypjack/entt/)
+- [Box2D](https://box2d.org/)
+- [Dear ImGui](https://github.com/ocornut/imgui/)
 
 ## Asset Attribution
 
 - [Copper Cat Creations](https://www.facebook.com/CopperCatCreation)
+- `bgm/lone_rider.opus`: [David Fesliyan](https://www.fesliyanstudios.com/) (Non-Commercial)
 
 ## License
 
-Files located in the `code` directory is licensed under the MIT license.
+Files located in the `code` directory are licensed under the MIT license.
+Assets are **not** licensed under MIT, they are *all rights reserved* unless noted otherwise.
 
 ```
 Copyright 2023 Alexander Hirsch
