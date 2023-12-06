@@ -25,9 +25,22 @@ AudioSystem::~AudioSystem()
 	Mix_Quit();
 }
 
-void AudioSystem::playMusic(AudioStream& stream)
+void AudioSystem::playMusic(AudioStream& stream, float fadeTime)
 {
-	Mix_PlayMusic(stream, -1);
+	if (fadeTime <= 0) {
+		Mix_PlayMusic(stream, -1);
+	} else {
+		Mix_FadeInMusic(stream, -1, int(fadeTime * 1000.0f));
+	}
+}
+
+void AudioSystem::stopMusic(float fadeTime)
+{
+	if (fadeTime <= 0) {
+		Mix_HaltMusic();
+	} else {
+		Mix_FadeOutMusic(int(fadeTime * 1000.0f));
+	}
 }
 
 } // namespace Anker

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/audio/anker_audio_stream.hpp>
+#include <anker/core/anker_asset.hpp>
 #include <anker/physics/anker_physics_system.hpp>
 
 namespace Anker {
@@ -22,6 +24,8 @@ class Scene {
 	EntityHandle activeCamera();
 	EntityCHandle activeCamera() const;
 	void setActiveCamera(EntityID);
+
+	AssetPtr<AudioStream> backgroundMusic;
 
 	std::optional<PhysicsWorld> physicsWorld;
 

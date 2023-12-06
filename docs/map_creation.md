@@ -36,6 +36,10 @@ Pay special attention to the direction (clockwise vs. counter-clockwise) when dr
 Tiled templates defined in `assets/maps/entities` can be used as placeholders.
 On map load, the engine replaces these placeholders with the actual entity defined in the game's code.
 
+## Tiled Classes
+
+- Use the `Map` class for maps.
+
 ## Map Selection
 
 Maps inside the `assets/maps` folder are automatically picked up by the engine and are listed in the editor's map selection menu.

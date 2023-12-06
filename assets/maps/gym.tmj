@@ -1,4 +1,5 @@
-{ "compressionlevel":-1,
+{ "class":"Map",
+ "compressionlevel":-1,
  "height":32,
  "infinite":false,
  "layers":[
@@ -351,6 +352,12 @@
  "nextlayerid":5,
  "nextobjectid":34,
  "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"backgroundMusic",
+         "type":"string",
+         "value":"bgm\/lone_rider"
+        }],
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
  "tileheight":256,

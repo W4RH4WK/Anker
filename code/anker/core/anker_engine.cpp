@@ -22,8 +22,7 @@ void Engine::tick()
 	ANKER_PROFILE_FRAME_MARK();
 
 	if (nextScene) {
-		activeScene = nextScene;
-		nextScene.reset();
+		switchScene();
 	}
 
 	if (!activeScene) {
@@ -93,6 +92,20 @@ float Engine::calculateDeltaTime()
 	float dt = std::chrono::duration<float>(now - m_frameTimestamp).count();
 	m_frameTimestamp = now;
 	return std::clamp(dt, FrametimeMin, FrametimeMax);
+}
+
+void Engine::switchScene()
+{
+	activeScene = nextScene;
+	nextScene.reset();
+
+	if (activeScene) {
+		if (activeScene->backgroundMusic) {
+			audioSystem.playMusic(*activeScene->backgroundMusic);
+		} else {
+			audioSystem.stopMusic();
+		}
+	}
 }
 
 } // namespace Anker

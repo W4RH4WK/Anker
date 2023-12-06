@@ -72,6 +72,7 @@ class TmjLoader {
 
 		ANKER_TRY(loadTilesets());
 		ANKER_TRY(loadLayers());
+		ANKER_TRY(loadProperties());
 
 		return Ok;
 	}
@@ -564,6 +565,31 @@ class TmjLoader {
 	{
 		return std::accumulate(m_parallaxStack.begin(), m_parallaxStack.end(), Vec2(1), std::multiplies());
 	}
+
+	////////////////////////////////////////////////////////////
+
+	Status loadProperties()
+	{
+		Status status;
+		m_tmjReader.forEach("properties", [&](uint32_t) {
+			std::string name;
+			if (!m_tmjReader.field("name", name)) {
+				return;
+			}
+
+			if (name == "backgroundMusic") {
+				if (std::string identifier; m_tmjReader.field("value", identifier) && !identifier.empty()) {
+					m_scene.backgroundMusic = m_assetCache.loadAudioStream(identifier);
+				}
+			} else {
+				ANKER_ERROR("{}: Unknown property: {}", m_tmjIdentifier, name);
+				status = FormatError;
+			}
+		});
+		return status;
+	}
+
+	////////////////////////////////////////////////////////////
 
 	Scene& m_scene;
 	AssetCache& m_assetCache;

@@ -59,6 +59,8 @@ class Engine {
   private:
 	float calculateDeltaTime();
 
+	void switchScene();
+
 	Clock::time_point m_frameTimestamp = Clock::now();
 };
 
