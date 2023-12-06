@@ -202,7 +202,7 @@ class TmjLoader {
 			m_layerSceneNode = &m_scene //
 			                        .createEntity(layerName)
 			                        .emplace<SceneNode>(Transform2D(layerOffset), m_layerSceneNode);
-			ANKER_DEFER([&] { m_layerSceneNode = m_layerSceneNode->parent(); });
+			ANKER_DEFER(m_layerSceneNode = m_layerSceneNode->parent());
 
 			Vec4 color = Vec4(1);
 			if (std::string colorHtml; m_tmjReader.field("tintcolor", colorHtml)) {
@@ -210,13 +210,13 @@ class TmjLoader {
 			}
 			m_tmjReader.field("opacity", color.w);
 			m_colorStack.push_back(color);
-			ANKER_DEFER([&] { m_colorStack.pop_back(); });
+			ANKER_DEFER(m_colorStack.pop_back());
 
 			Vec2 parallax = Vec2(1);
 			m_tmjReader.field("parallaxx", parallax.x);
 			m_tmjReader.field("parallaxy", parallax.y);
 			m_parallaxStack.push_back(parallax);
-			ANKER_DEFER([&] { m_parallaxStack.pop_back(); });
+			ANKER_DEFER(m_parallaxStack.pop_back());
 
 			// Dispatch
 

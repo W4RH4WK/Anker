@@ -2,9 +2,9 @@
 
 #include <anker/common/anker_macros.hpp>
 
-// With the defer utility you can define a function that will be executed
+// With the defer utility you can define code that will be executed
 // automatically at the end of the current scope.
-#define ANKER_DEFER(f) const auto ANKER_TEMPORARY(ankerDeferer) = ::Anker::Internal::DeferHolder(f);
+#define ANKER_DEFER(code) const auto ANKER_TEMPORARY(ankerDeferer) = ::Anker::Internal::DeferHolder([&]() { code; });
 
 namespace Anker::Internal {
 

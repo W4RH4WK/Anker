@@ -162,7 +162,7 @@ class JsonReader {
 	bool field(const char* key, T& outValue) requires Serializable<JsonReader, T>
 	{
 		ANKER_TRY(push(key));
-		ANKER_DEFER([&] { pop(); });
+		ANKER_DEFER(pop());
 		return (*this)(outValue);
 	}
 
@@ -171,7 +171,7 @@ class JsonReader {
 	bool arrayElement(u32 index, T& outValue) requires Serializable<JsonReader, T>
 	{
 		ANKER_TRY(push(index));
-		ANKER_DEFER([&] { pop(); });
+		ANKER_DEFER(pop());
 		return (*this)(outValue);
 	}
 
