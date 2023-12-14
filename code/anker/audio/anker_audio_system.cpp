@@ -30,9 +30,7 @@ AudioSystem::AudioSystem()
 AudioSystem::~AudioSystem()
 {
 	m_music = nullptr;
-	for (auto& effect : m_effects) {
-		effect = nullptr;
-	}
+	m_effects.fill(nullptr);
 	Mix_Quit();
 }
 
@@ -60,6 +58,16 @@ void AudioSystem::stopMusic(float fadeTime)
 		Mix_FadeOutMusic(int(fadeTime * 1000.0f));
 	}
 	m_music = nullptr;
+}
+
+float AudioSystem::musicVolume()
+{
+	return float(Mix_VolumeMusic(-1)) / MIX_MAX_VOLUME;
+}
+
+void AudioSystem::setMusicVolume(float volume)
+{
+	Mix_VolumeMusic(int(std::clamp(volume, 0.0f, 1.0f) * MIX_MAX_VOLUME));
 }
 
 void AudioSystem::playEffect(AssetPtr<AudioTrack> effect, float volume)
