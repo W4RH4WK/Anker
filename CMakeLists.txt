@@ -7,6 +7,10 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(NOT WIN32)
+	message(FATAL_ERROR "Anker only works on Windows as of right now!")
+endif()
+
 # CMake usually adds a pragma system_header to the precompiled header. We don't
 # want that as we suppresses warnings from system headers.
 set(CMAKE_PCH_PROLOGUE "")
@@ -42,7 +46,7 @@ function(anker_compile_options target)
 	endif()
 
 	get_target_property(target_srcs ${target} SOURCES)
-	source_group(TREE . FILES ${target_srcs})
+	source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${target_srcs})
 endfunction()
 
 # Include all external dependencies
