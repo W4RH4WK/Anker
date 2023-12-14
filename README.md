@@ -1,6 +1,6 @@
 # Anker
 
-Anker is a work-in-progress prototype implementation for a 2D metroidvania-style game.
+Anker is a **work-in-progress** prototype implementation for a 2D metroidvania-style game.
 
 The engine code is a fork of an internal research project named [*Ikaros*](https://ph3at.github.io/posts/CPP-Static-Reflection-1/).
 Various open-source libraries are used, most notably:
@@ -15,6 +15,8 @@ Various open-source libraries are used, most notably:
 
 - [Copper Cat Creations](https://www.facebook.com/CopperCatCreation)
 - `bgm/lone_rider.opus`: [David Fesliyan](https://www.fesliyanstudios.com/) (Non-Commercial)
+
+Pretty much all assets are placeholders for the prototype.
 
 ## License
 
