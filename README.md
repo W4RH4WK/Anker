@@ -11,6 +11,21 @@ Various open-source libraries are used, most notably:
 - [Box2D](https://box2d.org/)
 - [Dear ImGui](https://github.com/ocornut/imgui/)
 
+## Build Instructions
+
+- Navigate to the repository's root directory
+- Run CMake to create the VS project files
+  ```
+  cmake.exe -G "Visual Studio 17 2022" -Bbuild_vs
+  ```
+- Open `build_vs/anker.sln` with Visual Studio
+- Press F5 to build and run the application
+
+While running:
+
+- Observe the application's console window for errors
+- Press F1 in game to bring up the inspector
+
 ## Asset Attribution
 
 - [Copper Cat Creations](https://www.facebook.com/CopperCatCreation)
