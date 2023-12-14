@@ -22,16 +22,24 @@ AudioSystem::AudioSystem()
 
 AudioSystem::~AudioSystem()
 {
+	m_music = nullptr;
 	Mix_Quit();
 }
 
-void AudioSystem::playMusic(AudioStream& stream, float fadeTime)
+void AudioSystem::playMusic(AssetPtr<AudioStream> music, float fadeTime)
 {
-	if (fadeTime <= 0) {
-		Mix_PlayMusic(stream, -1);
-	} else {
-		Mix_FadeInMusic(stream, -1, int(fadeTime * 1000.0f));
+	if (!music) {
+		stopMusic();
+		return;
 	}
+
+	if (fadeTime <= 0) {
+		Mix_PlayMusic(*music, -1);
+	} else {
+		Mix_FadeInMusic(*music, -1, int(fadeTime * 1000.0f));
+	}
+
+	m_music = music;
 }
 
 void AudioSystem::stopMusic(float fadeTime)
@@ -41,6 +49,7 @@ void AudioSystem::stopMusic(float fadeTime)
 	} else {
 		Mix_FadeOutMusic(int(fadeTime * 1000.0f));
 	}
+	m_music = nullptr;
 }
 
 } // namespace Anker

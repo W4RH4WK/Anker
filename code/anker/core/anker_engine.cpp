@@ -100,11 +100,7 @@ void Engine::switchScene()
 	nextScene.reset();
 
 	if (activeScene) {
-		if (activeScene->backgroundMusic) {
-			audioSystem.playMusic(*activeScene->backgroundMusic);
-		} else {
-			audioSystem.stopMusic();
-		}
+		audioSystem.playMusic(activeScene->backgroundMusic);
 	}
 }
 
