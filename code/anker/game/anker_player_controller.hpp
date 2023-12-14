@@ -1,5 +1,7 @@
 #pragma once
 
+#include <anker/audio/anker_audio_track.hpp>
+#include <anker/core/anker_asset.hpp>
 #include <anker/editor/anker_inspector_widget_drawer.hpp>
 #include <anker/game/anker_player_movement_params.hpp>
 
@@ -10,6 +12,8 @@ struct PhysicsBody;
 
 class PlayerController {
   public:
+	PlayerController();
+
 	bool isGrounded() const { return m_isGrounded; }
 	bool isJumping() const { return !m_isGrounded && m_velocity.y > 0; }
 	bool isDroppingThrough() const { return m_dropThroughTimeLeft > 0; }
@@ -46,6 +50,8 @@ class PlayerController {
 
 	Vec2 m_velocity;
 	Vec2 m_lookDirection = Vec2::WorldRight;
+
+	AssetPtr<AudioTrack> m_bonk;
 };
 
 inline bool serialize(InspectorWidgetDrawer draw, PlayerController& controller)

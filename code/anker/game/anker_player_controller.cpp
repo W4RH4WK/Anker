@@ -7,6 +7,8 @@
 
 namespace Anker {
 
+PlayerController::PlayerController() : m_bonk(g_engine->assetCache.loadAudioTrack("sounds/bonk")) {}
+
 void PlayerController::tick(float dt, Scene& scene)
 {
 	for (auto [entity, physicsBody, controller] : scene.registry.view<PhysicsBody, PlayerController>().each()) {
@@ -25,7 +27,7 @@ void PlayerController::tick(float dt, Scene& scene)
 
 void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 {
-	m_isGrounded = false;
+	bool isGrounded = false;
 
 	// Ground contact is ignored while the player is moving upwards.
 	if (m_velocity.y > 0) {
@@ -37,10 +39,16 @@ void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 	for (auto* contact : body.touchingContacts) {
 		Vec2 normal = normalFromContact(contact, body.body);
 		if (dot(normal, Vec2::WorldDown) >= 0.75f) {
-			m_isGrounded = true;
+			isGrounded = true;
 			break;
 		}
 	}
+
+	if (!m_isGrounded && isGrounded) {
+		g_engine->audioSystem.playEffect(m_bonk);
+	}
+
+	m_isGrounded = isGrounded;
 }
 
 void PlayerController::tickMove(float dt)
