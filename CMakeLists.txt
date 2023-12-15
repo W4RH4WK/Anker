@@ -40,7 +40,6 @@ function(anker_compile_options target)
 	get_target_property(target_type ${target} TYPE)
 	if(target_type STREQUAL EXECUTABLE)
 		target_link_options(${target} PRIVATE
-			$<$<CXX_COMPILER_ID:MSVC>:/ENTRY:mainCRTStartup>
 			$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:RELEASE>>:/OPT:REF /OPT:ICF /DEBUG>)
 		set_target_properties(${target} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 	endif()
@@ -70,7 +69,7 @@ target_link_libraries(anker PUBLIC
 
 add_executable(anker_main WIN32 code/anker_main.cpp)
 anker_compile_options(anker_main)
-target_link_libraries(anker_main PRIVATE anker)
+target_link_libraries(anker_main PRIVATE anker sdl2main)
 add_custom_command(TARGET anker_main POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:anker_main> $<TARGET_FILE_DIR:anker_main>
 	COMMAND_EXPAND_LISTS)

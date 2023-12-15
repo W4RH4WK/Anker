@@ -1,10 +1,12 @@
+#include <SDL_main.h>
+
 #include <anker/core/anker_engine.hpp>
 #include <anker/game/anker_map.hpp>
 #include <anker/platform/anker_platform.hpp>
 
 using namespace Anker;
 
-int main(int argc, char* argv[])
+int SDL_main(int argc, char* argv[])
 {
 	Platform::initialize();
 	Platform::createMainWindow();

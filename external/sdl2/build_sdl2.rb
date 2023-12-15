@@ -34,10 +34,9 @@ end
 FileUtils.mkdir_p ['lib']
 [
   ['build_sdl2/install/include', '.'],
-  ['build_sdl2/install/bin/SDL2.dll', 'lib'],
-  ['build_sdl2/install/bin/SDL2d.dll', 'lib'],
-  ['build_sdl2/install/lib/SDL2.lib', 'lib'],
-  ['build_sdl2/install/lib/SDL2d.lib', 'lib'],
+  ['build_sdl2/install/bin/SDL2{,d}.dll', 'lib'],
+  ['build_sdl2/install/lib/SDL2{,d}.lib', 'lib'],
+  ['build_sdl2/install/lib/SDL2main{,d}.lib', 'lib'],
 ].each { |from, to| FileUtils.cp_r(FileList[from], to) }
 
 File.write('sdl2_version.txt', SDL_VERSION)
@@ -75,8 +74,8 @@ end
 FileUtils.mkdir_p ['lib']
 [
   ['build_sdl2mixer/install/include', '.'],
-  ['build_sdl2mixer/install/bin/*.dll', 'lib'],
-  ['build_sdl2mixer/install/lib/*.lib', 'lib'],
+  ['build_sdl2mixer/install/bin/SDL2_mixer{,d}.dll', 'lib'],
+  ['build_sdl2mixer/install/lib/SDL2_mixer{,d}.lib', 'lib'],
 ].each { |from, to| FileUtils.cp_r(FileList[from], to) }
 
 File.write('sdl2mixer_version.txt', SDL_MIXER_VERSION)
