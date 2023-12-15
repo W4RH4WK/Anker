@@ -27,7 +27,8 @@ void PlayerController::tick(float dt, Scene& scene)
 
 void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 {
-	bool isGrounded = false;
+	bool wasGrounded = m_isGrounded;
+	m_isGrounded = false;
 
 	// Ground contact is ignored while the player is moving upwards.
 	if (m_velocity.y > 0) {
@@ -39,16 +40,14 @@ void PlayerController::tickIsGrounded(float, const PhysicsBody& body)
 	for (auto* contact : body.touchingContacts) {
 		Vec2 normal = normalFromContact(contact, body.body);
 		if (dot(normal, Vec2::WorldDown) >= 0.75f) {
-			isGrounded = true;
+			m_isGrounded = true;
 			break;
 		}
 	}
 
-	if (!m_isGrounded && isGrounded) {
+	if (!wasGrounded && m_isGrounded) {
 		g_engine->audioSystem.playEffect(m_bonk);
 	}
-
-	m_isGrounded = isGrounded;
 }
 
 void PlayerController::tickMove(float dt)
