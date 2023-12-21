@@ -67,7 +67,7 @@ inline constexpr std::array EnumEntries<StatusCode> = {
 //
 // Example for suppressing no-discard warnings:
 //
-//     (void)doSomething();
+//     std::ignore = doSomething();
 //
 struct [[nodiscard]] Status {
 	constexpr Status() = default;

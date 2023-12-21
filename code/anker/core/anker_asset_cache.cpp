@@ -23,7 +23,7 @@ AssetPtr<VertexShader> AssetCache::loadVertexShaderUncached(std::string_view ide
 {
 	auto vertexShader = makeAssetPtr<VertexShader>();
 	vertexShader->info.inputs.assign(shaderInputs.begin(), shaderInputs.end());
-	(void)m_renderDevice.loadVertexShader(*vertexShader, identifier);
+	std::ignore = m_renderDevice.loadVertexShader(*vertexShader, identifier);
 	return vertexShader;
 }
 
@@ -38,7 +38,7 @@ AssetPtr<PixelShader> AssetCache::loadPixelShader(std::string_view identifier)
 AssetPtr<PixelShader> AssetCache::loadPixelShaderUncached(std::string_view identifier)
 {
 	auto pixelShader = makeAssetPtr<PixelShader>();
-	(void)m_renderDevice.loadPixelShader(*pixelShader, identifier);
+	std::ignore = m_renderDevice.loadPixelShader(*pixelShader, identifier);
 	return pixelShader;
 }
 
@@ -90,7 +90,7 @@ AssetPtr<AudioTrack> AssetCache::loadAudioTrack(std::string_view identifier)
 AssetPtr<AudioTrack> AssetCache::loadAudioTrackUncached(std::string_view identifier)
 {
 	auto track = makeAssetPtr<AudioTrack>();
-	(void)track->load(identifier);
+	std::ignore = track->load(identifier);
 	return track;
 }
 
@@ -105,7 +105,7 @@ AssetPtr<AudioStream> AssetCache::loadAudioStream(std::string_view identifier)
 AssetPtr<AudioStream> AssetCache::loadAudioStreamUncached(std::string_view identifier)
 {
 	auto track = makeAssetPtr<AudioStream>();
-	(void)track->load(identifier);
+	std::ignore = track->load(identifier);
 	return track;
 }
 
@@ -116,17 +116,17 @@ void AssetCache::reloadModifiedAssets()
 
 		if (auto it = m_vertexShaderCache.find(modifiedAssetIdentifier); it != m_vertexShaderCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			(void)m_renderDevice.loadVertexShader(*it->second, it->first);
+			std::ignore = m_renderDevice.loadVertexShader(*it->second, it->first);
 			continue;
 		}
 		if (auto it = m_pixelShaderCache.find(modifiedAssetIdentifier); it != m_pixelShaderCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			(void)m_renderDevice.loadPixelShader(*it->second, it->first);
+			std::ignore = m_renderDevice.loadPixelShader(*it->second, it->first);
 			continue;
 		}
 		if (auto it = m_textureCache.find(modifiedAssetIdentifier); it != m_textureCache.end()) {
 			ANKER_INFO("Reloading {}", modifiedAssetIdentifier);
-			(void)m_renderDevice.loadTexture(*it->second, it->first);
+			std::ignore = m_renderDevice.loadTexture(*it->second, it->first);
 			continue;
 		}
 	}
