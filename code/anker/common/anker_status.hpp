@@ -93,7 +93,7 @@ struct [[nodiscard]] Status {
 // matches.
 #define ANKER_TRY(expr) \
 	do { \
-		if (auto status = (expr); !status) { \
+		if (auto status = (expr); !status) [[unlikely]] { \
 			return status; \
 		} \
 	} while (0)

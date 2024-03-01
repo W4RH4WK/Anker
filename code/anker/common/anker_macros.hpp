@@ -1,5 +1,7 @@
 #pragma once
 
+#define ANKER_EXPAND(x) x
+
 #define ANKER_STR(x) #x
 #define ANKER_XSTR(x) ANKER_STR(x)
 
